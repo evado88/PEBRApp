@@ -595,9 +595,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SizedBox(height: _spacing),
         _createAccountMode
             ? Text("Already have an account?")
-            : Text("Don't have an account yet000?"),
+            : Text("Don't have an account yet?"),
         PEBRAButtonFlat(
-          _createAccountMode ? 'Log InR' : 'Create Accountx',
+          _createAccountMode ? 'Log In' : 'Create Account',
           onPressed: () {
             setState(() => _createAccountMode = !_createAccountMode);
           },

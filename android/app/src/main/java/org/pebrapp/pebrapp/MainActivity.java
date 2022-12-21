@@ -1,4 +1,4 @@
-package org.pebrapp.pebrapp;
+package r21.pebrapp.pebrapp;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
