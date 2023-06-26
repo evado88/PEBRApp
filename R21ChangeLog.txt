@@ -1,0 +1,37 @@
+PEBRAcloud
+- Changed line 10 to suit current site from './PEBRAcloud_files':  to UPLOAD_FOLDER = '/home/nkoleevans/mysite/PEBRAcloud_files':  /flasksite.py
+- Change may be a limitation of www.pythonanywhere.com
+- The issue fixes an issue where uplaods were working but were going in a folder before mysite and therefore downloads failed
+
+FACILITIES
+- Changed list of healtn centers: lib\database\beans\HealthCenter.dart
+- List from http://154.120.217.168:8081/mfl/frontend/web/facility/index?FacilitySearch%5Bname%5D=&FacilitySearch%5Bprovince_id%5D=6&FacilitySearch%5Bdistrict_id%5D=&FacilitySearch%5Btype%5D=&FacilitySearch%5Bownership_type%5D=1&FacilitySearch%5Bownership%5D=&page=12&sort=name
+- Change caused overflow error. Need to shorten names for facilities
+
+PHONE NUMBER FORMAT
+- Changed from Lesotho format '+266' to Zambian format '+260' on line 470: lib\screens\SettingsScreen.dart
+- Changed line 39 and 40 to edit message and regex used to validate phone number: lib\utils\InputFormatters.dart
+- Renamed class LesothoPhoneNumberTextInputFormatter on line 4 to ZambiaPhoneNumberTextInputFormatter: lib\utils\InputFormatters.dart
+- Commented out line 14 to 27. No spaces needed for Zambian phone numbers: lib\utils\InputFormatters.dart
+
+NEW PARTICIPANT SCREEN - lib\screens\NewPatientScreen.dart
+- Renamed ART number question on line 338 to Study Number. Number used as identifier for participant and therefore required
+- Renamed class ARTNumberTextInputFormatter to StudyNumberTextInputFormatter on line 44: lib\utils\InputFormatters.dart
+- Changed label on line 585 to use Zambia and not Lesotho
+- Changed number of study (former ART) to 5 digits instead of 8
+- Changed phone number on line 620 to +260 from +266 to match Zambia
+- Changed phone number length on line 626 from 8 to 9 to suit Zambia
+- Removed Viral Load Baseline in line 109. Not needed for R21 app
+- Removed Required on line 1014 for VL Baseline before patient is saved
+
+MAIN SCREEN - lib\screens\MainScreen.dart
+- Stop checking for viral loads on line 329 and 316
+- Change header to Study NR. from ART NR. on line 798
+- Change header to Age from REFILL BY on line 816
+- Change header to Phonefrom REFILL BY on line 804
+- Change refillByText to ageText on line 886
+- Change nextRefillText to phoneText on line 880
+- Add function formatBirthdayDate() on line 329: lib\utils\Utils.dart
+- Commented out code from 239 to 246 for ART refill: lib\database\models\Patient.dart
+- Changed phone format on line 211 to Zambian format 260 rom 266 (Lesotho)
+- Changed phone number length to 9 on line 217 from 8 to suit Zambia
