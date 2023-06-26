@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:path/path.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
-import 'package:pebrapp/database/models/SupportOptionDone.dart';
+import 'package:pebrapp/database/models/R21Appointment.dart';
+import 'package:pebrapp/database/models/R21Event.dart';
+import 'package:pebrapp/database/models/R21Followup.dart';
+import 'package:pebrapp/database/models/R21MedicationRefill.dart';
+import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/UserData.dart';
-import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'dart:io';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 
@@ -21,10 +22,12 @@ class DatabaseExporter {
     // these are the name of the sheets in the template excel file
     const String userDataSheet = 'User Data';
     const String patientSheet = 'Participant';
-    const String viralLoadSheet = 'Viral Load';
-    const String preferenceAssessmentSheet = 'Preference Assessment';
-    const String supportOptionDoneSheet = 'Support Option Done';
-    const String artRefillSheet = 'ART Refill';
+
+    const String eventsSheet = 'Events';
+    const String appointmentsSheet = 'Appointments';
+    const String followupsSheet = 'Followups';
+    const String medicationRefilsSheet = 'Medication Refils';
+    const String analyticsSheet = 'Analytics';
 
     // open database
     final DatabaseProvider dbp = DatabaseProvider();
@@ -70,21 +73,27 @@ class DatabaseExporter {
     final List<Patient> patientRows = await dbp.retrieveAllPatients();
     _writeRowsToExcel(patientSheet, Patient.excelHeaderRow, patientRows);
 
-    final List<ViralLoad> viralLoadRows = await dbp.retrieveAllViralLoads();
-    _writeRowsToExcel(viralLoadSheet, ViralLoad.excelHeaderRow, viralLoadRows);
+    final List<R21Event> eventsRows = await dbp.retrieveAllEventData();
+    _writeRowsToExcel(eventsSheet, R21Event.excelHeaderRow, eventsRows);
 
-    final List<PreferenceAssessment> preferenceAssessmentRows =
-        await dbp.retrieveAllPreferenceAssessments();
-    _writeRowsToExcel(preferenceAssessmentSheet,
-        PreferenceAssessment.excelHeaderRow, preferenceAssessmentRows);
+    final List<R21Followup> followupsRows = await dbp.retrieveAllFollowupData();
+    _writeRowsToExcel(
+        followupsSheet, R21Followup.excelHeaderRow, followupsRows);
 
-    final List<SupportOptionDone> supportOptionDoneRows =
-        await dbp.retrieveAllSupportOptionDones();
-    _writeRowsToExcel(supportOptionDoneSheet, SupportOptionDone.excelHeaderRow,
-        supportOptionDoneRows);
+    final List<R21Appointment> appointmentsRows =
+        await dbp.retrieveAllAppointmentData();
+    _writeRowsToExcel(
+        appointmentsSheet, R21Appointment.excelHeaderRow, appointmentsRows);
 
-    final List<ARTRefill> artRefillRows = await dbp.retrieveAllARTRefills();
-    _writeRowsToExcel(artRefillSheet, ARTRefill.excelHeaderRow, artRefillRows);
+    final List<R21MedicationRefill> medicationRefils =
+        await dbp.retrieveAllMedicationRefillData();
+    _writeRowsToExcel(medicationRefilsSheet, R21MedicationRefill.excelHeaderRow,
+        medicationRefils);
+
+    final List<R21ScreenAnalytic> analyticRows =
+        await dbp.retrieveAllAnalyticData();
+    _writeRowsToExcel(
+        analyticsSheet, R21ScreenAnalytic.excelHeaderRow, analyticRows);
 
     // store changes to file
     excelFile.writeAsBytesSync(decoder.encode());

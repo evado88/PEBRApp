@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:pebrapp/config/PebraCloudConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
-import 'package:pebrapp/database/beans/R21EventType.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/R21Appointment.dart';
@@ -838,7 +837,8 @@ class DatabaseProvider {
     return null;
   }
 
-   Future<R21Appointment> retrieveLatestAppointmentForPatient(String patientART) async {
+  Future<R21Appointment> retrieveLatestAppointmentForPatient(
+      String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(R21Appointment.tableName,
         where: '${R21Appointment.colPatientART} = ?',
@@ -850,7 +850,8 @@ class DatabaseProvider {
     return null;
   }
 
-   Future<R21Followup> retrieveLatestFollowupForPatient(String patientART) async {
+  Future<R21Followup> retrieveLatestFollowupForPatient(
+      String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(R21Followup.tableName,
         where: '${R21Followup.colPatientART} = ?',
@@ -978,6 +979,72 @@ class DatabaseProvider {
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
         UserData u = UserData.fromMap(map);
+        list.add(u);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all user data rows from the database, including all edits.
+  Future<List<R21Event>> retrieveAllEventData() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(R21Event.tableName);
+    List<R21Event> list = List<R21Event>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        R21Event u = R21Event.fromMap(map);
+        list.add(u);
+      }
+    }
+    return list;
+  }
+
+  Future<List<R21Appointment>> retrieveAllAppointmentData() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(R21Appointment.tableName);
+    List<R21Appointment> list = List<R21Appointment>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        R21Appointment u = R21Appointment.fromMap(map);
+        list.add(u);
+      }
+    }
+    return list;
+  }
+
+  Future<List<R21Followup>> retrieveAllFollowupData() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(R21Followup.tableName);
+    List<R21Followup> list = List<R21Followup>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        R21Followup u = R21Followup.fromMap(map);
+        list.add(u);
+      }
+    }
+    return list;
+  }
+
+  Future<List<R21ScreenAnalytic>> retrieveAllAnalyticData() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(R21ScreenAnalytic.tableName);
+    List<R21ScreenAnalytic> list = List<R21ScreenAnalytic>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        R21ScreenAnalytic u = R21ScreenAnalytic.fromMap(map);
+        list.add(u);
+      }
+    }
+    return list;
+  }
+
+  Future<List<R21MedicationRefill>> retrieveAllMedicationRefillData() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(R21MedicationRefill.tableName);
+    List<R21MedicationRefill> list = List<R21MedicationRefill>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        R21MedicationRefill u = R21MedicationRefill.fromMap(map);
         list.add(u);
       }
     }
