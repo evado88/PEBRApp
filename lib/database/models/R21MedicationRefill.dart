@@ -109,9 +109,9 @@ class R21MedicationRefill implements IExcelExportable {
     row[2] = refillDone;
     row[3] = refillDate == null ? null : formatDateIso(refillDate);
     row[4] = formatDateIso(nextRefillDate);
-    row[5] = notDoneReason?.code;
+    row[5] = notDoneReason?.description;
     row[6] = medication;
-    row[7] = medicationType?.code;
+    row[7] = medicationType?.description;
     row[8] = description;
 
     return row;

@@ -152,7 +152,7 @@ class R21ScreenAnalytic implements IExcelExportable {
   List<dynamic> toExcelRow() {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
     row[0] = formatDateIso(_createdDate);
-    row[1] = type.code;
+    row[1] = type.description;
     row[2] = formatDateIso(startDate);
     row[3] = formatDateIso(endDate);
     row[4] = duration;

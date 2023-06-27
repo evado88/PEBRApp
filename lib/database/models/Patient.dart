@@ -266,26 +266,26 @@ class Patient implements IExcelExportable {
     row[4] = artNumber;
     row[5] = formatDateIso(birthday);
     row[6] = consentGiven;
-    row[7] = noConsentReason?.code;
+    row[7] = noConsentReason?.description;
     row[8] = noConsentReasonOther;
-    row[9] = gender?.code;
-    row[10] = sexualOrientation?.code;
+    row[9] = gender?.description;
+    row[10] = sexualOrientation?.description;
     row[11] = stickerNumber;
     row[12] = village;
-    row[13] = phoneAvailability?.code;
+    row[13] = phoneAvailability?.description;
     row[14] = phoneNumber;
     row[15] = isVLBaselineAvailable;
     row[16] = isActivated;
     row[17] = isEligible;
     row[18] = isDuplicate;
     //R21
-    row[19] = supportType?.code;
-    row[20] = contactFrequency?.code;
-    row[21] = srhServicePreffered?.code;
-    row[22] = prep?.code;
-    row[23] = contraceptionMethod?.code;
+    row[19] = supportType?.description;
+    row[20] = contactFrequency?.description;
+    row[21] = srhServicePreffered?.description;
+    row[22] = prep?.description;
+    row[23] = contraceptionMethod?.description;
     row[24] = providerLocation;
-    row[25] = providerType?.code;
+    row[25] = providerType?.description;
     return row;
   }
 

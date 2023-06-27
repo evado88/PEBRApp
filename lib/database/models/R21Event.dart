@@ -1,6 +1,5 @@
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/R21EventNoOccurReason.dart';
-import 'package:pebrapp/database/beans/R21EventType.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class R21Event implements IExcelExportable {
@@ -125,7 +124,7 @@ class R21Event implements IExcelExportable {
     row[2] = formatDateIso(date);
     row[3] = description;
     row[4] = occured;
-    row[5] = noOccurReason.code;
+    row[5] = noOccurReason?.description;
     row[6] = formatDateIso(nextDate);
 
     return row;

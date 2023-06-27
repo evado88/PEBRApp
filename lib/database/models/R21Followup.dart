@@ -123,7 +123,7 @@ class R21Followup implements IExcelExportable {
     row[2] = formatDateIso(date);
     row[3] = description;
     row[4] = occured;
-    row[5] = noOccurReason.code;
+    row[5] = noOccurReason?.description;
     row[6] = formatDateIso(nextDate);
 
     return row;
