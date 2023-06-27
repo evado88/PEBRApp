@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/R21ExportInfo.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/database/models/R21Appointment.dart';
@@ -18,7 +19,7 @@ class DatabaseExporter {
   static const _EXCEL_TEMPLATE_PATH = 'assets/excel/PEBRA_Data_template.xlsx';
 
   /// Writes database data to Excel (xlsx) file and returns that file.
-  static Future<File> exportDatabaseToExcelFile() async {
+  static Future<R21ExportInfo> exportDatabaseToExcelFile() async {
     // these are the name of the sheets in the template excel file
     const String userDataSheet = 'User Data';
     const String patientSheet = 'Participant';
@@ -67,6 +68,10 @@ class DatabaseExporter {
       }
     }
 
+    String username = 'Test';
+    StringBuffer jEvents = StringBuffer();
+    StringBuffer jAnalytics = StringBuffer();
+
     final List<UserData> userDataRows = await dbp.retrieveAllUserData();
     _writeRowsToExcel(userDataSheet, UserData.excelHeaderRow, userDataRows);
 
@@ -75,6 +80,13 @@ class DatabaseExporter {
 
     final List<R21Event> eventsRows = await dbp.retrieveAllEventData();
     _writeRowsToExcel(eventsSheet, R21Event.excelHeaderRow, eventsRows);
+
+    eventsRows.forEach((ev) {
+      if (jEvents.length != 0) {
+        jEvents.write(',');
+      }
+      jEvents.write('${ev.toJson(username)}\n');
+    });
 
     final List<R21Followup> followupsRows = await dbp.retrieveAllFollowupData();
     _writeRowsToExcel(
@@ -95,13 +107,28 @@ class DatabaseExporter {
     _writeRowsToExcel(
         analyticsSheet, R21ScreenAnalytic.excelHeaderRow, analyticRows);
 
+    analyticRows.forEach((an) {
+      if (jAnalytics.length != 0) {
+        jAnalytics.write(',');
+      }
+      jAnalytics.write('${an.toJson(username)}\n');
+    });
+
     // store changes to file
     excelFile.writeAsBytesSync(decoder.encode());
-    return excelFile;
+
+    String json =
+        "{\"events\": [${jEvents.toString()}], \"analytics\":[${jAnalytics.toString()}]}";
+
+    return R21ExportInfo(excelFile, json);
   }
 }
 
 /// Interface which makes a class exportable to an excel file.
 abstract class IExcelExportable {
   List<dynamic> toExcelRow();
+}
+
+abstract class IJsonExportable {
+  Map<String, dynamic> toJson(String username);
 }

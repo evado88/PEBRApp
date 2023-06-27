@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:pebrapp/config/PebraCloudConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/R21ExportInfo.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/R21Appointment.dart';
@@ -371,7 +372,12 @@ class DatabaseProvider {
     // store the user data in the database before creating the first backup
     await insertUserData(loginData);
     final File dbFile = await _databaseFile;
-    final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
+
+    R21ExportInfo exportInfo =
+        await DatabaseExporter.exportDatabaseToExcelFile();
+
+    final File excelFile = exportInfo.excelFile;
+
     final File passwordFile =
         await _createFileWithContent('PEBRA-password', pinCodeHash);
     // upload SQLite, password file, and Excel file
@@ -379,10 +385,16 @@ class DatabaseProvider {
         '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER,
         filename: '$filename.db');
+
     await uploadFileToPebraCloud(passwordFile, PEBRA_CLOUD_PASSWORD_FOLDER,
         filename: '${loginData.username}.txt');
+
     await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER,
         filename: '$filename.xlsx');
+
+    //R21 save json file
+    await uploadJsonToPebraCloud(loginData.username, exportInfo.json);
+
     await storeLatestBackupInSharedPrefs();
   }
 
@@ -402,14 +414,24 @@ class DatabaseProvider {
       throw NoLoginDataException();
     }
     final File dbFile = await _databaseFile;
-    final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
+
+    R21ExportInfo exportInfo =
+        await DatabaseExporter.exportDatabaseToExcelFile();
+
+    final File excelFile = exportInfo.excelFile;
     // update SQLite and Excel file with new version
     final String docName =
         '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
+
     await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER,
         filename: '$docName.db');
+
     await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER,
         filename: '$docName.xlsx');
+
+    //R21 save json file
+    await uploadJsonToPebraCloud(loginData.username, exportInfo.json);
+
     await storeLatestBackupInSharedPrefs();
   }
 

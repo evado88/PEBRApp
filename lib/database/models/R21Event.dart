@@ -1,8 +1,10 @@
+import 'dart:developer';
+
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/R21EventNoOccurReason.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-class R21Event implements IExcelExportable {
+class R21Event implements IExcelExportable, IJsonExportable {
   static final tableName = 'Events';
 
   // column names
@@ -129,6 +131,19 @@ class R21Event implements IExcelExportable {
 
     return row;
   }
+
+  @override
+  Map<String, dynamic> toJson(String username) => {
+        "\"username\"": "\"$username\"",
+        "\"studyNo\"": "\"$patientART\"",
+        "\"createdate\"": "\"${formatDateIso(_createdDate)}\"",
+        "\"date\"": "\"${formatDateIso(date)}\"",
+        "\"description\"": "\"$description\"",
+        "\"occured\"": occured,
+        "\"noOccurReason\"":
+            noOccurReason == null ? null : "\"${noOccurReason.description}\"",
+        "\"nextDate\"": "\"${formatDateIso(nextDate)}\"",
+      };
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.

@@ -3,7 +3,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/R21ScreenType.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-class R21ScreenAnalytic implements IExcelExportable {
+class R21ScreenAnalytic implements IExcelExportable, IJsonExportable {
   static final tableName = 'ScreenAnalytics';
 
   // column names
@@ -73,7 +73,7 @@ class R21ScreenAnalytic implements IExcelExportable {
   @override
   String toString() {
     return 'Screen Analytic::: type: ${type.description}, start date: $startDate,' +
-           'end date: $endDate, duration: $duration, result: $result, subject: $subject';
+        'end date: $endDate, duration: $duration, result: $result, subject: $subject';
   }
 
   toMap() {
@@ -161,6 +161,17 @@ class R21ScreenAnalytic implements IExcelExportable {
 
     return row;
   }
+
+  @override
+  Map<String, dynamic> toJson(String username) => {
+        "\"username\"": "\"$username\"",
+        "\"description\"": "\"${type.description}\"",
+        "\"startDate\"": "\"${formatDateIso(startDate)}\"",
+        "\"endDate\"": "\"${formatDateIso(endDate)}\"",
+        "\"duration\"": "\"$duration\"",
+        "\"result\"": "\"$result\"",
+        "\"subject\"": "\"$subject\"",
+      };
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.

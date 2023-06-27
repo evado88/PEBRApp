@@ -48,6 +48,30 @@ Future<void> uploadFileToPebraCloud(File sourceFile, String folder,
   }
 }
 
+Future<void> uploadJsonToPebraCloud(String username, String json) async {
+  final response = await http.post(
+    Uri.parse('$PEBRA_CLOUD_API/upload/json'),
+    headers: <String, String>{
+      'token': PEBRA_CLOUD_TOKEN,
+    },
+    body: jsonEncode(<String, String>{
+      'username': username,
+      'json': json,
+    }),
+  );
+
+  if (response.statusCode == 201) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+
+  } else if (response.statusCode == 401) {
+    throw PebraCloudAuthFailedException();
+  } else if (response.statusCode != 201) {
+    throw HTTPStatusNotOKException(
+        'An unexpected status code ${response.statusCode} was returned while uploading user data to PEBRAcloud.\n');
+  }
+}
+
 /// Downloads the latest SQLite file from PEBRAcloud and replaces the one on the
 /// device.
 ///
