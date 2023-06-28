@@ -50,11 +50,11 @@ class R21MedicationRefill implements IExcelExportable, IJsonExportable {
     this.refillDate =
         map[colRefillDate] == null ? null : DateTime.parse(map[colRefillDate]);
     this.nextRefillDate = DateTime.parse(map[colNextRefillDate]);
-    this.notDoneReason = this.notDoneReason == null
+    this.notDoneReason = map[colNotDoneReason] == null
         ? null
         : R21RefilNotDoneReason.fromCode(map[colNotDoneReason]);
     this.medication = map[colMedication];
-    this.medicationType = this.medicationType == null
+    this.medicationType = map[colMedicationType] == null
         ? null
         : R21MedicationType.fromCode(map[colMedicationType]);
     this.description = map[colDescription];
