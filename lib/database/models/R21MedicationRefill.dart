@@ -3,7 +3,7 @@ import 'package:pebrapp/database/beans/R21MedicationType.dart';
 import 'package:pebrapp/database/beans/R21RefilNotDoneReason.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-class R21MedicationRefill implements IExcelExportable {
+class R21MedicationRefill implements IExcelExportable, IJsonExportable {
   static final tableName = 'MedicationRefills';
 
   // column names
@@ -116,6 +116,22 @@ class R21MedicationRefill implements IExcelExportable {
 
     return row;
   }
+
+  @override
+  Map<String, dynamic> toJson(String username) => {
+        "\"username\"": "\"$username\"",
+        "\"studyNo\"": "\"$patientART\"",
+        "\"createdate\"": "\"${formatDateIso(_createdDate)}\"",
+        "\"refillDone\"": refillDone,
+        "\"refillDate\"": "\"${formatDateIso(refillDate)}\"",
+        "\"nextRefillDate\"": "\"${formatDateIso(nextRefillDate)}\"",
+        "\"notDoneReason\"":
+            notDoneReason == null ? null : "\"${notDoneReason.description}\"",
+        "\"medication\"": "\"$medication\"",
+        "\"medicationType\"":
+            medicationType == null ? null : "\"${medicationType.description}\"",
+        "\"description\"": "\"$description\""
+      };
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.

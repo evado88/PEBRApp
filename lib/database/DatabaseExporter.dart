@@ -19,7 +19,8 @@ class DatabaseExporter {
   static const _EXCEL_TEMPLATE_PATH = 'assets/excel/PEBRA_Data_template.xlsx';
 
   /// Writes database data to Excel (xlsx) file and returns that file.
-  static Future<R21ExportInfo> exportDatabaseToExcelFile() async {
+  static Future<R21ExportInfo> exportDatabaseToExcelFile(
+      UserData loginData) async {
     // these are the name of the sheets in the template excel file
     const String userDataSheet = 'User Data';
     const String patientSheet = 'Participant';
@@ -68,22 +69,41 @@ class DatabaseExporter {
       }
     }
 
-    String username = 'Test';
+    String username = loginData.username;
     StringBuffer jEvents = StringBuffer();
     StringBuffer jAnalytics = StringBuffer();
+    StringBuffer jParticipants = StringBuffer();
+    StringBuffer jUsers = StringBuffer();
+    StringBuffer jAppointments = StringBuffer();
+    StringBuffer jFollowups = StringBuffer();
+    StringBuffer jMedicationRefils = StringBuffer();
 
     final List<UserData> userDataRows = await dbp.retrieveAllUserData();
     _writeRowsToExcel(userDataSheet, UserData.excelHeaderRow, userDataRows);
 
+    userDataRows.forEach((us) {
+      if (jUsers.length != 0) {
+        jUsers.write(',\n');
+      }
+      jUsers.write('${us.toJson(username)}\n');
+    });
+
     final List<Patient> patientRows = await dbp.retrieveAllPatients();
     _writeRowsToExcel(patientSheet, Patient.excelHeaderRow, patientRows);
+
+    patientRows.forEach((pt) {
+      if (jParticipants.length != 0) {
+        jParticipants.write(',\n');
+      }
+      jParticipants.write('${pt.toJson(username)}\n');
+    });
 
     final List<R21Event> eventsRows = await dbp.retrieveAllEventData();
     _writeRowsToExcel(eventsSheet, R21Event.excelHeaderRow, eventsRows);
 
     eventsRows.forEach((ev) {
       if (jEvents.length != 0) {
-        jEvents.write(',');
+        jEvents.write(',\n');
       }
       jEvents.write('${ev.toJson(username)}\n');
     });
@@ -92,15 +112,36 @@ class DatabaseExporter {
     _writeRowsToExcel(
         followupsSheet, R21Followup.excelHeaderRow, followupsRows);
 
+    followupsRows.forEach((fl) {
+      if (jFollowups.length != 0) {
+        jFollowups.write(',\n');
+      }
+      jFollowups.write('${fl.toJson(username)}\n');
+    });
+
     final List<R21Appointment> appointmentsRows =
         await dbp.retrieveAllAppointmentData();
     _writeRowsToExcel(
         appointmentsSheet, R21Appointment.excelHeaderRow, appointmentsRows);
 
+    appointmentsRows.forEach((ap) {
+      if (jAppointments.length != 0) {
+        jAppointments.write(',\n');
+      }
+      jAppointments.write('${ap.toJson(username)}\n');
+    });
+
     final List<R21MedicationRefill> medicationRefils =
         await dbp.retrieveAllMedicationRefillData();
     _writeRowsToExcel(medicationRefilsSheet, R21MedicationRefill.excelHeaderRow,
         medicationRefils);
+
+    medicationRefils.forEach((mf) {
+      if (jMedicationRefils.length != 0) {
+        jMedicationRefils.write(',\n');
+      }
+      jMedicationRefils.write('${mf.toJson(username)}\n');
+    });
 
     final List<R21ScreenAnalytic> analyticRows =
         await dbp.retrieveAllAnalyticData();
@@ -109,7 +150,7 @@ class DatabaseExporter {
 
     analyticRows.forEach((an) {
       if (jAnalytics.length != 0) {
-        jAnalytics.write(',');
+        jAnalytics.write(',\n');
       }
       jAnalytics.write('${an.toJson(username)}\n');
     });
@@ -117,8 +158,12 @@ class DatabaseExporter {
     // store changes to file
     excelFile.writeAsBytesSync(decoder.encode());
 
-    String json =
-        "{\"events\": [${jEvents.toString()}], \"analytics\":[${jAnalytics.toString()}]}";
+    String json = "{\n " +
+        "\"events\": [${jEvents.toString()}],\n \"analytics\":[${jAnalytics.toString()}],\n" +
+        "\"users\":[${jUsers.toString()}],\n \"patients\":[${jParticipants.toString()}],\n" +
+        "\"followups\":[${jFollowups.toString()}],\n  \"appointments\":[${jAppointments.toString()}],\n" +
+        "\"medicalRefils\":[${jMedicationRefils.toString()}]\n " +
+        "}";
 
     return R21ExportInfo(excelFile, json);
   }

@@ -6,7 +6,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-class UserData implements IExcelExportable {
+class UserData implements IExcelExportable, IJsonExportable {
   static final tableName = 'UserData';
 
   // column names
@@ -118,6 +118,21 @@ class UserData implements IExcelExportable {
     row[12] = formatTimeIso(_deactivatedDate);
     return row;
   }
+
+  @override
+  Map<String, dynamic> toJson(String user) => {
+        "\"username\"": "\"$username\"",
+        "\"createDate\"": "\"${formatDateIso(_createdDate)}\"",
+        "\"firstName\"": "\"${firstName.trim()}\"",
+        "\"lastName\"": "\"${lastName.trim()}\"",
+        "\"phoneNumber\"": "\"$phoneNumber\"",
+        "\"phoneNumberUploadRequired\"": phoneNumberUploadRequired,
+        "\"healthCenterDescription\"": "\"${healthCenter.description}\"",
+        "\"healthCenterDistrict\"": "\"${healthCenter.district}\"",
+        "\"healthCenterStudyArm\"": "\"${healthCenter.studyArm}\"",
+        "\"isActive\"": isActive,
+        "\"deactivatedDate\"": "\"${formatDateIso(_deactivatedDate)}\"",
+      };
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.

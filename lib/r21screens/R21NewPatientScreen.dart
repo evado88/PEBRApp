@@ -6,6 +6,12 @@ import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
+import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
+import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
+import 'package:pebrapp/database/beans/R21Prep.dart';
+import 'package:pebrapp/database/beans/R21ProviderType.dart';
+import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
+import 'package:pebrapp/database/beans/R21SupportType.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -18,14 +24,14 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
-class NewPatientScreen extends StatefulWidget {
+class R21NewPatientScreen extends StatefulWidget {
   @override
-  _NewPatientFormState createState() {
-    return _NewPatientFormState();
+  _R21NewPatientFormState createState() {
+    return _R21NewPatientFormState();
   }
 }
 
-class _NewPatientFormState extends State<NewPatientScreen> {
+class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
@@ -51,6 +57,8 @@ class _NewPatientFormState extends State<NewPatientScreen> {
   ViralLoad _viralLoadBaseline =
       ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), failed: false);
   bool _isLowerThanDetectable;
+
+  TextEditingController _providerLocationCtr = TextEditingController();
 
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
@@ -105,6 +113,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
           _personalInformationCard(),
           _eligibilityDisclaimer(),
           _consentCard(),
+          _desiredSupportCard(),
           _additionalInformationCard(),
           //_viralLoadBaselineCard(),
           _notEligibleDisclaimer(),
@@ -137,10 +146,9 @@ class _NewPatientFormState extends State<NewPatientScreen> {
     );
 
     Widget finishStep() {
-      
-      if(_patientSaved){
+      if (_patientSaved) {
         print('~~~ PATIENT SAVED=>');
-      }   else {
+      } else {
         print('~~~ PATIENT NOT SAVED=>');
       }
 
@@ -349,6 +357,30 @@ class _NewPatientFormState extends State<NewPatientScreen> {
     );
   }
 
+  Widget _desiredSupportCard() {
+    if (_notEligibleAfterBirthdaySpecified ||
+        _newPatient.consentGiven == null ||
+        !_newPatient.consentGiven) {
+      return SizedBox();
+    }
+
+    return _buildCard(
+      'Desired Support',
+      withTopPadding: true,
+      child: Column(
+        children: [
+          _supportTypeQuestion(),
+          _contactFrequency(),
+          _srhServicePreferred(),
+          _prep(),
+          _contraceptiveMethod(),
+          _providerLocation(),
+          _providerType()
+        ],
+      ),
+    );
+  }
+
   Widget _consentCard() {
     if (_notEligibleAfterBirthdaySpecified) {
       return Container();
@@ -415,6 +447,208 @@ class _NewPatientFormState extends State<NewPatientScreen> {
   // QUESTIONS
   // ----------
 
+  //R21
+
+  Widget _supportTypeQuestion() {
+    return _makeQuestion(
+      'Type of Support',
+      answer: DropdownButtonFormField<R21SupportType>(
+        value: _newPatient.supportType,
+        onChanged: (R21SupportType newValue) {
+          setState(() {
+            _newPatient.supportType = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21SupportType.allValues
+            .map<DropdownMenuItem<R21SupportType>>((R21SupportType value) {
+          return DropdownMenuItem<R21SupportType>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _contactFrequency() {
+    return _makeQuestion(
+      'Frequency of Contact',
+      answer: DropdownButtonFormField<R21ContactFrequency>(
+        value: _newPatient.contactFrequency,
+        onChanged: (R21ContactFrequency newValue) {
+          setState(() {
+            _newPatient.contactFrequency = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ContactFrequency.allValues
+            .map<DropdownMenuItem<R21ContactFrequency>>(
+                (R21ContactFrequency value) {
+          return DropdownMenuItem<R21ContactFrequency>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _srhServicePreferred() {
+    return _makeQuestion(
+      'SRH Service Preferred',
+      answer: DropdownButtonFormField<R21SRHServicePreferred>(
+        value: _newPatient.srhServicePreffered,
+        onChanged: (R21SRHServicePreferred newValue) {
+          setState(() {
+            _newPatient.srhServicePreffered = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21SRHServicePreferred.allValues
+            .map<DropdownMenuItem<R21SRHServicePreferred>>(
+                (R21SRHServicePreferred value) {
+          return DropdownMenuItem<R21SRHServicePreferred>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _prep() {
+    return _makeQuestion(
+      'PrEP',
+      answer: DropdownButtonFormField<R21PrEP>(
+        value: _newPatient.prep,
+        onChanged: (R21PrEP newValue) {
+          setState(() {
+            _newPatient.prep = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items:
+            R21PrEP.allValues.map<DropdownMenuItem<R21PrEP>>((R21PrEP value) {
+          return DropdownMenuItem<R21PrEP>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _contraceptiveMethod() {
+    return _makeQuestion(
+      'Contraceptive Method',
+      answer: DropdownButtonFormField<R21ContraceptionMethod>(
+        value: _newPatient.contraceptionMethod,
+        onChanged: (R21ContraceptionMethod newValue) {
+          setState(() {
+            _newPatient.contraceptionMethod = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ContraceptionMethod.allValues
+            .map<DropdownMenuItem<R21ContraceptionMethod>>(
+                (R21ContraceptionMethod value) {
+          return DropdownMenuItem<R21ContraceptionMethod>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _providerLocation() {
+    return _makeQuestion(
+      'Location of Provider',
+      answer: TextFormField(
+        controller: _providerLocationCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a location';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _providerType() {
+    return _makeQuestion(
+      'Type of Provider',
+      answer: DropdownButtonFormField<R21ProviderType>(
+        value: _newPatient.providerType,
+        onChanged: (R21ProviderType newValue) {
+          setState(() {
+            _newPatient.providerType = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ProviderType.allValues
+            .map<DropdownMenuItem<R21ProviderType>>((R21ProviderType value) {
+          return DropdownMenuItem<R21ProviderType>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  //Main
+  Widget _genderQuestion() {
+    return _makeQuestion(
+      'Gender',
+      answer: DropdownButtonFormField<Gender>(
+        value: _newPatient.gender,
+        onChanged: (Gender newValue) {
+          setState(() {
+            _newPatient.gender = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
+        },
+        items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
+          return DropdownMenuItem<Gender>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _studyNumberQuestion() {
     return _makeQuestion(
       'Study Number',
@@ -428,7 +662,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
         ],
         validator: (String value) {
           if (_artNumberExists(value)) {
-            return 'Participant with this studuy number already exists';
+            return 'Participant with this study number already exists';
           }
           return validateStudyNumber(value);
         },
@@ -515,32 +749,6 @@ class _NewPatientFormState extends State<NewPatientScreen> {
                 ),
               ),
       ]),
-    );
-  }
-
-  Widget _genderQuestion() {
-    return _makeQuestion(
-      'Gender',
-      answer: DropdownButtonFormField<Gender>(
-        value: _newPatient.gender,
-        onChanged: (Gender newValue) {
-          setState(() {
-            _newPatient.gender = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-          return null;
-        },
-        items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
-          return DropdownMenuItem<Gender>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
     );
   }
 
@@ -962,9 +1170,8 @@ class _NewPatientFormState extends State<NewPatientScreen> {
     setState(() {
       _isLoading = true;
     });
-    if (_formKey.currentState.validate() &
-        _validatePatientBirthday() 
-       // &_validateViralLoadBaselineDate()
+    if (_formKey.currentState.validate() & _validatePatientBirthday()
+        // &_validateViralLoadBaselineDate()
         ) {
       final DateTime now = DateTime.now();
 
@@ -981,6 +1188,10 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.checkLogicAndResetUnusedFields();
+
+      _newPatient.providerLocation = (_newPatient.consentGiven ?? false)
+          ? _providerLocationCtr.text
+          : null;
 
       if (_newPatient.isEligible && _newPatient.consentGiven) {
         await DatabaseProvider().insertRequiredAction(RequiredAction(
@@ -1010,33 +1221,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       }
 
       if (_newPatient.isEligible && _newPatient.consentGiven) {
-
-          _viralLoadBaseline.patientART = _artNumberCtr.text;
-       /* if (_newPatient.isVLBaselineAvailable) {
-
-          _viralLoadBaseline.viralLoad = _isLowerThanDetectable
-              ? 0
-              : int.parse(_viralLoadBaselineResultCtr.text);
-          _viralLoadBaseline.labNumber =
-              _viralLoadBaselineLabNumberCtr.text == ''
-                  ? null
-                  : _viralLoadBaselineLabNumberCtr.text;
-          _viralLoadBaseline.checkLogicAndResetUnusedFields();
-      
-          await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
-          _newPatient.viralLoads = [_viralLoadBaseline];
-            */
-        
-        /*} else {
-          // if no baseline viral load is available, send the patient to blood draw
-          RequiredAction vlRequired = RequiredAction(
-              _artNumberCtr.text,
-              RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED,
-              DateTime.fromMillisecondsSinceEpoch(0));
-          DatabaseProvider().insertRequiredAction(vlRequired);
-          PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
-        }*/
-
+        _viralLoadBaseline.patientART = _artNumberCtr.text;
 
       }
 

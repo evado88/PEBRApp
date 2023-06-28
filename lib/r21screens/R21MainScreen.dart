@@ -12,9 +12,9 @@ import 'package:pebrapp/database/beans/R21ScreenType.dart';
 import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/r21screens/R21NewPatientScreen.dart';
 import 'package:pebrapp/r21screens/R21PatientScreen.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
-import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/IconExplanationsScreen.dart';
@@ -177,13 +177,11 @@ class _R21MainScreenState extends State<R21MainScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-
-       _analytic =new R21ScreenAnalytic(type: R21ScreenType.Main());
+        _analytic = new R21ScreenAnalytic(type: R21ScreenType.Main());
 
         _onAppResume();
         break;
       case AppLifecycleState.paused:
-
         _analytic.stopAnalytics(
             resultAction: 'Paused', subjectEntity: this._userData.username);
 
@@ -195,12 +193,10 @@ class _R21MainScreenState extends State<R21MainScreen>
         }
         break;
       case AppLifecycleState.inactive:
-
         _analytic.stopAnalytics(
             resultAction: 'Inactive', subjectEntity: this._userData.username);
         break;
       case AppLifecycleState.detached:
-
         _analytic.stopAnalytics(
             resultAction: 'detached', subjectEntity: this._userData.username);
         break;
@@ -451,7 +447,7 @@ class _R21MainScreenState extends State<R21MainScreen>
   }
 
   Future<void> _pushNewPatientScreen() async {
-    await _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
+    await _fadeInScreen(R21NewPatientScreen(), routeName: '/new-patient');
   }
 
   Future<void> _pushPatientScreen(Patient patient) async {
@@ -563,7 +559,7 @@ class _R21MainScreenState extends State<R21MainScreen>
                   child: _formatHeaderRowText("Support"),
                 ),
                 Expanded(
-                  child: _formatHeaderRowText("Village"),
+                  child: _formatHeaderRowText("SRH Service"),
                 ),
               ])),
         ]));
@@ -731,7 +727,10 @@ class _R21MainScreenState extends State<R21MainScreen>
                     ),
                     Expanded(
                         child: Padding(
-                      child: _formatPatientRowText(curPatient.village),
+                      child: _formatPatientRowText(
+                          curPatient.srhServicePreffered == null
+                              ? "-"
+                              : curPatient.srhServicePreffered.description),
                       padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                     )),
                   ])),

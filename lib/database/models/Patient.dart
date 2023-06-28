@@ -7,7 +7,6 @@ import 'package:pebrapp/database/beans/NoConsentReason.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
-import 'package:pebrapp/database/beans/R21EventType.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
 import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
@@ -24,7 +23,7 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-class Patient implements IExcelExportable {
+class Patient implements IExcelExportable, IJsonExportable {
   static final tableName = 'Patient';
 
   // column names
@@ -289,6 +288,49 @@ class Patient implements IExcelExportable {
     return row;
   }
 
+  @override
+  Map<String, dynamic> toJson(String username) => {
+        "\"username\"": "\"$username\"",
+        "\"studyNo\"": "\"$artNumber\"",
+        "\"createDate\"": "\"${formatDateIso(_createdDate)}\"",
+        "\"enrollDate\"": "\"${formatDateIso(enrollmentDate)}\"",
+        "\"birthDate\"": "\"${formatDateIso(birthday)}\"",
+        "\"consentGiven\"": consentGiven,
+        "\"noConsentReason\"": noConsentReason == null
+            ? null
+            : "\"${noConsentReason.description}\"",
+        "\"noConsentReasonOther\"": "\"$noConsentReasonOther\"",
+        "\"gender\"": gender == null ? null : "\"${gender.description}\"",
+        "\"sexualOrientation\"": sexualOrientation == null
+            ? null
+            : "\"${sexualOrientation.description}\"",
+        "\"stickerNumber\"": "\"$stickerNumber\"",
+        "\"village\"": "\"$village\"",
+        "\"phoneAvailability\"": phoneAvailability == null
+            ? null
+            : "\"${phoneAvailability.description}\"",
+        "\"phoneNumber\"": "\"$phoneNumber\"",
+        "\"isVLBaselineAvailable\"": isVLBaselineAvailable,
+        "\"isActivated\"": isActivated,
+        "\"isEligible\"": isEligible,
+        "\"isDuplicate\"": isDuplicate,
+        "\"supportType\"":
+            supportType == null ? null : "\"${supportType.description}\"",
+        "\"contactFrequency\"": contactFrequency == null
+            ? null
+            : "\"${contactFrequency.description}\"",
+        "\"srhServicePreffered\"": srhServicePreffered == null
+            ? null
+            : "\"${srhServicePreffered.description}\"",
+        "\"prep\"": prep == null ? null : "\"${prep.description}\"",
+        "\"contraceptionMethod\"": contraceptionMethod == null
+            ? null
+            : "\"${contraceptionMethod.description}\"",
+        "\"providerLocation\"": "\"$providerLocation\"",
+        "\"providerType\"":
+            providerType == null ? null : "\"${providerType.description}\"",
+      };
+
   /// Initializes the field [viralLoads] with the latest data from the database.
   Future<void> initializeViralLoadsField() async {
     this.viralLoads =
@@ -439,10 +481,10 @@ class Patient implements IExcelExportable {
   R21Followup get mostRecentFollowup {
     R21Followup mostRecent;
     for (R21Followup ev in followups) {
-        if (mostRecent == null ||
-            !ev.createdDate.isBefore(mostRecent.createdDate)) {
-          mostRecent = ev;
-        }
+      if (mostRecent == null ||
+          !ev.createdDate.isBefore(mostRecent.createdDate)) {
+        mostRecent = ev;
+      }
     }
     return mostRecent;
   }

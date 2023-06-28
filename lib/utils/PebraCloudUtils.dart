@@ -49,22 +49,22 @@ Future<void> uploadFileToPebraCloud(File sourceFile, String folder,
 }
 
 Future<void> uploadJsonToPebraCloud(String username, String json) async {
-  final response = await http.post(
-    Uri.parse('$PEBRA_CLOUD_API/upload/json'),
-    headers: <String, String>{
-      'token': PEBRA_CLOUD_TOKEN,
-    },
-    body: jsonEncode(<String, String>{
-      'username': username,
-      'json': json,
-    }),
-  );
+  Map<String, String> requestBody = <String, String>{
+    'username': username,
+    'json': json,
+  };
+  Map<String, String> headers = <String, String>{
+    'token': PEBRA_CLOUD_TOKEN,
+  };
 
-  if (response.statusCode == 201) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-
-  } else if (response.statusCode == 401) {
+  var uri = Uri.parse('$PEBRA_CLOUD_API/upload/json');
+  var request = http.MultipartRequest('POST', uri)
+    ..headers.addAll(
+        headers) //if u have headers, basic auth, token bearer... Else remove line
+    ..fields.addAll(requestBody);
+  var response = await request.send();
+  
+  if (response.statusCode == 401) {
     throw PebraCloudAuthFailedException();
   } else if (response.statusCode != 201) {
     throw HTTPStatusNotOKException(

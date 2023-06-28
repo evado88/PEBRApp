@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
+import 'package:pebrapp/r21screens/R21NewPatientScreen.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
-import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
 import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -64,7 +64,7 @@ class _R21MainScreenBlankState extends State<R21MainScreenBlank> {
   }
 
   Future<void> _pushNewPatientScreen() async {
-    await _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
+    await _fadeInScreen(R21NewPatientScreen(), routeName: '/new-patient');
   }
 
 // #region Math functions

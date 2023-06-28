@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/R21EventNoOccurReason.dart';
 import 'package:pebrapp/utils/Utils.dart';

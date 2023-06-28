@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
@@ -164,20 +162,6 @@ class _R21EditPatientSupportFormState
     );
   }
 
-  Widget _providerLocation() {
-    return _makeQuestion(
-      'Location of Provider',
-      answer: TextFormField(
-        controller: _providerLocationCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter a location';
-          }
-        },
-      ),
-    );
-  }
-
   Widget _srhServicePreferred() {
     return _makeQuestion(
       'SRH Service Preferred',
@@ -231,7 +215,7 @@ class _R21EditPatientSupportFormState
     );
   }
 
-  Widget _contraceptiveMethod() {
+   Widget _contraceptiveMethod() {
     return _makeQuestion(
       'Contraceptive Method',
       answer: DropdownButtonFormField<R21ContraceptionMethod>(
@@ -254,6 +238,20 @@ class _R21EditPatientSupportFormState
             child: Text(value.description),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _providerLocation() {
+    return _makeQuestion(
+      'Location of Provider',
+      answer: TextFormField(
+        controller: _providerLocationCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a location';
+          }
+        },
       ),
     );
   }

@@ -374,7 +374,7 @@ class DatabaseProvider {
     final File dbFile = await _databaseFile;
 
     R21ExportInfo exportInfo =
-        await DatabaseExporter.exportDatabaseToExcelFile();
+        await DatabaseExporter.exportDatabaseToExcelFile(loginData);
 
     final File excelFile = exportInfo.excelFile;
 
@@ -416,7 +416,7 @@ class DatabaseProvider {
     final File dbFile = await _databaseFile;
 
     R21ExportInfo exportInfo =
-        await DatabaseExporter.exportDatabaseToExcelFile();
+        await DatabaseExporter.exportDatabaseToExcelFile(loginData);
 
     final File excelFile = exportInfo.excelFile;
     // update SQLite and Excel file with new version

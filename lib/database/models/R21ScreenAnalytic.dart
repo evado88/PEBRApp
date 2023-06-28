@@ -168,7 +168,7 @@ class R21ScreenAnalytic implements IExcelExportable, IJsonExportable {
         "\"description\"": "\"${type.description}\"",
         "\"startDate\"": "\"${formatDateIso(startDate)}\"",
         "\"endDate\"": "\"${formatDateIso(endDate)}\"",
-        "\"duration\"": "\"$duration\"",
+        "\"duration\"": "$duration",
         "\"result\"": "\"$result\"",
         "\"subject\"": "\"$subject\"",
       };
