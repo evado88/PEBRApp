@@ -447,30 +447,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             return null;
           },
         ),
-        DropdownButtonFormField<HealthCenter>(
-          decoration: InputDecoration(
-            labelText: 'Health Center',
-          ),
-          value: _userData.healthCenter,
-          onChanged: (HealthCenter newValue) {
-            setState(() {
-              _userData.healthCenter = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please select the health center at which you work';
-            }
-            return null;
-          },
-          items: HealthCenter.allValues
-              .map<DropdownMenuItem<HealthCenter>>((HealthCenter value) {
-            return DropdownMenuItem<HealthCenter>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
         TextFormField(
           decoration: InputDecoration(
             labelText: 'Phone Number',

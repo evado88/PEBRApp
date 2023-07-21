@@ -1,4 +1,4 @@
 #!/bin/bash
 
 adb root
-adb pull /data/user/0/r21.pebrapp.pebrapp/databases/PEBRApp.db ./
+adb pull /data/user/0/com.twyshe/databases/PEBRApp.db ./

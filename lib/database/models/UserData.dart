@@ -18,7 +18,6 @@ class UserData implements IExcelExportable, IJsonExportable {
   static final colUsername = 'username';
   static final colPhoneNumber = 'phone_number';
   static final colPhoneNumberUploadRequired = 'phone_number_upload_required';
-  static final colHealthCenter = 'health_center';
   static final colIsActive = 'is_active';
   static final colDeactivatedDate = 'deactivated_date'; // nullable
 
@@ -28,7 +27,6 @@ class UserData implements IExcelExportable, IJsonExportable {
   String username;
   String phoneNumber;
   bool phoneNumberUploadRequired;
-  HealthCenter healthCenter;
   bool isActive;
   DateTime _deactivatedDate;
 
@@ -50,7 +48,6 @@ class UserData implements IExcelExportable, IJsonExportable {
     this.username = map[colUsername];
     this.phoneNumber = map[colPhoneNumber];
     this.phoneNumberUploadRequired = map[colPhoneNumberUploadRequired] == 1;
-    this.healthCenter = HealthCenter.fromCode(map[colHealthCenter]);
     this.isActive = map[colIsActive] == 1;
     this.deactivatedDate = map[colDeactivatedDate] == null
         ? null
@@ -68,7 +65,6 @@ class UserData implements IExcelExportable, IJsonExportable {
     map[colUsername] = username;
     map[colPhoneNumber] = phoneNumber;
     map[colPhoneNumberUploadRequired] = phoneNumberUploadRequired;
-    map[colHealthCenter] = healthCenter.code;
     map[colIsActive] = isActive;
     map[colDeactivatedDate] = _deactivatedDate?.toIso8601String();
     return map;

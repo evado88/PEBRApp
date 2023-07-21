@@ -322,13 +322,13 @@ class DatabaseProvider {
   // --------------
 
   /// Get the full file system path of the sql lite database file,
-  /// e.g., /data/user/0/r21.pebrapp.pebrapp/databases/PEBRApp.db
+  /// e.g., /data/user/0/com.twyshe/databases/PEBRApp.db
   Future<String> get databaseFilePath async {
     return join(await databasesDirectoryPath, _dbFilename);
   }
 
   /// Get the system path of the directory where the sql lite databases
-  /// are stored, e.g., /data/user/0/r21.pebrapp.pebrapp/databases
+  /// are stored, e.g., /data/user/0/com.twyshe/databases
   Future<String> get databasesDirectoryPath async {
     return getDatabasesPath();
   }
