@@ -114,7 +114,7 @@ class _R21MainScreenState extends State<R21MainScreen>
             animationControllers[newPatient.artNumber].forward();
           } else {
             // add if not exists (new patient was added)
-            if (newPatient.isEligible && newPatient.consentGiven) {
+            if (newPatient.isEligible && newPatient.downloadedChatAPp) {
               this._patients.add(newPatient);
               // add animation controller for this patient card
               final controller = AnimationController(

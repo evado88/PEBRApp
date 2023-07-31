@@ -161,7 +161,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             _buildRow('Name', '${_loginData.firstName} ${_loginData.lastName}'),
             _buildRow('Username', _loginData.username),
-            _buildRow('Health Center', _loginData.healthCenter.description),
             _buildRow('Phone Number', _loginData.phoneNumber),
           ],
         ),

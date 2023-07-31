@@ -7,34 +7,26 @@ class R21ContraceptionMethod {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_ContraceptionMethod, int> _encoding = {
-    _ContraceptionMethod.CapsDiaphragms: 1,
-    _ContraceptionMethod.Condoms: 2,
+    _ContraceptionMethod.MaleCondoms: 2,
     _ContraceptionMethod.FemaleCondoms: 3,
     _ContraceptionMethod.Implant: 4,
     _ContraceptionMethod.Injection: 5,
-    _ContraceptionMethod.Patch: 6,
     _ContraceptionMethod.IUD: 7,
     _ContraceptionMethod.IUS: 8,
-    _ContraceptionMethod.Natural: 9,
-    _ContraceptionMethod.CombinedPill: 10,
-    _ContraceptionMethod.ProgestogenPill: 11,
-    _ContraceptionMethod.VaginalRing: 12,
+    _ContraceptionMethod.ContraceptionPills: 9,
+    _ContraceptionMethod.Other: 10,
   };
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_ContraceptionMethod, String> _description = {
-    _ContraceptionMethod.CapsDiaphragms: 'Caps or Diaphragms',
-    _ContraceptionMethod.Condoms: 'Condoms',
+    _ContraceptionMethod.MaleCondoms: 'Male Condoms',
     _ContraceptionMethod.FemaleCondoms: 'Female Condoms',
-    _ContraceptionMethod.Implant: 'Contraceptive Implant',
-    _ContraceptionMethod.Injection: 'Contraceptive Injection',
-    _ContraceptionMethod.Patch: 'Contraceptive Patch',
+    _ContraceptionMethod.Implant: 'Implant',
+    _ContraceptionMethod.Injection: 'Injection',
     _ContraceptionMethod.IUD: 'IUD (intrauterine Device or Coil)',
     _ContraceptionMethod.IUS: 'IUS (intrauterine System or Hormonal Coil)',
-    _ContraceptionMethod.Natural: 'Natural (Fertility Awareness)',
-    _ContraceptionMethod.CombinedPill: 'Combined Pill',
-    _ContraceptionMethod.ProgestogenPill: 'Progestogen-only Pill',
-    _ContraceptionMethod.VaginalRing: 'Vaginal Ring',
+    _ContraceptionMethod.ContraceptionPills: 'Contraception Pills (combined or progestogen-only)',
+    _ContraceptionMethod.Other: 'Other',
   };
 
   _ContraceptionMethod _contraceptiveMethod;
@@ -45,12 +37,9 @@ class R21ContraceptionMethod {
   // make default constructor private
   R21ContraceptionMethod._();
 
-  R21ContraceptionMethod.CapsDiaphragms() {
-    _contraceptiveMethod = _ContraceptionMethod.CapsDiaphragms;
-  }
 
   R21ContraceptionMethod.Condoms() {
-    _contraceptiveMethod = _ContraceptionMethod.Condoms;
+    _contraceptiveMethod = _ContraceptionMethod.MaleCondoms;
   }
 
   R21ContraceptionMethod.FemaleCondoms() {
@@ -65,9 +54,7 @@ class R21ContraceptionMethod {
     _contraceptiveMethod = _ContraceptionMethod.Injection;
   }
 
-  R21ContraceptionMethod.Patch() {
-    _contraceptiveMethod = _ContraceptionMethod.Patch;
-  }
+
 
   R21ContraceptionMethod.IUD() {
     _contraceptiveMethod = _ContraceptionMethod.IUD;
@@ -78,16 +65,10 @@ class R21ContraceptionMethod {
   }
 
   R21ContraceptionMethod.Natural() {
-    _contraceptiveMethod = _ContraceptionMethod.Natural;
+    _contraceptiveMethod = _ContraceptionMethod.ContraceptionPills;
   }
   R21ContraceptionMethod.CombinedPill() {
-    _contraceptiveMethod = _ContraceptionMethod.CombinedPill;
-  }
-  R21ContraceptionMethod.ProgestogenPill() {
-    _contraceptiveMethod = _ContraceptionMethod.ProgestogenPill;
-  }
-  R21ContraceptionMethod.VaginalRing() {
-    _contraceptiveMethod = _ContraceptionMethod.VaginalRing;
+    _contraceptiveMethod = _ContraceptionMethod.Other;
   }
 
   static R21ContraceptionMethod fromCode(int code) {
@@ -116,18 +97,14 @@ class R21ContraceptionMethod {
   int get hashCode => _contraceptiveMethod.hashCode;
 
   static List<R21ContraceptionMethod> get allValues => [
-        R21ContraceptionMethod.CapsDiaphragms(),
         R21ContraceptionMethod.Condoms(),
         R21ContraceptionMethod.FemaleCondoms(),
         R21ContraceptionMethod.Implant(),
         R21ContraceptionMethod.Injection(),
-        R21ContraceptionMethod.Patch(),
         R21ContraceptionMethod.IUD(),
         R21ContraceptionMethod.IUS(),
         R21ContraceptionMethod.Natural(),
         R21ContraceptionMethod.CombinedPill(),
-        R21ContraceptionMethod.ProgestogenPill(),
-        R21ContraceptionMethod.VaginalRing()
       ];
 
   /// Returns the text description of this orientation.
@@ -138,16 +115,12 @@ class R21ContraceptionMethod {
 }
 
 enum _ContraceptionMethod {
-  CapsDiaphragms,
-  Condoms,
+  MaleCondoms,
   FemaleCondoms,
   Implant,
   Injection,
-  Patch,
   IUD,
   IUS,
-  Natural,
-  CombinedPill,
-  ProgestogenPill,
-  VaginalRing
+  ContraceptionPills,
+  Other,
 }

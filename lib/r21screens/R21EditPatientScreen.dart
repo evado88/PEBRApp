@@ -5,7 +5,7 @@ import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/PhoneAvailability.dart';
+import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
@@ -174,9 +174,9 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
   Widget _phoneAvailabilityQuestion() {
     return _makeQuestion(
       'Do you have regular access to a phone (with Zambia number) where you can receive confidential information?',
-      answer: DropdownButtonFormField<PhoneAvailability>(
+      answer: DropdownButtonFormField<PhoneNumberSecurity>(
         value: _patientToBeEdited.phoneAvailability,
-        onChanged: (PhoneAvailability newValue) {
+        onChanged: (PhoneNumberSecurity newValue) {
           setState(() {
             _patientToBeEdited.phoneAvailability = newValue;
           });
@@ -186,10 +186,10 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
             return 'Please answer this question.';
           }
         },
-        items: PhoneAvailability.allValues
-            .map<DropdownMenuItem<PhoneAvailability>>(
-                (PhoneAvailability value) {
-          return DropdownMenuItem<PhoneAvailability>(
+        items: PhoneNumberSecurity.allValues
+            .map<DropdownMenuItem<PhoneNumberSecurity>>(
+                (PhoneNumberSecurity value) {
+          return DropdownMenuItem<PhoneNumberSecurity>(
             value: value,
             child: Text(value.description),
           );
@@ -200,7 +200,7 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
 
   Widget _phoneNumberQuestion() {
     if (_patientToBeEdited.phoneAvailability == null ||
-        _patientToBeEdited.phoneAvailability != PhoneAvailability.YES()) {
+        _patientToBeEdited.phoneAvailability != PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeQuestion(
@@ -228,7 +228,7 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
   _onSubmitForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
-      if (_patientToBeEdited.phoneAvailability == PhoneAvailability.YES()) {
+      if (_patientToBeEdited.phoneAvailability == PhoneNumberSecurity.YES()) {
         _patientToBeEdited.phoneNumber = '+260${_phoneNumberCtr.text}';
       } else {
         _patientToBeEdited.phoneNumber = null;

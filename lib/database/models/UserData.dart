@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class UserData implements IExcelExportable, IJsonExportable {
@@ -38,7 +37,6 @@ class UserData implements IExcelExportable, IJsonExportable {
       this.lastName,
       this.username,
       this.phoneNumber,
-      this.healthCenter,
       this.isActive});
 
   UserData.fromMap(map) {
@@ -84,12 +82,9 @@ class UserData implements IExcelExportable, IJsonExportable {
     row[4] = 'USERNAME_PE';
     row[5] = 'CELL_PE';
     row[6] = 'CELL_PE_SYNCED';
-    row[7] = 'CLUSTER';
-    row[8] = 'DISTRICT';
-    row[9] = 'ARM';
-    row[10] = 'ACTIVE';
-    row[11] = 'DATE_DEACTIVATED';
-    row[12] = 'TIME_DEACTIVATED';
+    row[7] = 'ACTIVE';
+    row[8] = 'DATE_DEACTIVATED';
+    row[9] = 'TIME_DEACTIVATED';
     return row;
   }
 
@@ -106,12 +101,9 @@ class UserData implements IExcelExportable, IJsonExportable {
     row[4] = username;
     row[5] = phoneNumber;
     row[6] = !phoneNumberUploadRequired;
-    row[7] = healthCenter.description;
-    row[8] = healthCenter.district;
-    row[9] = healthCenter.studyArm;
-    row[10] = isActive;
-    row[11] = formatDateIso(_deactivatedDate);
-    row[12] = formatTimeIso(_deactivatedDate);
+    row[7] = isActive;
+    row[8] = formatDateIso(_deactivatedDate);
+    row[9] = formatTimeIso(_deactivatedDate);
     return row;
   }
 
@@ -123,9 +115,6 @@ class UserData implements IExcelExportable, IJsonExportable {
         "\"lastName\"": "\"${lastName.trim()}\"",
         "\"phoneNumber\"": "\"$phoneNumber\"",
         "\"phoneNumberUploadRequired\"": phoneNumberUploadRequired,
-        "\"healthCenterDescription\"": "\"${healthCenter.description}\"",
-        "\"healthCenterDistrict\"": "\"${healthCenter.district}\"",
-        "\"healthCenterStudyArm\"": "\"${healthCenter.studyArm}\"",
         "\"isActive\"": isActive,
         "\"deactivatedDate\"": "\"${formatDateIso(_deactivatedDate)}\"",
       };

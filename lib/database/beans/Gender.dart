@@ -7,16 +7,14 @@ class Gender {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_Gender, int> _encoding = {
-    _Gender.FEMALE: 1,
-    _Gender.MALE: 2,
-    _Gender.TRANSGENDER: 3,
+    _Gender.UNZA: 1,
+    _Gender.ADDRESS: 2,
   };
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_Gender, String> _description = {
-    _Gender.FEMALE: 'Female',
-    _Gender.MALE: 'Male',
-    _Gender.TRANSGENDER: 'Transgender',
+    _Gender.UNZA: 'UNZA Hostel',
+    _Gender.ADDRESS: 'Address',
   };
 
   _Gender _gender;
@@ -28,15 +26,11 @@ class Gender {
   Gender._();
 
   Gender.FEMALE() {
-    _gender = _Gender.FEMALE;
+    _gender = _Gender.UNZA;
   }
 
   Gender.MALE() {
-    _gender = _Gender.MALE;
-  }
-
-  Gender.TRANSGENDER() {
-    _gender = _Gender.TRANSGENDER;
+    _gender = _Gender.ADDRESS;
   }
 
   static Gender fromCode(int code) {
@@ -66,7 +60,6 @@ class Gender {
   static List<Gender> get allValues => [
         Gender.FEMALE(),
         Gender.MALE(),
-        Gender.TRANSGENDER(),
       ];
 
   /// Returns the text description of this gender.
@@ -76,4 +69,4 @@ class Gender {
   int get code => _encoding[_gender];
 }
 
-enum _Gender { FEMALE, MALE, TRANSGENDER }
+enum _Gender { UNZA, ADDRESS}

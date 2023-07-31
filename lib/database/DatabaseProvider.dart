@@ -264,7 +264,6 @@ class DatabaseProvider {
           ${UserData.colUsername} TEXT NOT NULL,
           ${UserData.colPhoneNumber} TEXT NOT NULL,
           ${UserData.colPhoneNumberUploadRequired} BIT NOT NULL,
-          ${UserData.colHealthCenter} INTEGER NOT NULL,
           ${UserData.colIsActive} BIT NOT NULL,
           ${UserData.colDeactivatedDate} TEXT
         );

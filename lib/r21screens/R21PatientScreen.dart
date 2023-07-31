@@ -209,9 +209,6 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
         }, flat: true),
         _buildNextActions(),
         SizedBox(height: _spacingBetweenCards),
-        _userData?.healthCenter?.studyArm == 2
-            ? _buildEmptyBox()
-            : _buildPreferencesCard(),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
@@ -244,11 +241,6 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
         _patient.calculateDueRequiredActions().toList();
 
     // Filter out REFILL_REQUIRED and ASSESSMENT_REQUIRED for clinics in the control cluster
-    if (_userData?.healthCenter?.studyArm == 2) {
-      visibleRequiredActionsSorted.removeWhere((i) =>
-          i.type == RequiredActionType.REFILL_REQUIRED ||
-          i.type == RequiredActionType.ASSESSMENT_REQUIRED);
-    }
 
     visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) =>
         a.dueDate.isBefore(b.dueDate) ? -1 : 1);

@@ -5,12 +5,15 @@ import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/PhoneAvailability.dart';
+import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
+import 'package:pebrapp/database/beans/R21ContraceptionUse.dart';
+import 'package:pebrapp/database/beans/R21HIVStatus.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
 import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
+import 'package:pebrapp/database/beans/R21Satisfaction.dart';
 import 'package:pebrapp/database/beans/R21SupportType.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
@@ -21,7 +24,7 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
-import 'package:pebrapp/database/beans/NoConsentReason.dart';
+import 'package:pebrapp/database/beans/NoChatDownloadReason.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class R21NewPatientScreen extends StatefulWidget {
@@ -34,7 +37,9 @@ class R21NewPatientScreen extends StatefulWidget {
 class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
-  final _formKey = GlobalKey<FormState>();
+  final _formParticipantCharacteristicsKey = GlobalKey<FormState>();
+  final _formParticipantHistoryKey = GlobalKey<FormState>();
+  final _formParticipantSrhPreferenceKey = GlobalKey<FormState>();
 
   final _questionsFlex = 1;
   final _answersFlex = 1;
@@ -58,13 +63,16 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
       ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), failed: false);
   bool _isLowerThanDetectable;
 
-  TextEditingController _providerLocationCtr = TextEditingController();
+  TextEditingController _reasonStopContraceptionCtr = TextEditingController();
+  TextEditingController _reasonNoContraceptionCtr = TextEditingController();
+  TextEditingController _reasonNoContraceptionSatisfactionCtr =
+      TextEditingController();
 
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
-  TextEditingController _noConsentReasonOtherCtr = TextEditingController();
+  TextEditingController _noChatDownloadReasonOtherCtr = TextEditingController();
   TextEditingController _viralLoadBaselineResultCtr = TextEditingController();
   TextEditingController _viralLoadBaselineLabNumberCtr =
       TextEditingController();
@@ -107,42 +115,35 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     _screenWidth = MediaQuery.of(context).size.width;
 
     final Form patientCharacteristicsStep = Form(
-      key: _formKey,
+      key: _formParticipantCharacteristicsKey,
       child: Column(
         children: [
           _personalInformationCard(),
           _eligibilityDisclaimer(),
-          _consentCard(),
-          _desiredSupportCard(),
-          _additionalInformationCard(),
-          //_viralLoadBaselineCard(),
+          _messengerAppCard(),
+          _contactInformationCard(),
           _notEligibleDisclaimer(),
         ],
       ),
     );
 
-    final String bullet = '‣';
-    final Widget baselineAssessmentStep = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Open the KoBoCollect app and fill in the following questionnaires:\n'
-          '$bullet  Enrollment questionnaire\n'
-          '$bullet  Satisfaction questionnaire\n'
-          '$bullet  Quality of Life questionnaire\n'
-          '$bullet  Adherence questionnaire',
-          style: TextStyle(height: 1.8),
-        ),
-        SizedBox(height: 20.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            PEBRAButtonRaised('Open KoBoCollect',
-                onPressed: _onOpenKoboCollectPressed)
-          ],
-        ),
-        SizedBox(height: 20.0),
-      ],
+    final Form patientHistoryStep = Form(
+      key: _formParticipantHistoryKey,
+      child: Column(
+        children: [
+          _contraceptionCard(),
+          _hivCard()
+        ],
+      ),
+    );
+
+    final Form patientSrhServicePreferenceStep = Form(
+      key: _formParticipantSrhPreferenceKey,
+      child: Column(
+        children: [
+          _contraceptionInterestCard(),
+        ],
+      ),
     );
 
     Widget finishStep() {
@@ -153,7 +154,7 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
       }
 
       if (_patientSaved &&
-          (_kobocollectOpened || !(_newPatient.consentGiven ?? true))) {
+          (_kobocollectOpened || !(_newPatient.downloadedChatAPp ?? true))) {
         return Container(
           width: double.infinity,
           child:
@@ -189,16 +190,26 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
         content: patientCharacteristicsStep,
       ),
       Step(
-        title: Text('Baseline Assessment',
+        title: Text('Contraception/PREP History And Preferences',
             style: TextStyle(
                 fontWeight:
                     currentStep == 1 ? FontWeight.bold : FontWeight.normal)),
         isActive: _kobocollectOpened,
-        state: _kobocollectOpened || !(_newPatient.consentGiven ?? true)
+        state: _kobocollectOpened || !(_newPatient.downloadedChatAPp ?? true)
             ? StepState.complete
             : StepState.indexed,
-        content: baselineAssessmentStep,
+        content: patientHistoryStep,
       ),
+      Step(
+          title: Text('SRH Service Preferences',
+              style: TextStyle(
+                  fontWeight:
+                      currentStep == 1 ? FontWeight.bold : FontWeight.normal)),
+          isActive: _kobocollectOpened,
+          state: _kobocollectOpened || !(_newPatient.downloadedChatAPp ?? true)
+              ? StepState.complete
+              : StepState.indexed,
+          content: Column()),
       Step(
         title: Text('Finish',
             style: TextStyle(
@@ -216,7 +227,7 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
         // been saved
         return;
       }
-      if (step == 1 && !(_newPatient.consentGiven ?? true)) {
+      if (step == 1 && !(_newPatient.downloadedChatAPp ?? true)) {
         // skip going to step 'baseline assessment' if no consent is given and
         // we are coming from step 'patient characteristics'
         if (currentStep == 0) {
@@ -273,11 +284,11 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
                 (currentStep == 2 &&
                     (!_patientSaved ||
                         (!_kobocollectOpened &&
-                            (_newPatient.consentGiven ?? false)))))
+                            (_newPatient.downloadedChatAPp ?? false)))))
             ? null
             : next,
         onStepCancel: (currentStep == 1 && _patientSaved ||
-                (currentStep == 2 && !(_newPatient.consentGiven ?? true)))
+                (currentStep == 2 && !(_newPatient.downloadedChatAPp ?? true)))
             ? null
             : cancel,
         controlsBuilder: (BuildContext context,
@@ -357,36 +368,60 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _desiredSupportCard() {
-    if (_notEligibleAfterBirthdaySpecified ||
-        _newPatient.consentGiven == null ||
-        !_newPatient.consentGiven) {
-      return SizedBox();
-    }
+  Widget _contraceptionCard() {
+    return _buildCard(
+      'Contraception',
+      withTopPadding: true,
+      child: Column(
+        children: [
+          _isusingContraception(),
+          _contraceptiveMethod(),
+          _contraception(),
+          _whyStopContraception(),
+          _contraceptionSatisfaction(),
+          _whyNoContraceptionSatisfaction(),
+          _whyNoContraception(),
+        ],
+      ),
+    );
+  }
 
+    Widget _hivCard() {
+    return _buildCard(
+      'HIV Status',
+      withTopPadding: true,
+      child: Column(
+        children: [
+          _hivStatus(),
+        ],
+      ),
+    );
+  }
+
+
+  Widget _contraceptionInterestCard() {
     return _buildCard(
       'Desired Support',
       withTopPadding: true,
       child: Column(
         children: [
-          _supportTypeQuestion(),
-          _contactFrequency(),
+          _isusingContraception(),
           _srhServicePreferred(),
           _prep(),
           _contraceptiveMethod(),
-          _providerLocation(),
+          _whyNoContraceptionSatisfaction(),
           _providerType()
         ],
       ),
     );
   }
 
-  Widget _consentCard() {
+  Widget _messengerAppCard() {
     if (_notEligibleAfterBirthdaySpecified) {
       return Container();
     }
     return _buildCard(
-      'Consent',
+      'Messenger App',
       child: Column(
         children: [
           _consentGivenQuestion(),
@@ -397,47 +432,16 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _additionalInformationCard() {
-    if (_notEligibleAfterBirthdaySpecified ||
-        _newPatient.consentGiven == null ||
-        !_newPatient.consentGiven) {
-      return SizedBox();
-    }
+  Widget _contactInformationCard() {
     return _buildCard(
-      'Additional Information',
+      'Contact Information',
       child: Column(
         children: [
-          _stickerNumberQuestion(),
-          _genderQuestion(),
-          _sexualOrientationQuestion(),
-          _villageQuestion(),
-          _phoneAvailabilityQuestion(),
           _phoneNumberQuestion(),
-        ],
-      ),
-    );
-  }
-
-  Widget _viralLoadBaselineCard() {
-    if (_notEligibleAfterBirthdaySpecified ||
-        _newPatient.consentGiven == null ||
-        !_newPatient.consentGiven) {
-      return Container();
-    }
-    const double _spaceBetweenQuestions = 5.0;
-    return _buildCard(
-      'Viral Load Baseline',
-      child: Column(
-        children: [
-          _viralLoadBaselineAvailableQuestion(),
-          SizedBox(height: _spaceBetweenQuestions),
-          _viralLoadBaselineDateQuestion(),
-          SizedBox(height: _spaceBetweenQuestions),
-          _viralLoadBaselineLowerThanDetectableQuestion(),
-          SizedBox(height: _spaceBetweenQuestions),
-          _viralLoadBaselineResultQuestion(),
-          SizedBox(height: _spaceBetweenQuestions),
-          _viralLoadBaselineLabNumberQuestion(),
+          _phoneAvailabilityQuestion(),
+          _residencyQuestion(),
+          _preferredContactMethodQuestion(),
+          _contactFrequency(),
         ],
       ),
     );
@@ -449,14 +453,14 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
 
   //R21
 
-  Widget _supportTypeQuestion() {
+  Widget _isusingContraception() {
     return _makeQuestion(
-      'Type of Support',
-      answer: DropdownButtonFormField<R21SupportType>(
-        value: _newPatient.supportType,
-        onChanged: (R21SupportType newValue) {
+      'Is the client currently using modern contraception or has used in the past?',
+      answer: DropdownButtonFormField<R21ContraceptionUse>(
+        value: _newPatient.contraceptionUse,
+        onChanged: (R21ContraceptionUse newValue) {
           setState(() {
-            _newPatient.supportType = newValue;
+            _newPatient.contraceptionUse = newValue;
           });
         },
         validator: (value) {
@@ -464,9 +468,10 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
             return 'Please answer this question.';
           }
         },
-        items: R21SupportType.allValues
-            .map<DropdownMenuItem<R21SupportType>>((R21SupportType value) {
-          return DropdownMenuItem<R21SupportType>(
+        items: R21ContraceptionUse.allValues
+            .map<DropdownMenuItem<R21ContraceptionUse>>(
+                (R21ContraceptionUse value) {
+          return DropdownMenuItem<R21ContraceptionUse>(
             value: value,
             child: Text(value.description),
           );
@@ -555,7 +560,40 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
+  Widget _hivStatus() {
+
+    return _makeQuestion(
+      'Does the client know her HIV status? ',
+      answer: DropdownButtonFormField<R21HIVStatus>(
+        value: _newPatient.hivStatus,
+        onChanged: (R21HIVStatus newValue) {
+          setState(() {
+            _newPatient.hivStatus = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21HIVStatus.allValues
+            .map<DropdownMenuItem<R21HIVStatus>>(
+                (R21HIVStatus value) {
+          return DropdownMenuItem<R21HIVStatus>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _contraceptiveMethod() {
+    if (_newPatient.contraceptionUse == null ||
+        _newPatient.contraceptionUse == R21ContraceptionUse.HasNever()) {
+      return SizedBox();
+    }
+
     return _makeQuestion(
       'Contraceptive Method',
       answer: DropdownButtonFormField<R21ContraceptionMethod>(
@@ -582,14 +620,91 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _providerLocation() {
+  Widget _contraceptionSatisfaction() {
+    if (_newPatient.contraceptionUse == null ||
+        _newPatient.contraceptionUse != R21ContraceptionUse.CurrentlyUsing()) {
+      return SizedBox();
+    }
+
     return _makeQuestion(
-      'Location of Provider',
+      'Satisfaction with current method',
+      answer: DropdownButtonFormField<R21Satisfaction>(
+        value: _newPatient.contraceptionSatisfaction,
+        onChanged: (R21Satisfaction newValue) {
+          setState(() {
+            _newPatient.contraceptionSatisfaction = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21Satisfaction.allValues
+            .map<DropdownMenuItem<R21Satisfaction>>((R21Satisfaction value) {
+          return DropdownMenuItem<R21Satisfaction>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _whyNoContraceptionSatisfaction() {
+    if (_newPatient.contraceptionUse == null ||
+        _newPatient.contraceptionUse != R21ContraceptionUse.CurrentlyUsing()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Why',
       answer: TextFormField(
-        controller: _providerLocationCtr,
+        controller: _reasonNoContraceptionSatisfactionCtr,
         validator: (value) {
           if (value.isEmpty) {
-            return 'Please enter a location';
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _whyNoContraception() {
+
+    if (_newPatient.contraceptionUse == null ||
+        _newPatient.contraceptionUse !=
+            R21ContraceptionUse.HasNever()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Why not',
+      answer: TextFormField(
+        controller: _reasonNoContraceptionCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _whyStopContraception() {
+    if (_newPatient.contraceptionUse == null ||
+        _newPatient.contraceptionUse !=
+            R21ContraceptionUse.NotCurrentButPast()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Why did she stop using ',
+      answer: TextFormField(
+        controller: _reasonStopContraceptionCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
           }
         },
       ),
@@ -623,9 +738,9 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   }
 
   //Main
-  Widget _genderQuestion() {
+  Widget _residencyQuestion() {
     return _makeQuestion(
-      'Gender',
+      'Residence',
       answer: DropdownButtonFormField<Gender>(
         value: _newPatient.gender,
         onChanged: (Gender newValue) {
@@ -752,9 +867,9 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _sexualOrientationQuestion() {
+  Widget _preferredContactMethodQuestion() {
     return _makeQuestion(
-      'Sexual Orientation',
+      'Preferred way to contact',
       answer: DropdownButtonFormField<SexualOrientation>(
         value: _newPatient.sexualOrientation,
         onChanged: (SexualOrientation newValue) {
@@ -780,27 +895,12 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _villageQuestion() {
-    return _makeQuestion(
-      'Village',
-      answer: TextFormField(
-        controller: _villageCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter a village';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
   Widget _phoneAvailabilityQuestion() {
     return _makeQuestion(
-      'Do you have regular access to a phone (with Zambia number) where you can receive confidential information?',
-      answer: DropdownButtonFormField<PhoneAvailability>(
+      'Is your phone',
+      answer: DropdownButtonFormField<PhoneNumberSecurity>(
         value: _newPatient.phoneAvailability,
-        onChanged: (PhoneAvailability newValue) {
+        onChanged: (PhoneNumberSecurity newValue) {
           setState(() {
             _newPatient.phoneAvailability = newValue;
           });
@@ -811,10 +911,10 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
           }
           return null;
         },
-        items: PhoneAvailability.allValues
-            .map<DropdownMenuItem<PhoneAvailability>>(
-                (PhoneAvailability value) {
-          return DropdownMenuItem<PhoneAvailability>(
+        items: PhoneNumberSecurity.allValues
+            .map<DropdownMenuItem<PhoneNumberSecurity>>(
+                (PhoneNumberSecurity value) {
+          return DropdownMenuItem<PhoneNumberSecurity>(
             value: value,
             child: Text(value.description),
           );
@@ -824,10 +924,6 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (_newPatient.phoneAvailability == null ||
-        _newPatient.phoneAvailability != PhoneAvailability.YES()) {
-      return Container();
-    }
     return _makeQuestion(
       'Phone Number',
       answer: TextFormField(
@@ -848,12 +944,12 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
 
   Widget _consentGivenQuestion() {
     return _makeQuestion(
-      'Has the participant signed the consent form?',
+      'Has the client downloaded the messenger app?',
       answer: DropdownButtonFormField<bool>(
-        value: _newPatient.consentGiven,
+        value: _newPatient.downloadedChatAPp,
         onChanged: (bool newValue) {
           setState(() {
-            _newPatient.consentGiven = newValue;
+            _newPatient.downloadedChatAPp = newValue;
           });
         },
         validator: (value) {
@@ -874,14 +970,15 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   }
 
   Widget _noConsentReasonQuestion() {
-    if (_newPatient.consentGiven == null || _newPatient.consentGiven) {
+    if (_newPatient.downloadedChatAPp == null ||
+        _newPatient.downloadedChatAPp) {
       return Container();
     }
     return _makeQuestion(
-      'Reason for refusal',
-      answer: DropdownButtonFormField<NoConsentReason>(
+      'Why',
+      answer: DropdownButtonFormField<NoChatDownloadReason>(
         value: _newPatient.noConsentReason,
-        onChanged: (NoConsentReason newValue) {
+        onChanged: (NoChatDownloadReason newValue) {
           setState(() {
             _newPatient.noConsentReason = newValue;
           });
@@ -892,9 +989,10 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
           }
           return null;
         },
-        items: NoConsentReason.allValues
-            .map<DropdownMenuItem<NoConsentReason>>((NoConsentReason value) {
-          return DropdownMenuItem<NoConsentReason>(
+        items: NoChatDownloadReason.allValues
+            .map<DropdownMenuItem<NoChatDownloadReason>>(
+                (NoChatDownloadReason value) {
+          return DropdownMenuItem<NoChatDownloadReason>(
             value: value,
             child: Text(value.description),
           );
@@ -904,193 +1002,22 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   }
 
   Widget _noConsentReasonOtherQuestion() {
-    if (_newPatient.consentGiven == null ||
-        _newPatient.consentGiven ||
+    if (_newPatient.downloadedChatAPp == null ||
+        _newPatient.downloadedChatAPp ||
         _newPatient.noConsentReason == null ||
-        _newPatient.noConsentReason != NoConsentReason.OTHER()) {
+        _newPatient.noConsentReason != NoChatDownloadReason.OTHER()) {
       return Container();
     }
     return _makeQuestion(
       'Other, specify',
       answer: TextFormField(
-        controller: _noConsentReasonOtherCtr,
+        controller: _noChatDownloadReasonOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify the reasons';
           }
           return null;
         },
-      ),
-    );
-  }
-
-  Widget _viralLoadBaselineAvailableQuestion() {
-    return _makeQuestion(
-      'Is there any viral load within the last 12 months available (laboratory report, bukana, patient file)?',
-      answer: DropdownButtonFormField<bool>(
-        value: _newPatient.isVLBaselineAvailable,
-        onChanged: (bool newValue) {
-          if (!newValue) {
-            _showDialog('No Viral Load Available',
-                'Send the participant to the nurse for blood draw today!');
-          }
-          setState(() {
-            _newPatient.isVLBaselineAvailable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-          return null;
-        },
-        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description = value ? 'Yes' : 'No';
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _viralLoadBaselineDateQuestion() {
-    if (_newPatient.isVLBaselineAvailable == null ||
-        !_newPatient.isVLBaselineAvailable) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Date of the most recent available viral load (put the date when blood was taken)',
-      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        FlatButton(
-          padding: EdgeInsets.all(0.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: Text(
-              _viralLoadBaseline.dateOfBloodDraw == null
-                  ? ''
-                  : formatDateConsistent(_viralLoadBaseline.dateOfBloodDraw),
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ),
-          onPressed: () async {
-            final now = DateTime.now();
-            DateTime date = await showDatePicker(
-              context: context,
-              initialDate: _viralLoadBaseline.dateOfBloodDraw ??
-                  DateTime(now.year, now.month, now.day),
-              firstDate: DateTime(now.year - 1, now.month, now.day),
-              lastDate: DateTime(now.year, now.month, now.day),
-            );
-            if (date != null) {
-              setState(() {
-                _viralLoadBaseline.dateOfBloodDraw = date;
-              });
-            }
-          },
-        ),
-        Divider(
-          color: CUSTOM_FORM_FIELD_UNDERLINE,
-          height: 1.0,
-        ),
-        _viralLoadBaselineDateValid
-            ? Container()
-            : Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(
-                  'Please select a date',
-                  style: TextStyle(
-                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
-                    fontSize: 12.0,
-                  ),
-                ),
-              ),
-      ]),
-    );
-  }
-
-  Widget _viralLoadBaselineLowerThanDetectableQuestion() {
-    if (_newPatient.isVLBaselineAvailable == null ||
-        !_newPatient.isVLBaselineAvailable) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Was that viral load result lower than detectable limit (<20 copies/mL)?',
-      answer: DropdownButtonFormField<bool>(
-        value: _isLowerThanDetectable,
-        onChanged: (bool newValue) {
-          setState(() {
-            _isLowerThanDetectable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-          return null;
-        },
-        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description = value ? 'Yes' : 'No';
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _viralLoadBaselineResultQuestion() {
-    if (_newPatient.isVLBaselineAvailable == null ||
-        !_newPatient.isVLBaselineAvailable ||
-        _isLowerThanDetectable == null ||
-        _isLowerThanDetectable) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Result of that viral load (in c/mL)',
-      answer: TextFormField(
-        inputFormatters: [
-          WhitelistingTextInputFormatter.digitsOnly,
-        ],
-        keyboardType: TextInputType.numberWithOptions(),
-        controller: _viralLoadBaselineResultCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter the viral load baseline result';
-          } else if (int.parse(value) < 20) {
-            return 'Value must be ≥ 20 (otherwise it is lower than detectable limit)';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _viralLoadBaselineLabNumberQuestion() {
-    if (_newPatient.isVLBaselineAvailable == null ||
-        !_newPatient.isVLBaselineAvailable) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Lab number of that viral load',
-      answer: TextFormField(
-        autocorrect: false,
-        controller: _viralLoadBaselineLabNumberCtr,
-        decoration: InputDecoration(
-          errorMaxLines: 2,
-        ),
-        inputFormatters: [
-          WhitelistingTextInputFormatter(RegExp(r'[a-zA-Z0-9]')),
-          LengthLimitingTextInputFormatter(13),
-          LabNumberTextInputFormatter(),
-        ],
-        validator: validateLabNumber,
       ),
     );
   }
@@ -1128,27 +1055,6 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  bool _validateViralLoadBaselineDate() {
-    // if the viral load baseline date is not selected when it should be show
-    // the error message under the viral load baseline date field and return
-    // false.
-    if (_eligible &&
-        _newPatient.consentGiven != null &&
-        _newPatient.consentGiven &&
-        _newPatient.isVLBaselineAvailable != null &&
-        _newPatient.isVLBaselineAvailable &&
-        _viralLoadBaseline.dateOfBloodDraw == null) {
-      setState(() {
-        _viralLoadBaselineDateValid = false;
-      });
-      return false;
-    }
-    setState(() {
-      _viralLoadBaselineDateValid = true;
-    });
-    return true;
-  }
-
   bool _validatePatientBirthday() {
     // if the birthday is not specified show the error message under the
     // birthday field and return false.
@@ -1170,7 +1076,8 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     setState(() {
       _isLoading = true;
     });
-    if (_formKey.currentState.validate() & _validatePatientBirthday()
+    if (_formParticipantCharacteristicsKey.currentState.validate() &
+            _validatePatientBirthday()
         // &_validateViralLoadBaselineDate()
         ) {
       final DateTime now = DateTime.now();
@@ -1178,22 +1085,22 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
       _newPatient.enrollmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = (_newPatient.consentGiven ?? false)
+      _newPatient.stickerNumber = (_newPatient.downloadedChatAPp ?? false)
           ? 'P${_stickerNumberCtr.text}'
           : null;
       _newPatient.village = _villageCtr.text;
       _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
-      _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
+      _newPatient.noConsentReasonOther = _noChatDownloadReasonOtherCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.checkLogicAndResetUnusedFields();
 
-      _newPatient.providerLocation = (_newPatient.consentGiven ?? false)
-          ? _providerLocationCtr.text
+      _newPatient.providerLocation = (_newPatient.downloadedChatAPp ?? false)
+          ? _reasonNoContraceptionCtr.text
           : null;
 
-      if (_newPatient.isEligible && _newPatient.consentGiven) {
+      if (_newPatient.isEligible && _newPatient.downloadedChatAPp) {
         await DatabaseProvider().insertRequiredAction(RequiredAction(
             _newPatient.artNumber,
             RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED,
@@ -1220,9 +1127,8 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
             addMonths(now, 9)));
       }
 
-      if (_newPatient.isEligible && _newPatient.consentGiven) {
+      if (_newPatient.isEligible && _newPatient.downloadedChatAPp) {
         _viralLoadBaseline.patientART = _artNumberCtr.text;
-
       }
 
       await _newPatient.initializeRequiredActionsField();

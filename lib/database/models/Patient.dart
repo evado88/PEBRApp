@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/NoConsentReason.dart';
-import 'package:pebrapp/database/beans/PhoneAvailability.dart';
+import 'package:pebrapp/database/beans/NoChatDownloadReason.dart';
+import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
+import 'package:pebrapp/database/beans/R21ContraceptionUse.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
 import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
@@ -67,10 +68,10 @@ class Patient implements IExcelExportable, IJsonExportable {
   Gender gender;
   SexualOrientation sexualOrientation;
   String village;
-  PhoneAvailability phoneAvailability;
+  PhoneNumberSecurity phoneAvailability;
   String phoneNumber;
-  bool consentGiven;
-  NoConsentReason noConsentReason;
+  bool downloadedChatAPp;
+  NoChatDownloadReason noConsentReason;
   String noConsentReasonOther;
   bool isActivated;
   bool isDuplicate;
@@ -107,6 +108,12 @@ class Patient implements IExcelExportable, IJsonExportable {
   Set<RequiredAction> requiredActions = {};
   Set<RequiredAction> dueRequiredActionsAtInitialization = {};
 
+  R21ContraceptionUse contraceptionUse;
+
+  var contraceptionSatisfaction;
+
+  var hivStatus;
+
   // Constructors
   // ------------
 
@@ -122,7 +129,7 @@ class Patient implements IExcelExportable, IJsonExportable {
       this.village,
       this.phoneAvailability,
       this.phoneNumber,
-      this.consentGiven,
+      this.downloadedChatAPp,
       this.noConsentReason,
       this.noConsentReasonOther,
       this.isActivated,
@@ -151,12 +158,12 @@ class Patient implements IExcelExportable, IJsonExportable {
         SexualOrientation.fromCode(map[colSexualOrientation]);
     this.village = map[colVillage];
     this.phoneAvailability =
-        PhoneAvailability.fromCode(map[colPhoneAvailability]);
+        PhoneNumberSecurity.fromCode(map[colPhoneAvailability]);
     this.phoneNumber = map[colPhoneNumber];
     if (map[colConsentGiven] != null) {
-      this.consentGiven = map[colConsentGiven] == 1;
+      this.downloadedChatAPp = map[colConsentGiven] == 1;
     }
-    this.noConsentReason = NoConsentReason.fromCode(map[colNoConsentReason]);
+    this.noConsentReason = NoChatDownloadReason.fromCode(map[colNoConsentReason]);
     this.noConsentReasonOther = map[colNoConsentReasonOther];
     if (map[colIsActivated] != null) {
       this.isActivated = map[colIsActivated] == 1;
@@ -196,7 +203,7 @@ class Patient implements IExcelExportable, IJsonExportable {
     map[colVillage] = village;
     map[colPhoneAvailability] = phoneAvailability?.code;
     map[colPhoneNumber] = phoneNumber;
-    map[colConsentGiven] = consentGiven;
+    map[colConsentGiven] = downloadedChatAPp;
     map[colNoConsentReason] = noConsentReason?.code;
     map[colNoConsentReasonOther] = noConsentReasonOther;
     map[colIsActivated] = isActivated;
@@ -264,7 +271,7 @@ class Patient implements IExcelExportable, IJsonExportable {
     row[3] = formatTimeIso(enrollmentDate);
     row[4] = artNumber;
     row[5] = formatDateIso(birthday);
-    row[6] = consentGiven;
+    row[6] = downloadedChatAPp;
     row[7] = noConsentReason?.description;
     row[8] = noConsentReasonOther;
     row[9] = gender?.description;
@@ -295,7 +302,7 @@ class Patient implements IExcelExportable, IJsonExportable {
         "\"createDate\"": "\"${formatDateIso(_createdDate)}\"",
         "\"enrollDate\"": "\"${formatDateIso(enrollmentDate)}\"",
         "\"birthDate\"": "\"${formatDateIso(birthday)}\"",
-        "\"consentGiven\"": consentGiven,
+        "\"consentGiven\"": downloadedChatAPp,
         "\"noConsentReason\"": noConsentReason == null
             ? null
             : "\"${noConsentReason.description}\"",
@@ -498,7 +505,7 @@ class Patient implements IExcelExportable, IJsonExportable {
       this.village = null;
       this.phoneAvailability = null;
       this.phoneNumber = null;
-      this.consentGiven = null;
+      this.downloadedChatAPp = null;
       this.noConsentReason = null;
       this.noConsentReasonOther = null;
       this.isActivated = null;
@@ -513,7 +520,7 @@ class Patient implements IExcelExportable, IJsonExportable {
       this.providerLocation = null;
       this.providerType = null;
     }
-    if (this.consentGiven != null && !this.consentGiven) {
+    if (this.downloadedChatAPp != null && !this.downloadedChatAPp) {
       this.gender = null;
       this.sexualOrientation = null;
       this.village = null;
@@ -530,15 +537,15 @@ class Patient implements IExcelExportable, IJsonExportable {
       this.providerLocation = null;
       this.providerType = null;
 
-      if (this.noConsentReason != NoConsentReason.OTHER()) {
+      if (this.noConsentReason != NoChatDownloadReason.OTHER()) {
         this.noConsentReasonOther = null;
       }
     }
     if (this.phoneAvailability != null &&
-        this.phoneAvailability != PhoneAvailability.YES()) {
+        this.phoneAvailability != PhoneNumberSecurity.YES()) {
       this.phoneNumber = null;
     }
-    if (this.consentGiven != null && this.consentGiven) {
+    if (this.downloadedChatAPp != null && this.downloadedChatAPp) {
       this.noConsentReason = null;
       this.noConsentReasonOther = null;
     }
@@ -560,12 +567,6 @@ class Patient implements IExcelExportable, IJsonExportable {
     visibleRequiredActions.addAll(requiredActions);
     visibleRequiredActions
         .removeWhere((RequiredAction a) => a.dueDate.isAfter(now));
-    if (userData != null && userData.healthCenter.studyArm == 2) {
-      visibleRequiredActions.removeWhere(
-          (RequiredAction a) => a.type == RequiredActionType.REFILL_REQUIRED);
-      visibleRequiredActions.removeWhere((RequiredAction a) =>
-          a.type == RequiredActionType.ASSESSMENT_REQUIRED);
-    }
     return visibleRequiredActions;
   }
 

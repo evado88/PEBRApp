@@ -10,7 +10,6 @@ class R21ContactFrequency {
     _ContactFrequency.Weekly: 7,
     _ContactFrequency.BIWeekly: 14,
     _ContactFrequency.Monthly: 30,
-    _ContactFrequency.Quarterly: 90,
   };
 
   // These are the descriptions that will be displayed in the UI.
@@ -18,7 +17,6 @@ class R21ContactFrequency {
     _ContactFrequency.Weekly: 'Weekly',
     _ContactFrequency.BIWeekly: 'Bi-Weekly',
     _ContactFrequency.Monthly: 'Monthly',
-    _ContactFrequency.Quarterly: 'Quarterly',
   };
 
   _ContactFrequency _contactFrequuency;
@@ -41,9 +39,6 @@ class R21ContactFrequency {
     _contactFrequuency = _ContactFrequency.Monthly;
   }
 
-  R21ContactFrequency.Quarterly() {
-    _contactFrequuency = _ContactFrequency.Quarterly;
-  }
 
   static R21ContactFrequency fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
@@ -74,7 +69,6 @@ class R21ContactFrequency {
         R21ContactFrequency.Weekly(),
         R21ContactFrequency.BIWeekly(),
         R21ContactFrequency.Monthly(),
-        R21ContactFrequency.Quarterly(),
       ];
 
   /// Returns the text description of this orientation.
@@ -84,4 +78,4 @@ class R21ContactFrequency {
   int get code => _encoding[_contactFrequuency];
 }
 
-enum _ContactFrequency { Weekly, BIWeekly, Monthly, Quarterly }
+enum _ContactFrequency { Weekly, BIWeekly, Monthly }

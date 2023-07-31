@@ -3,7 +3,7 @@ import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/PhoneAvailability.dart';
+import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -37,10 +37,10 @@ Future<void> uploadPatientCharacteristics(Patient patient,
     if (patient.gender == Gender.FEMALE()) gender = "F";
     Map<String, dynamic> body = {
       "patient_id": patientId,
-      "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES()
+      "mobile_phone": patient.phoneAvailability == PhoneNumberSecurity.YES()
           ? _formatPhoneNumberForVI(patient.phoneNumber)
           : null,
-      "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES()
+      "mobile_owner": patient.phoneAvailability == PhoneNumberSecurity.YES()
           ? "patient"
           : null,
       "birth_date": formatDateForVisibleImpact(patient.birthday),
@@ -488,11 +488,11 @@ Future<int> _createPatient(Patient patient, String apiToken,
   if (patient.gender == Gender.FEMALE()) gender = "F";
   Map<String, dynamic> body = {
     "art_number": patient.artNumber,
-    "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES()
+    "mobile_phone": patient.phoneAvailability == PhoneNumberSecurity.YES()
         ? _formatPhoneNumberForVI(patient.phoneNumber)
         : null,
     "mobile_owner":
-        patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
+        patient.phoneAvailability == PhoneNumberSecurity.YES() ? "patient" : null,
     "birth_date": formatDateForVisibleImpact(patient.birthday),
     "sex": gender,
     "patient_status": toStringVIPatientStatus(status),

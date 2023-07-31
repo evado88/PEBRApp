@@ -1,4 +1,4 @@
-class PhoneAvailability {
+class PhoneNumberSecurity {
   // Class Variables
   // ---------------
 
@@ -7,20 +7,14 @@ class PhoneAvailability {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_PhoneAvailability, int> _encoding = {
-    _PhoneAvailability.YES: 1,
-    _PhoneAvailability.NO_NO_PHONE: 2,
-    _PhoneAvailability.NO_ONLY_SA_PHONE: 3,
-    _PhoneAvailability.NO_NO_RECEIVE: 4,
+    _PhoneAvailability.PRIVATE: 1,
+    _PhoneAvailability.SHARED: 2,
   };
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_PhoneAvailability, String> _description = {
-    _PhoneAvailability.YES: 'Yes',
-    _PhoneAvailability.NO_NO_PHONE: 'No, no phone',
-    _PhoneAvailability.NO_ONLY_SA_PHONE:
-        'No, only phone with South African number',
-    _PhoneAvailability.NO_NO_RECEIVE:
-        'No, I don\'t want to receive any confidential information on my phone',
+    _PhoneAvailability.PRIVATE: 'Used only by the participant and can receive confidential information',
+    _PhoneAvailability.SHARED: 'Shared and should not be used to send confidential information ',
   };
 
   _PhoneAvailability _availability;
@@ -29,25 +23,17 @@ class PhoneAvailability {
   // ------------
 
   // make default constructor private
-  PhoneAvailability._();
+  PhoneNumberSecurity._();
 
-  PhoneAvailability.YES() {
-    _availability = _PhoneAvailability.YES;
+  PhoneNumberSecurity.YES() {
+    _availability = _PhoneAvailability.PRIVATE;
   }
 
-  PhoneAvailability.NO_NO_PHONE() {
-    _availability = _PhoneAvailability.NO_NO_PHONE;
+  PhoneNumberSecurity.NO_NO_PHONE() {
+    _availability = _PhoneAvailability.SHARED;
   }
 
-  PhoneAvailability.NO_ONLY_SA_PHONE() {
-    _availability = _PhoneAvailability.NO_ONLY_SA_PHONE;
-  }
-
-  PhoneAvailability.NO_NO_RECEIVE() {
-    _availability = _PhoneAvailability.NO_NO_RECEIVE;
-  }
-
-  static PhoneAvailability fromCode(int code) {
+  static PhoneNumberSecurity fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
@@ -55,7 +41,7 @@ class PhoneAvailability {
         _encoding.entries.firstWhere((MapEntry<_PhoneAvailability, int> entry) {
       return entry.value == code;
     }).key;
-    PhoneAvailability object = PhoneAvailability._();
+    PhoneNumberSecurity object = PhoneNumberSecurity._();
     object._availability = availability;
     return object;
   }
@@ -66,17 +52,15 @@ class PhoneAvailability {
   // override the equality operator
   @override
   bool operator ==(o) =>
-      o is PhoneAvailability && o._availability == _availability;
+      o is PhoneNumberSecurity && o._availability == _availability;
 
   // override hashcode
   @override
   int get hashCode => _availability.hashCode;
 
-  static List<PhoneAvailability> get allValues => [
-        PhoneAvailability.YES(),
-        PhoneAvailability.NO_NO_PHONE(),
-        PhoneAvailability.NO_ONLY_SA_PHONE(),
-        PhoneAvailability.NO_NO_RECEIVE(),
+  static List<PhoneNumberSecurity> get allValues => [
+        PhoneNumberSecurity.YES(),
+        PhoneNumberSecurity.NO_NO_PHONE(),
       ];
 
   /// Returns the text description of this availability.
@@ -86,4 +70,4 @@ class PhoneAvailability {
   int get code => _encoding[_availability];
 }
 
-enum _PhoneAvailability { YES, NO_NO_PHONE, NO_ONLY_SA_PHONE, NO_NO_RECEIVE }
+enum _PhoneAvailability { PRIVATE, SHARED }

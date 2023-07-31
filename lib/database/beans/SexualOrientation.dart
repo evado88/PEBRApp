@@ -7,18 +7,14 @@ class SexualOrientation {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_SexualOrientation, int> _encoding = {
-    _SexualOrientation.HETEROSEXUAL: 1,
-    _SexualOrientation.BISEXUAL: 2,
-    _SexualOrientation.HOMOSEXUAL: 3,
-    _SexualOrientation.NOT_SPECIFIED: 4,
+    _SexualOrientation.TWYSHE: 1,
+    _SexualOrientation.PHONECALL: 2,
   };
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_SexualOrientation, String> _description = {
-    _SexualOrientation.HETEROSEXUAL: 'Heterosexual (straight)',
-    _SexualOrientation.BISEXUAL: 'Bisexual',
-    _SexualOrientation.HOMOSEXUAL: 'Homosexual (gay or lesbian)',
-    _SexualOrientation.NOT_SPECIFIED: 'Prefer not to answer',
+    _SexualOrientation.TWYSHE: 'TwySHE Messenger App',
+    _SexualOrientation.PHONECALL: 'Phone Call',
   };
 
   _SexualOrientation _orientation;
@@ -30,20 +26,13 @@ class SexualOrientation {
   SexualOrientation._();
 
   SexualOrientation.HETEROSEXUAL() {
-    _orientation = _SexualOrientation.HETEROSEXUAL;
+    _orientation = _SexualOrientation.TWYSHE;
   }
 
   SexualOrientation.BISEXUAL() {
-    _orientation = _SexualOrientation.BISEXUAL;
+    _orientation = _SexualOrientation.PHONECALL;
   }
 
-  SexualOrientation.HOMOSEXUAL() {
-    _orientation = _SexualOrientation.HOMOSEXUAL;
-  }
-
-  SexualOrientation.NOT_SPECIFIED() {
-    _orientation = _SexualOrientation.NOT_SPECIFIED;
-  }
 
   static SexualOrientation fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
@@ -73,8 +62,6 @@ class SexualOrientation {
   static List<SexualOrientation> get allValues => [
         SexualOrientation.HETEROSEXUAL(),
         SexualOrientation.BISEXUAL(),
-        SexualOrientation.HOMOSEXUAL(),
-        SexualOrientation.NOT_SPECIFIED(),
       ];
 
   /// Returns the text description of this orientation.
@@ -84,4 +71,4 @@ class SexualOrientation {
   int get code => _encoding[_orientation];
 }
 
-enum _SexualOrientation { HETEROSEXUAL, BISEXUAL, HOMOSEXUAL, NOT_SPECIFIED }
+enum _SexualOrientation { TWYSHE, PHONECALL }

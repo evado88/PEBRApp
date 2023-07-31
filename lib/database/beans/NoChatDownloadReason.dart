@@ -1,4 +1,4 @@
-class NoConsentReason {
+class NoChatDownloadReason {
   // Class Variables
   // ---------------
 
@@ -7,17 +7,17 @@ class NoConsentReason {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_Reason, int> _encoding = {
-    _Reason.NO_TIME: 1,
+    _Reason.WILL_DOWNLOAD: 1,
     _Reason.NO_INTEREST: 2,
-    _Reason.MISTRUST: 3,
+    _Reason.NO_INTERNET_BUNDLE: 3,
     _Reason.OTHER: 4,
   };
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_Reason, String> _description = {
-    _Reason.NO_TIME: 'No time',
+    _Reason.WILL_DOWNLOAD: 'Will Download Later',
     _Reason.NO_INTEREST: 'No interest to participate',
-    _Reason.MISTRUST: 'Mistrust',
+    _Reason.NO_INTERNET_BUNDLE: 'No Internet Bundles',
     _Reason.OTHER: 'Other...',
   };
 
@@ -27,25 +27,25 @@ class NoConsentReason {
   // ------------
 
   // make default constructor private
-  NoConsentReason._();
+  NoChatDownloadReason._();
 
-  NoConsentReason.NO_TIME() {
-    _reason = _Reason.NO_TIME;
+  NoChatDownloadReason.NO_TIME() {
+    _reason = _Reason.WILL_DOWNLOAD;
   }
 
-  NoConsentReason.NO_INTEREST() {
+  NoChatDownloadReason.NO_INTEREST() {
     _reason = _Reason.NO_INTEREST;
   }
 
-  NoConsentReason.MISTRUST() {
-    _reason = _Reason.MISTRUST;
+  NoChatDownloadReason.MISTRUST() {
+    _reason = _Reason.NO_INTERNET_BUNDLE;
   }
 
-  NoConsentReason.OTHER() {
+  NoChatDownloadReason.OTHER() {
     _reason = _Reason.OTHER;
   }
 
-  static NoConsentReason fromCode(int code) {
+  static NoChatDownloadReason fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
@@ -53,7 +53,7 @@ class NoConsentReason {
         _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
       return entry.value == code;
     }).key;
-    NoConsentReason object = NoConsentReason._();
+    NoChatDownloadReason object = NoChatDownloadReason._();
     object._reason = reason;
     return object;
   }
@@ -63,17 +63,17 @@ class NoConsentReason {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is NoConsentReason && o._reason == _reason;
+  bool operator ==(o) => o is NoChatDownloadReason && o._reason == _reason;
 
   // override hashcode
   @override
   int get hashCode => _reason.hashCode;
 
-  static List<NoConsentReason> get allValues => [
-        NoConsentReason.NO_TIME(),
-        NoConsentReason.NO_INTEREST(),
-        NoConsentReason.MISTRUST(),
-        NoConsentReason.OTHER(),
+  static List<NoChatDownloadReason> get allValues => [
+        NoChatDownloadReason.NO_TIME(),
+        NoChatDownloadReason.NO_INTEREST(),
+        NoChatDownloadReason.MISTRUST(),
+        NoChatDownloadReason.OTHER(),
       ];
 
   /// Returns the text description of this reason.
@@ -83,4 +83,4 @@ class NoConsentReason {
   int get code => _encoding[_reason];
 }
 
-enum _Reason { NO_TIME, NO_INTEREST, MISTRUST, OTHER }
+enum _Reason { WILL_DOWNLOAD, NO_INTEREST, NO_INTERNET_BUNDLE, OTHER }
