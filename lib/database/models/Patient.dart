@@ -8,10 +8,14 @@ import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionUse.dart';
+import 'package:pebrapp/database/beans/R21HIVStatus.dart';
+import 'package:pebrapp/database/beans/R21Interest.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
 import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
+import 'package:pebrapp/database/beans/R21Satisfaction.dart';
 import 'package:pebrapp/database/beans/R21SupportType.dart';
+import 'package:pebrapp/database/beans/R21YesNo.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/R21Appointment.dart';
 import 'package:pebrapp/database/models/R21Event.dart';
@@ -110,9 +114,47 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   R21ContraceptionUse contraceptionUse;
 
-  var contraceptionSatisfaction;
+  R21Satisfaction contraceptionSatisfaction;
 
-  var hivStatus;
+  R21HIVStatus hivStatus;
+
+  R21YesNo takingART;
+
+  DateTime lastARTRefilDate;
+
+  R21ProviderType ARTRefilCollectionClinic;
+
+  bool desiredSupportRefilReminders =  false;
+
+  bool desiredSupportAdherenceReminders =  false;
+
+  bool desiredSupportRefilCollectionReminders =  false;
+
+  bool desiredSupportReerCollectionRefilReminders =  false;
+
+  bool desiredSupportOther =  false;
+
+  DateTime lastHIVTestDate;
+
+  R21PrEP everUsedPrep;
+
+  DateTime lastPrepRefilDate;
+
+  R21ProviderType prepRefilCollectionClinic;
+
+  bool desiredSupportPrepRefilReminders=  false;
+
+  bool desiredSupportPrepAdherenceReminders=  false;
+
+  bool desiredSupportPrepPeerRefil=  false;
+
+  bool desiredSupportPrepPeerHIVSelfTest=  false;
+
+  bool desiredSupportPrepOther=  false;
+
+  var contraceptionInterest;
+
+  R21Interest prepInterest;
 
   // Constructors
   // ------------

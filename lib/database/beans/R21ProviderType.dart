@@ -7,16 +7,16 @@ class R21ProviderType {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_R21ProviderType, int> _encoding = {
-    _R21ProviderType.PrivateProvider: 1,
-    _R21ProviderType.PublicProvider: 2,
-    _R21ProviderType.NotSpecified: 3,
+    _R21ProviderType.GovernmentClinic: 1,
+    _R21ProviderType.PrivateClinic: 2,
+    _R21ProviderType.Other: 3,
   };
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_R21ProviderType, String> _description = {
-    _R21ProviderType.PrivateProvider: 'Private Provider',
-    _R21ProviderType.PublicProvider: 'Public Provider',
-    _R21ProviderType.NotSpecified: 'Not Specified',
+    _R21ProviderType.GovernmentClinic: 'Government Clinic',
+    _R21ProviderType.PrivateClinic: 'Private Clinic',
+    _R21ProviderType.Other: 'Other',
   };
 
   _R21ProviderType _providerype;
@@ -27,16 +27,16 @@ class R21ProviderType {
   // make default constructor private
   R21ProviderType._();
 
-  R21ProviderType.PrivateProvider() {
-    _providerype = _R21ProviderType.PrivateProvider;
+  R21ProviderType.GovernmentClinic() {
+    _providerype = _R21ProviderType.GovernmentClinic;
   }
 
-  R21ProviderType.PublicProvider() {
-    _providerype = _R21ProviderType.PublicProvider;
+  R21ProviderType.PrivateClinic() {
+    _providerype = _R21ProviderType.PrivateClinic;
   }
 
-  R21ProviderType.NotSpecified() {
-    _providerype = _R21ProviderType.NotSpecified;
+  R21ProviderType.Other() {
+    _providerype = _R21ProviderType.Other;
   }
 
   static R21ProviderType fromCode(int code) {
@@ -65,9 +65,9 @@ class R21ProviderType {
   int get hashCode => _providerype.hashCode;
 
   static List<R21ProviderType> get allValues => [
-        R21ProviderType.PrivateProvider(),
-        R21ProviderType.PublicProvider(),
-        R21ProviderType.NotSpecified(),
+        R21ProviderType.GovernmentClinic(),
+        R21ProviderType.PrivateClinic(),
+        R21ProviderType.Other(),
       ];
 
   /// Returns the text description of this orientation.
@@ -77,4 +77,4 @@ class R21ProviderType {
   int get code => _encoding[_providerype];
 }
 
-enum _R21ProviderType { PrivateProvider, PublicProvider, NotSpecified }
+enum _R21ProviderType { GovernmentClinic, PrivateClinic, Other }

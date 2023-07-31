@@ -1,4 +1,4 @@
-class R21PrEP {
+class R21Interest {
   // Class Variables
   // ---------------
 
@@ -7,16 +7,16 @@ class R21PrEP {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_PrEP, int> _encoding = {
-    _PrEP.No: 1,
-    _PrEP.YesNotCurrently: 2,
-    _PrEP.YesCurrently: 3,
+    _PrEP.VeryInterested: 1,
+    _PrEP.MaybeInterested: 2,
+    _PrEP.NoInterested: 3,
   };
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_PrEP, String> _description = {
-    _PrEP.No: 'No',
-    _PrEP.YesNotCurrently: 'Yes, but not using currently ',
-    _PrEP.YesCurrently: 'Yes, currently using PrEP',
+    _PrEP.VeryInterested: 'Very interested in starting now',
+    _PrEP.MaybeInterested: 'Maybe interested',
+    _PrEP.NoInterested: 'Not at all interested',
   };
 
   _PrEP _prep;
@@ -25,22 +25,22 @@ class R21PrEP {
   // ------------
 
   // make default constructor private
-  R21PrEP._();
+  R21Interest._();
 
-  R21PrEP.No() {
-    _prep = _PrEP.No;
+  R21Interest.VeryInterested() {
+    _prep = _PrEP.VeryInterested;
   }
 
-  R21PrEP.YesNotCurrently() {
-    _prep = _PrEP.YesNotCurrently;
+  R21Interest.MaybeInterested() {
+    _prep = _PrEP.MaybeInterested;
   }
 
 
-  R21PrEP.YesCurrently() {
-    _prep = _PrEP.YesCurrently;
+  R21Interest.NoInterested() {
+    _prep = _PrEP.NoInterested;
   }
 
-  static R21PrEP fromCode(int code) {
+  static R21Interest fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
@@ -48,7 +48,7 @@ class R21PrEP {
         _encoding.entries.firstWhere((MapEntry<_PrEP, int> entry) {
       return entry.value == code;
     }).key;
-    R21PrEP object = R21PrEP._();
+    R21Interest object = R21Interest._();
     object._prep = prep;
     return object;
   }
@@ -59,16 +59,16 @@ class R21PrEP {
   // override the equality operator
   @override
   bool operator ==(o) =>
-      o is R21PrEP && o._prep == _prep;
+      o is R21Interest && o._prep == _prep;
 
   // override hashcode
   @override
   int get hashCode => _prep.hashCode;
 
-  static List<R21PrEP> get allValues => [
-        R21PrEP.No(),
-        R21PrEP.YesNotCurrently(),
-        R21PrEP.YesCurrently(),
+  static List<R21Interest> get allValues => [
+        R21Interest.VeryInterested(),
+        R21Interest.MaybeInterested(),
+        R21Interest.NoInterested(),
       ];
 
   /// Returns the text description of this orientation.
@@ -78,4 +78,4 @@ class R21PrEP {
   int get code => _encoding[_prep];
 }
 
-enum _PrEP {No,  YesNotCurrently, YesCurrently }
+enum _PrEP {VeryInterested,  MaybeInterested, NoInterested }

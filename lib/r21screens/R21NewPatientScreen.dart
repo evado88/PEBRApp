@@ -10,11 +10,13 @@ import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionUse.dart';
 import 'package:pebrapp/database/beans/R21HIVStatus.dart';
+import 'package:pebrapp/database/beans/R21Interest.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
 import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
 import 'package:pebrapp/database/beans/R21Satisfaction.dart';
 import 'package:pebrapp/database/beans/R21SupportType.dart';
+import 'package:pebrapp/database/beans/R21YesNo.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -47,10 +49,25 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   static final int minAgeForEligibility = 15;
   static final int maxAgeForEligibility = 24;
   static final DateTime now = DateTime.now();
+
   static final DateTime minBirthdayForEligibility =
       DateTime(now.year - maxAgeForEligibility - 1, now.month, now.day + 1);
   static final DateTime maxBirthdayForEligibility =
       DateTime(now.year - minAgeForEligibility, now.month, now.day);
+
+  static final DateTime minARTRefilDate =
+      DateTime(now.year - minAgeForEligibility, now.month, now.day);
+
+  TextEditingController _specifyPrepRefilCollectionClinicCtr =
+      TextEditingController();
+
+  TextEditingController _problemsTakingPrepCtr = TextEditingController();
+
+  TextEditingController _questionsAboutPrepMedicationCtr =
+      TextEditingController();
+
+  TextEditingController _reasonPrepStopReasonCtr = TextEditingController();
+
   bool get _eligible =>
       _newPatient.birthday != null &&
       !_newPatient.birthday.isBefore(minBirthdayForEligibility) &&
@@ -61,11 +78,19 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   Patient _newPatient = Patient(isActivated: true);
   ViralLoad _viralLoadBaseline =
       ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), failed: false);
-  bool _isLowerThanDetectable;
 
   TextEditingController _reasonStopContraceptionCtr = TextEditingController();
   TextEditingController _reasonNoContraceptionCtr = TextEditingController();
+  TextEditingController _specifyContraceptionMethodCtr =
+      TextEditingController();
   TextEditingController _reasonNoContraceptionSatisfactionCtr =
+      TextEditingController();
+
+  TextEditingController _problemsTakingARTCtr = TextEditingController();
+  TextEditingController _specifyARTRefilCollectionClinicCtr =
+      TextEditingController();
+
+  TextEditingController _questionsAboutARTMedicationCtr =
       TextEditingController();
 
   TextEditingController _artNumberCtr = TextEditingController();
@@ -73,13 +98,9 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
   TextEditingController _noChatDownloadReasonOtherCtr = TextEditingController();
-  TextEditingController _viralLoadBaselineResultCtr = TextEditingController();
-  TextEditingController _viralLoadBaselineLabNumberCtr =
-      TextEditingController();
 
   // this field is used to display an error when the form is validated and if
   // the viral load baseline date is not selected
-  bool _viralLoadBaselineDateValid = true;
   bool _patientBirthdayValid = true;
 
   List<String> _artNumbersInDB;
@@ -130,10 +151,7 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     final Form patientHistoryStep = Form(
       key: _formParticipantHistoryKey,
       child: Column(
-        children: [
-          _contraceptionCard(),
-          _hivCard()
-        ],
+        children: [_contraceptionCard(), _hivCard()],
       ),
     );
 
@@ -142,6 +160,7 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
       child: Column(
         children: [
           _contraceptionInterestCard(),
+          _prepInterestCard()
         ],
       ),
     );
@@ -209,7 +228,7 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
           state: _kobocollectOpened || !(_newPatient.downloadedChatAPp ?? true)
               ? StepState.complete
               : StepState.indexed,
-          content: Column()),
+          content: patientSrhServicePreferenceStep),
       Step(
         title: Text('Finish',
             style: TextStyle(
@@ -374,9 +393,9 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
       withTopPadding: true,
       child: Column(
         children: [
-          _isusingContraception(),
+          _contraceptionInterest(),
           _contraceptiveMethod(),
-          _contraception(),
+          _specifyContraceptionMethod(),
           _whyStopContraception(),
           _contraceptionSatisfaction(),
           _whyNoContraceptionSatisfaction(),
@@ -386,31 +405,55 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-    Widget _hivCard() {
+  Widget _hivCard() {
     return _buildCard(
       'HIV Status',
       withTopPadding: true,
       child: Column(
         children: [
           _hivStatus(),
+          _takingART(),
+          _lastARTRefilDateQuestion(),
+          _ARTRefilCollectionClinic(),
+          _specifyARTRefilCollectionClinic(),
+          _problemsTakingART(),
+          _questionsAboutARTMedication(),
+          _desiredARTSupport(),
+          _specifyARTDesiredSupportOther(),
+          _lastHIVTestDateQuestion(),
+          _clientEverUsedPrep(),
+          _specifyPrepStopReason(),
+          _lastPrepRefilDateQuestion(),
+          _prepRefilCollectionClinic(),
+          _specifyPrepRefilCollectionClinic(),
+          _problemsTakingPrep(),
+          _questionsAboutPrepMedication(),
+          _desiredPrepSupport(),
+          _specifyPrepDesiredSupportOther()
         ],
       ),
     );
   }
 
-
   Widget _contraceptionInterestCard() {
     return _buildCard(
-      'Desired Support',
+      'Contraception',
       withTopPadding: true,
       child: Column(
         children: [
-          _isusingContraception(),
-          _srhServicePreferred(),
-          _prep(),
-          _contraceptiveMethod(),
-          _whyNoContraceptionSatisfaction(),
-          _providerType()
+          _contraceptionInterest(),
+        ],
+      ),
+    );
+  }
+
+  Widget _prepInterestCard() {
+    return _buildCard(
+      'PrEP',
+      withTopPadding: true,
+      child: Column(
+        children: [
+          _prepInterest(),
         ],
       ),
     );
@@ -453,14 +496,14 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
 
   //R21
 
-  Widget _isusingContraception() {
+  Widget _contraceptionInterest() {
     return _makeQuestion(
-      'Is the client currently using modern contraception or has used in the past?',
-      answer: DropdownButtonFormField<R21ContraceptionUse>(
-        value: _newPatient.contraceptionUse,
-        onChanged: (R21ContraceptionUse newValue) {
+      'Interest in using contraception ',
+      answer: DropdownButtonFormField<R21Interest>(
+        value: _newPatient.contraceptionInterest,
+        onChanged: (R21Interest newValue) {
           setState(() {
-            _newPatient.contraceptionUse = newValue;
+            _newPatient.contraceptionInterest = newValue;
           });
         },
         validator: (value) {
@@ -468,10 +511,10 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
             return 'Please answer this question.';
           }
         },
-        items: R21ContraceptionUse.allValues
-            .map<DropdownMenuItem<R21ContraceptionUse>>(
-                (R21ContraceptionUse value) {
-          return DropdownMenuItem<R21ContraceptionUse>(
+        items: R21Interest.allValues
+            .map<DropdownMenuItem<R21Interest>>(
+                (R21Interest value) {
+          return DropdownMenuItem<R21Interest>(
             value: value,
             child: Text(value.description),
           );
@@ -479,7 +522,32 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
-
+ Widget _prepInterest() {
+    return _makeQuestion(
+      'Interest in using PrEP',
+      answer: DropdownButtonFormField<R21Interest>(
+        value: _newPatient.contraceptionInterest,
+        onChanged: (R21Interest newValue) {
+          setState(() {
+            _newPatient.prepInterest = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21Interest.allValues
+            .map<DropdownMenuItem<R21Interest>>(
+                (R21Interest value) {
+          return DropdownMenuItem<R21Interest>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
   Widget _contactFrequency() {
     return _makeQuestion(
       'Frequency of Contact',
@@ -561,7 +629,6 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
   }
 
   Widget _hivStatus() {
-
     return _makeQuestion(
       'Does the client know her HIV status? ',
       answer: DropdownButtonFormField<R21HIVStatus>(
@@ -577,13 +644,671 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
           }
         },
         items: R21HIVStatus.allValues
-            .map<DropdownMenuItem<R21HIVStatus>>(
-                (R21HIVStatus value) {
+            .map<DropdownMenuItem<R21HIVStatus>>((R21HIVStatus value) {
           return DropdownMenuItem<R21HIVStatus>(
             value: value,
             child: Text(value.description),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _takingART() {
+    if (_newPatient.hivStatus == null ||
+        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'is she currently taking ART',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _newPatient.takingART,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _newPatient.takingART = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _lastARTRefilDateQuestion() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
+        (_newPatient.takingART == null ||
+            _newPatient.takingART != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Date of last refill ',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _newPatient.lastARTRefilDate == null
+                  ? ''
+                  : '${formatDateConsistent(_newPatient.lastARTRefilDate)}',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            DateTime date = await showDatePicker(
+              context: context,
+              initialDate: now,
+              firstDate: minARTRefilDate,
+              lastDate: now,
+            );
+            if (date != null) {
+              setState(() {
+                _newPatient.lastARTRefilDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _patientBirthdayValid
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Please select a date',
+                  style: TextStyle(
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+      ]),
+    );
+  }
+
+  Widget _ARTRefilCollectionClinic() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
+        (_newPatient.takingART == null ||
+            _newPatient.takingART != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Where refill was collected from',
+      answer: DropdownButtonFormField<R21ProviderType>(
+        value: _newPatient.ARTRefilCollectionClinic,
+        onChanged: (R21ProviderType newValue) {
+          setState(() {
+            _newPatient.ARTRefilCollectionClinic = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ProviderType.allValues
+            .map<DropdownMenuItem<R21ProviderType>>((R21ProviderType value) {
+          return DropdownMenuItem<R21ProviderType>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _specifyARTRefilCollectionClinic() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
+        (_newPatient.takingART == null ||
+            _newPatient.takingART != R21YesNo.YES()) ||
+        (_newPatient.ARTRefilCollectionClinic == null ||
+            _newPatient.ARTRefilCollectionClinic != R21ProviderType.Other())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify refil collection source',
+      answer: TextFormField(
+        controller: _specifyARTRefilCollectionClinicCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _problemsTakingART() {
+    if (_newPatient.hivStatus == null ||
+        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Any problems taking?',
+      answer: TextFormField(
+        controller: _problemsTakingARTCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _questionsAboutARTMedication() {
+    if (_newPatient.hivStatus == null ||
+        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Any questions about the medication',
+      answer: TextFormField(
+        controller: _questionsAboutARTMedicationCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _desiredARTSupport() {
+    if (_newPatient.hivStatus == null ||
+        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Desired support ',
+        answer: Column(children: [
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportRefilReminders,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportRefilReminders = value;
+                });
+              },
+            ),
+            Text(
+              'Reminders about refill/appointment dates',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportAdherenceReminders,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportAdherenceReminders = value;
+                });
+              },
+            ),
+            Text(
+              'Check-in/reminders about adherence',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportRefilCollectionReminders,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportRefilCollectionReminders = value;
+                });
+              },
+            ),
+            Text(
+              'Coming with her to get refills',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportReerCollectionRefilReminders,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportReerCollectionRefilReminders =
+                      value;
+                });
+              },
+            ),
+            Text(
+              'Peer navigator coming with her to get refills (or for other clinic visits)',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportOther,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportOther = value;
+                });
+              },
+            ),
+            Text(
+              'Other (specify)',
+            ),
+          ])
+        ]));
+  }
+
+  Widget _specifyARTDesiredSupportOther() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
+        (_newPatient.takingART == null ||
+            _newPatient.takingART == R21YesNo.NO()) ||
+        !_newPatient.desiredSupportOther) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify other support',
+      answer: TextFormField(
+        controller: _reasonNoContraceptionSatisfactionCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _lastHIVTestDateQuestion() {
+    if ((_newPatient.hivStatus == null ||
+        _newPatient.hivStatus == R21HIVStatus.YesPositive())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'When was last test ',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _newPatient.lastHIVTestDate == null
+                  ? ''
+                  : '${formatDateConsistent(_newPatient.lastHIVTestDate)}',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            DateTime date = await showDatePicker(
+              context: context,
+              initialDate: now,
+              firstDate: minARTRefilDate,
+              lastDate: now,
+            );
+            if (date != null) {
+              setState(() {
+                _newPatient.lastHIVTestDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _patientBirthdayValid
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Please select a date',
+                  style: TextStyle(
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+      ]),
+    );
+  }
+
+  Widget _clientEverUsedPrep() {
+    if ((_newPatient.hivStatus == null ||
+        _newPatient.hivStatus == R21HIVStatus.YesPositive())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Has she ever used PrEP ',
+      answer: DropdownButtonFormField<R21PrEP>(
+        value: _newPatient.everUsedPrep,
+        onChanged: (R21PrEP newValue) {
+          setState(() {
+            _newPatient.everUsedPrep = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items:
+            R21PrEP.allValues.map<DropdownMenuItem<R21PrEP>>((R21PrEP value) {
+          return DropdownMenuItem<R21PrEP>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _specifyPrepStopReason() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesNotCurrently())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Why did she stop',
+      answer: TextFormField(
+        controller: _reasonPrepStopReasonCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _lastPrepRefilDateQuestion() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Date of last PrEp refill ',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _newPatient.lastPrepRefilDate == null
+                  ? ''
+                  : '${formatDateConsistent(_newPatient.lastPrepRefilDate)}',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            DateTime date = await showDatePicker(
+              context: context,
+              initialDate: now,
+              firstDate: minARTRefilDate,
+              lastDate: now,
+            );
+            if (date != null) {
+              setState(() {
+                _newPatient.lastPrepRefilDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _patientBirthdayValid
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Please select a date',
+                  style: TextStyle(
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+      ]),
+    );
+  }
+
+  Widget _prepRefilCollectionClinic() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Where PrEp refill was collected from',
+      answer: DropdownButtonFormField<R21ProviderType>(
+        value: _newPatient.ARTRefilCollectionClinic,
+        onChanged: (R21ProviderType newValue) {
+          setState(() {
+            _newPatient.prepRefilCollectionClinic = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ProviderType.allValues
+            .map<DropdownMenuItem<R21ProviderType>>((R21ProviderType value) {
+          return DropdownMenuItem<R21ProviderType>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _specifyPrepRefilCollectionClinic() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Specify refil collection source',
+      answer: TextFormField(
+        controller: _specifyPrepRefilCollectionClinicCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _problemsTakingPrep() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Any problems taking PrEP?',
+      answer: TextFormField(
+        controller: _problemsTakingPrepCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _questionsAboutPrepMedication() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Any questions about the medication',
+      answer: TextFormField(
+        controller: _questionsAboutPrepMedicationCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _desiredPrepSupport() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Desired PrEP support ',
+        answer: Column(children: [
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportPrepRefilReminders,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportPrepRefilReminders = value;
+                });
+              },
+            ),
+            Text(
+              'Reminders about refill/appointment dates',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportPrepAdherenceReminders,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportPrepAdherenceReminders = value;
+                });
+              },
+            ),
+            Text(
+              'Check-in/reminders about adherence',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportPrepPeerRefil,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportPrepPeerRefil = value;
+                });
+              },
+            ),
+            Text(
+              'Peer navigator coming with her to get refills',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportPrepPeerHIVSelfTest,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportPrepPeerHIVSelfTest = value;
+                });
+              },
+            ),
+            Text(
+              'Peer navigator providing HIV self testing ',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.desiredSupportPrepOther,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.desiredSupportPrepOther = value;
+                });
+              },
+            ),
+            Text(
+              'Other (specify)',
+            ),
+          ])
+        ]));
+  }
+
+  Widget _specifyPrepDesiredSupportOther() {
+    if ((_newPatient.hivStatus == null ||
+            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.everUsedPrep == null ||
+            _newPatient.everUsedPrep != R21PrEP.YesCurrently()) ||
+        !_newPatient.desiredSupportPrepOther) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify other PrEP support',
+      answer: TextFormField(
+        controller: _reasonNoContraceptionSatisfactionCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
       ),
     );
   }
@@ -670,11 +1395,31 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _whyNoContraception() {
+  Widget _specifyContraceptionMethod() {
+    if ((_newPatient.contraceptionUse == null ||
+            _newPatient.contraceptionUse == R21ContraceptionUse.HasNever()) ||
+        (_newPatient.contraceptionMethod == null ||
+            _newPatient.contraceptionMethod !=
+                R21ContraceptionMethod.Other())) {
+      return SizedBox();
+    }
 
+    return _makeQuestion(
+      'Specify method',
+      answer: TextFormField(
+        controller: _specifyContraceptionMethodCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify method';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _whyNoContraception() {
     if (_newPatient.contraceptionUse == null ||
-        _newPatient.contraceptionUse !=
-            R21ContraceptionUse.HasNever()) {
+        _newPatient.contraceptionUse != R21ContraceptionUse.HasNever()) {
       return SizedBox();
     }
 
@@ -780,35 +1525,6 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
             return 'Participant with this study number already exists';
           }
           return validateStudyNumber(value);
-        },
-      ),
-    );
-  }
-
-  Widget _stickerNumberQuestion() {
-    return _makeQuestion(
-      'Sticker Number',
-      answer: TextFormField(
-        autocorrect: false,
-        decoration: InputDecoration(
-          errorMaxLines: 2,
-          prefixText: 'P',
-        ),
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          WhitelistingTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(3),
-        ],
-        controller: _stickerNumberCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter the sticker number';
-          } else if (value.length != 3) {
-            return 'Exactly 3 digits required';
-          } else if (_stickerNumberExists('P$value')) {
-            return 'Participant with this sticker number already exists';
-          }
-          return null;
         },
       ),
     );
@@ -1190,7 +1906,7 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
 
   Widget _makeQuestion(String question, {@required Widget answer}) {
     if (_screenWidth < NARROW_DESIGN_WIDTH) {
-      final double _spacingBetweenQuestions = 8.0;
+      final double _spacingBetweenQuestions = 4.0;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1209,7 +1925,7 @@ class _R21NewPatientFormState extends State<R21NewPatientScreen> {
           flex: _questionsFlex,
           child: Text(question),
         ),
-        SizedBox(width: 10.0),
+        SizedBox(width: 5.0),
         Expanded(
           flex: _answersFlex,
           child: answer,

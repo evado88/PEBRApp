@@ -7,14 +7,14 @@ class R21ContraceptionMethod {
   // you change the encoding (the integers) you will have to migrate the entire
   // database to the new encoding!
   static const Map<_ContraceptionMethod, int> _encoding = {
-    _ContraceptionMethod.MaleCondoms: 2,
-    _ContraceptionMethod.FemaleCondoms: 3,
-    _ContraceptionMethod.Implant: 4,
-    _ContraceptionMethod.Injection: 5,
-    _ContraceptionMethod.IUD: 7,
-    _ContraceptionMethod.IUS: 8,
-    _ContraceptionMethod.ContraceptionPills: 9,
-    _ContraceptionMethod.Other: 10,
+    _ContraceptionMethod.MaleCondoms: 1,
+    _ContraceptionMethod.FemaleCondoms: 2,
+    _ContraceptionMethod.Implant: 3,
+    _ContraceptionMethod.Injection: 4,
+    _ContraceptionMethod.IUD: 5,
+    _ContraceptionMethod.IUS: 6,
+    _ContraceptionMethod.ContraceptionPills: 7,
+    _ContraceptionMethod.Other: 8,
   };
 
   // These are the descriptions that will be displayed in the UI.
@@ -54,8 +54,6 @@ class R21ContraceptionMethod {
     _contraceptiveMethod = _ContraceptionMethod.Injection;
   }
 
-
-
   R21ContraceptionMethod.IUD() {
     _contraceptiveMethod = _ContraceptionMethod.IUD;
   }
@@ -64,10 +62,11 @@ class R21ContraceptionMethod {
     _contraceptiveMethod = _ContraceptionMethod.IUS;
   }
 
-  R21ContraceptionMethod.Natural() {
+  R21ContraceptionMethod.ContraceptionPills() {
     _contraceptiveMethod = _ContraceptionMethod.ContraceptionPills;
   }
-  R21ContraceptionMethod.CombinedPill() {
+
+   R21ContraceptionMethod.Other() {
     _contraceptiveMethod = _ContraceptionMethod.Other;
   }
 
@@ -103,8 +102,8 @@ class R21ContraceptionMethod {
         R21ContraceptionMethod.Injection(),
         R21ContraceptionMethod.IUD(),
         R21ContraceptionMethod.IUS(),
-        R21ContraceptionMethod.Natural(),
-        R21ContraceptionMethod.CombinedPill(),
+        R21ContraceptionMethod.ContraceptionPills(),
+        R21ContraceptionMethod.Other(),
       ];
 
   /// Returns the text description of this orientation.
