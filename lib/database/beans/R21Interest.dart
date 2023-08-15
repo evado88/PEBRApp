@@ -14,7 +14,7 @@ class R21Interest {
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_PrEP, String> _description = {
-    _PrEP.VeryInterested: 'Very interested in starting now',
+    _PrEP.VeryInterested: 'Very interested in starting/switching now',
     _PrEP.MaybeInterested: 'Maybe interested',
     _PrEP.NoInterested: 'Not at all interested',
   };

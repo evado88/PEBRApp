@@ -15,7 +15,9 @@ import 'package:pebrapp/database/beans/R21ProviderType.dart';
 import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
 import 'package:pebrapp/database/beans/R21Satisfaction.dart';
 import 'package:pebrapp/database/beans/R21SupportType.dart';
+import 'package:pebrapp/database/beans/R21Week.dart';
 import 'package:pebrapp/database/beans/R21YesNo.dart';
+import 'package:pebrapp/database/beans/R21YesNoUnsure.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/R21Appointment.dart';
 import 'package:pebrapp/database/models/R21Event.dart';
@@ -124,15 +126,15 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   R21ProviderType ARTRefilCollectionClinic;
 
-  bool desiredSupportRefilReminders =  false;
+  bool desiredSupportRefilReminders = false;
 
-  bool desiredSupportAdherenceReminders =  false;
+  bool desiredSupportAdherenceReminders = false;
 
-  bool desiredSupportRefilCollectionReminders =  false;
+  bool desiredSupportRefilCollectionReminders = false;
 
-  bool desiredSupportReerCollectionRefilReminders =  false;
+  bool desiredSupportReerCollectionRefilReminders = false;
 
-  bool desiredSupportOther =  false;
+  bool desiredSupportOther = false;
 
   DateTime lastHIVTestDate;
 
@@ -142,19 +144,49 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   R21ProviderType prepRefilCollectionClinic;
 
-  bool desiredSupportPrepRefilReminders=  false;
+  bool desiredSupportPrepRefilReminders = false;
 
-  bool desiredSupportPrepAdherenceReminders=  false;
+  bool desiredSupportPrepAdherenceReminders = false;
 
-  bool desiredSupportPrepPeerRefil=  false;
+  bool desiredSupportPrepPeerRefil = false;
 
-  bool desiredSupportPrepPeerHIVSelfTest=  false;
+  bool desiredSupportPrepPeerHIVSelfTest = false;
 
-  bool desiredSupportPrepOther=  false;
+  bool desiredSupportPrepOther = false;
 
-  var contraceptionInterest;
+  R21Interest contraceptionInterest;
 
   R21Interest prepInterest;
+
+  R21YesNo hasContraceptiveMethodInMind;
+
+  bool interestContraceptionOther= false;
+
+  bool interestContraceptionPills= false;
+
+  bool interestContraceptionIUS= false;
+
+  bool interestContraceptionIUD= false;
+
+  bool interestContraceptionInjection= false;
+
+  bool interestContraceptionImplant= false;
+
+  bool interestContraceptionFemaleCondoms= false;
+
+  bool interestContraceptionMaleCondoms= false;
+
+  R21YesNo interestContraceptionLikeMoreInfo;
+
+  R21YesNoUnsure interestContraceptionLikeFindFacilitySchedule;
+
+  R21YesNo interestContraceptionLikePNAAccompany;
+
+  R21Week interestContraceptionNotNowDate;
+
+  R21YesNo interestContraceptionNotNowPickFacility;
+
+  R21YesNo interestContraceptionLikeInformationOnApp;
 
   // Constructors
   // ------------
@@ -205,7 +237,8 @@ class Patient implements IExcelExportable, IJsonExportable {
     if (map[colConsentGiven] != null) {
       this.downloadedChatAPp = map[colConsentGiven] == 1;
     }
-    this.noConsentReason = NoChatDownloadReason.fromCode(map[colNoConsentReason]);
+    this.noConsentReason =
+        NoChatDownloadReason.fromCode(map[colNoConsentReason]);
     this.noConsentReasonOther = map[colNoConsentReasonOther];
     if (map[colIsActivated] != null) {
       this.isActivated = map[colIsActivated] == 1;
