@@ -39,7 +39,7 @@ class PEBRAppState extends State<PEBRApp> {
         '/lock': (context) => LockScreen(),
       },
       title: 'PEBRApp',
-      theme: ThemeData.light(),
+      theme: ThemeData(primarySwatch: Colors.purple),
     );
   }
 }

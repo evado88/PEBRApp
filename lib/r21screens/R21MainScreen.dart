@@ -12,6 +12,7 @@ import 'package:pebrapp/database/beans/R21ScreenType.dart';
 import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/r21screens/R21NewFlatPatientScreen.dart';
 import 'package:pebrapp/r21screens/R21NewPatientScreen.dart';
 import 'package:pebrapp/r21screens/R21PatientScreen.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
@@ -216,7 +217,7 @@ class _R21MainScreenState extends State<R21MainScreen>
       floatingActionButton: FloatingActionButton(
         key: Key(
             'addPatient'), // key can be used to find the button in integration testing
-        onPressed: _pushNewPatientScreen,
+        onPressed:(){ _pushFlatPatientScreen(); },
         child: Icon(Icons.add),
         backgroundColor: FLOATING_ACTION_BUTTON,
       ),
@@ -448,6 +449,19 @@ class _R21MainScreenState extends State<R21MainScreen>
 
   Future<void> _pushNewPatientScreen() async {
     await _fadeInScreen(R21NewPatientScreen(), routeName: '/new-patient');
+  }
+
+  Future<void> _pushFlatPatientScreen() async {
+    _patientScreenPushed = true;
+    await Navigator.of(_context, rootNavigator: true).push(
+      new MaterialPageRoute<void>(
+        settings: RouteSettings(name: '/patient'),
+        builder: (BuildContext context) {
+          return R21NewFlatPatientScreen();
+        },
+      ),
+    );
+    _patientScreenPushed = false;
   }
 
   Future<void> _pushPatientScreen(Patient patient) async {

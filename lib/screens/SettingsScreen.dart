@@ -7,7 +7,6 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/components/RequiredActionContainerPEPhoneNumberUpload.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/BackupNotFoundException.dart';
 import 'package:pebrapp/exceptions/InvalidPINException.dart';
@@ -124,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
-              Navigator.of(context).popUntil(ModalRoute.withName('/'));
+              //Navigator.of(context).popUntil(ModalRoute.withName('/'));
             })
       ],
     );

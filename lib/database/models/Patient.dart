@@ -188,6 +188,38 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   R21YesNo interestContraceptionLikeInformationOnApp;
 
+  R21YesNo interestContraceptionLikeInformationOnMethods;
+
+  bool contraceptionMethodOther = false;
+
+  R21YesNo interestContraceptionNotLikeInformationOnMethods;
+
+  R21YesNo interestContraceptionNotLikeInformationOnApp;
+
+  R21YesNo interestPrepVeryLikeInformation;
+
+  R21YesNoUnsure interestPrepVeryLikeFindFacilitySchedule;
+
+R21YesNo  interestPrepVeryLikePNAAccompany;
+
+  R21Week interestPrepNotNowDate;
+
+  R21YesNo interestPrepVeryNotNowPickFacility;
+
+  R21YesNo interestPrepVeryLikeInformationOnApp;
+
+  R21YesNo interestPrepMaybeLikeInformation;
+
+  R21YesNoUnsure interestPrepMaybeLikeFindFacilitySchedule;
+
+  R21YesNo interestPrepMaybeLikePNAAccompany;
+
+  R21Week interestPrepMaybeNotNowDate;
+
+  var interestPrepMaybeNotNowPickFacility;
+
+  R21YesNo interestPrepMaybeLikeInformationOnApp;
+
   // Constructors
   // ------------
 

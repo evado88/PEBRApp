@@ -11,6 +11,7 @@ class R21Week {
     _R21Week.In2Weeks: 2,
     _R21Week.In3Weeks: 3,
     _R21Week.Other: 4,
+    _R21Week.NotSure: 5,
   };
 
   // These are the descriptions that will be displayed in the UI.
@@ -19,6 +20,7 @@ class R21Week {
     _R21Week.In2Weeks: 'In 2 weeks',
     _R21Week.In3Weeks: 'In 3 weeks',
     _R21Week.Other: 'Other',
+    _R21Week.NotSure: 'Not sure',
   };
 
   _R21Week _r21week;
@@ -45,6 +47,9 @@ class R21Week {
     _r21week = _R21Week.Other;
   }
 
+ R21Week.NotSure() {
+    _r21week = _R21Week.NotSure;
+  }
   static R21Week fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
@@ -74,6 +79,7 @@ class R21Week {
         R21Week.In2Weeks(),
         R21Week.In3Weeks(),
         R21Week.Other(),
+        R21Week.NotSure(),
       ];
 
   /// Returns the text description of this orientation.
@@ -83,4 +89,4 @@ class R21Week {
   int get code => _encoding[_r21week];
 }
 
-enum _R21Week { NextWeek, In2Weeks, In3Weeks, Other }
+enum _R21Week { NextWeek, In2Weeks, In3Weeks, Other, NotSure }
