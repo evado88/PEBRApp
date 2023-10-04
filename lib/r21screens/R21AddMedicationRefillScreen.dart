@@ -26,7 +26,7 @@ class R21AddMedicationRefillScreen extends StatelessWidget {
       //end anlytics
 
       _analytic.stopAnalytics(
-          resultAction: 'Cancel', subjectEntity: this._patient.artNumber);
+          resultAction: 'Cancel', subjectEntity: this._patient.personalStudyNumber);
 
       return route.settings.name == '/patient';
     });
@@ -39,7 +39,7 @@ class R21AddMedicationRefillScreen extends StatelessWidget {
 
     return PopupScreen(
         title: 'Add Medication Refil',
-        subtitle: _patient.artNumber,
+        subtitle: _patient.personalStudyNumber,
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
@@ -78,7 +78,7 @@ class _R21AddMedicationRefillFormState
 
   // constructor
   _R21AddMedicationRefillFormState(this._patient, this._analytic) {
-    _medicationRefil = R21MedicationRefill(this._patient.artNumber);
+    _medicationRefil = R21MedicationRefill(this._patient.personalStudyNumber);
   }
 
   @override
@@ -383,7 +383,7 @@ class _R21AddMedicationRefillFormState
       Navigator.of(context).popUntil((Route<dynamic> route) {
         //end anlytics
         _analytic.stopAnalytics(
-            resultAction: 'Saved', subjectEntity: this._patient.artNumber);
+            resultAction: 'Saved', subjectEntity: this._patient.personalStudyNumber);
 
         return route.settings.name == '/patient';
       });

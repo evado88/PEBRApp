@@ -7,8 +7,8 @@ import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
+import 'package:pebrapp/database/beans/R21Residency.dart';
+import 'package:pebrapp/database/beans/R21PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionUse.dart';
@@ -22,7 +22,7 @@ import 'package:pebrapp/database/beans/R21SupportType.dart';
 import 'package:pebrapp/database/beans/R21Week.dart';
 import 'package:pebrapp/database/beans/R21YesNo.dart';
 import 'package:pebrapp/database/beans/R21YesNoUnsure.dart';
-import 'package:pebrapp/database/beans/SexualOrientation.dart';
+import 'package:pebrapp/database/beans/R21PreferredContactMethod.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
@@ -77,11 +77,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   TextEditingController _reasonPrepStopReasonCtr = TextEditingController();
 
   bool get _eligible =>
-      _newPatient.birthday != null &&
-      !_newPatient.birthday.isBefore(minBirthdayForEligibility) &&
-      !_newPatient.birthday.isAfter(maxBirthdayForEligibility);
+      _newPatient.personalBirthday != null &&
+      !_newPatient.personalBirthday.isBefore(minBirthdayForEligibility) &&
+      !_newPatient.personalBirthday.isAfter(maxBirthdayForEligibility);
   bool get _notEligibleAfterBirthdaySpecified =>
-      _newPatient.birthday != null && !_eligible;
+      _newPatient.personalBirthday != null && !_eligible;
 
   Patient _newPatient = Patient(isActivated: true);
   ViralLoad _viralLoadBaseline =
@@ -104,7 +104,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   TextEditingController _questionsAboutARTMedicationCtr =
       TextEditingController();
 
-  TextEditingController _artNumberCtr = TextEditingController();
+  TextEditingController _studyNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
@@ -146,7 +146,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
             retrieveNonEligibles: false, retrieveNonConsents: false)
         .then((List<Patient> patients) {
       setState(() {
-        _artNumbersInDB = patients.map((Patient p) => p.artNumber).toList();
+        _artNumbersInDB = patients.map((Patient p) => p.personalStudyNumber).toList();
         _stickerNumbersInDB =
             patients.map((Patient p) => p.stickerNumber).toList();
         _isLoading = false;
@@ -193,7 +193,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
       }
 
       if (_patientSaved &&
-          (_kobocollectOpened || !(_newPatient.downloadedChatAPp ?? true))) {
+          (_kobocollectOpened || !(_newPatient.messengerDownloaded ?? true))) {
         return Container(
           width: double.infinity,
           child:
@@ -234,7 +234,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
                 fontWeight:
                     currentStep == 1 ? FontWeight.bold : FontWeight.normal)),
         isActive: _kobocollectOpened,
-        state: _kobocollectOpened || !(_newPatient.downloadedChatAPp ?? true)
+        state: _kobocollectOpened || !(_newPatient.messengerDownloaded ?? true)
             ? StepState.complete
             : StepState.indexed,
         content: patientHistoryStep,
@@ -245,7 +245,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
                   fontWeight:
                       currentStep == 1 ? FontWeight.bold : FontWeight.normal)),
           isActive: _kobocollectOpened,
-          state: _kobocollectOpened || !(_newPatient.downloadedChatAPp ?? true)
+          state: _kobocollectOpened || !(_newPatient.messengerDownloaded ?? true)
               ? StepState.complete
               : StepState.indexed,
           content: patientSrhServicePreferenceStep),
@@ -266,7 +266,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
         // been saved
         return;
       }
-      if (step == 1 && !(_newPatient.downloadedChatAPp ?? true)) {
+      if (step == 1 && !(_newPatient.messengerDownloaded ?? true)) {
         // skip going to step 'baseline assessment' if no consent is given and
         // we are coming from step 'patient characteristics'
         if (currentStep == 0) {
@@ -323,11 +323,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
                 (currentStep == 2 &&
                     (!_patientSaved ||
                         (!_kobocollectOpened &&
-                            (_newPatient.downloadedChatAPp ?? false)))))
+                            (_newPatient.messengerDownloaded ?? false)))))
             ? null
             : next,
         onStepCancel: (currentStep == 1 && _patientSaved ||
-                (currentStep == 2 && !(_newPatient.downloadedChatAPp ?? true)))
+                (currentStep == 2 && !(_newPatient.messengerDownloaded ?? true)))
             ? null
             : cancel,
         controlsBuilder: (BuildContext context,
@@ -446,7 +446,6 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           _hivStatus(),
           _takingART(),
           _lastARTRefilDateQuestion(),
-          _ARTRefilCollectionClinic(),
           _specifyARTRefilCollectionClinic(),
           _problemsTakingART(),
           _questionsAboutARTMedication(),
@@ -547,7 +546,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           _interestPrepMaybeNotNowPickFacility(),
           _interestPrepMaybeNotNowPickFacilityShow(),
           _interestPrepMaybeNotNowPickFacilitySelected(),
-          _interestPrepMaybeLikeInformationOnApp()
+          _interestPrepMaybeLikeInformationOnApp(),
+
+          _interestPrepNotLikeInfoOnMethods(),
+          _interestPrepNotLikeInfoOnMethodsShow(),
+          _interestPrepNotLikeInformationOnApp()
         ],
       ),
     );
@@ -594,10 +597,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
     return _makeQuestion(
       'Interest in using contraception ',
       answer: DropdownButtonFormField<R21Interest>(
-        value: _newPatient.contraceptionInterest,
+        value: _newPatient.srhContraceptionInterest,
         onChanged: (R21Interest newValue) {
           setState(() {
-            _newPatient.contraceptionInterest = newValue;
+            _newPatient.srhContraceptionInterest = newValue;
           });
         },
         validator: (value) {
@@ -617,8 +620,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _hasMethodInMind() {
-    if (_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.VeryInterested()) {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
       return SizedBox();
     }
     return _makeQuestion(
@@ -647,8 +650,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _particularMethodInMind() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.hasContraceptiveMethodInMind == null ||
             _newPatient.hasContraceptiveMethodInMind == R21YesNo.NO())) {
@@ -775,8 +778,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _specifyInterestContraceptionMethodOther() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.hasContraceptiveMethodInMind == null ||
             _newPatient.hasContraceptiveMethodInMind == R21YesNo.NO()) ||
@@ -799,8 +802,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionLikeInfoMethods() {
-    if (_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.VeryInterested()) {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
       return SizedBox();
     }
 
@@ -831,8 +834,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionOpenCounselingInfoPage() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeMoreInfo == null ||
             _newPatient.interestContraceptionLikeMoreInfo == R21YesNo.NO())) {
@@ -846,8 +849,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionLikeFacilitySchedule() {
-    if (_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.VeryInterested()) {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
       return SizedBox();
     }
 
@@ -879,8 +882,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionLikeFacilityScheduleDate() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -941,8 +944,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionLikePNAccompany() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -975,8 +978,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionOpenFacilitiesPage() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1022,8 +1025,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionSelectedFacility() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1045,8 +1048,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotNowDate() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1081,8 +1084,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotNowDateOther() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1107,8 +1110,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotNowPickFacility() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1142,8 +1145,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotNowPickFacilityShow() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1160,8 +1163,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotNowPickFacilitySelected() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1187,8 +1190,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionLikeInformationOnApp() {
-    if (_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.VeryInterested()) {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
       return SizedBox();
     }
 
@@ -1219,8 +1222,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeMethod() {
-    if (_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.MaybeInterested()) {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.MaybeInterested()) {
       return SizedBox();
     }
 
@@ -1344,8 +1347,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeMethodSpecify() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         !_newPatient.interestContraceptionOther) {
       return SizedBox();
@@ -1365,8 +1368,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeLikeFacilitySchedule() {
-    if ((_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.MaybeInterested())) {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.MaybeInterested())) {
       return SizedBox();
     }
 
@@ -1398,8 +1401,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeLikeFacilityScheduleDate() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1460,8 +1463,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeLikePNAccompany() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1494,8 +1497,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeOpenFacilitiesPage() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1509,8 +1512,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeSelectedFacility() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule ==
@@ -1532,8 +1535,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeNotNowDate() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule !=
@@ -1568,8 +1571,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeNotNowDateOther() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule !=
@@ -1594,8 +1597,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeNotNowPickFacility() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule !=
@@ -1629,8 +1632,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeNotNowPickFacilityShow() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule !=
@@ -1647,8 +1650,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeNotNowPickFacilitySelected() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule !=
@@ -1674,8 +1677,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeLikeInformationOnApp() {
-    if ((_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.MaybeInterested())) {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.MaybeInterested())) {
       return SizedBox();
     }
 
@@ -1706,8 +1709,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeLikeInfoOnMethods() {
-    if ((_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.MaybeInterested())) {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.MaybeInterested())) {
       return SizedBox();
     }
 
@@ -1739,8 +1742,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionMaybeLikeInfoOnMethodsShow() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeInformationOnMethods == null ||
             _newPatient.interestContraceptionLikeInformationOnMethods !=
@@ -1755,8 +1758,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotSpecifyReason() {
-    if ((_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.NoInterested())) {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
       return SizedBox();
     }
     return _makeQuestion(
@@ -1774,8 +1777,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotLikeInfoOnMethods() {
-    if ((_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.NoInterested())) {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
       return SizedBox();
     }
 
@@ -1807,8 +1810,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotLikeInfoOnMethodsShow() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest != R21Interest.NoInterested()) ||
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest != R21Interest.NoInterested()) ||
         (_newPatient.interestContraceptionNotLikeInformationOnMethods == null ||
             _newPatient.interestContraceptionNotLikeInformationOnMethods !=
                 R21YesNo.YES())) {
@@ -1822,8 +1825,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestContraceptionNotLikeInformationOnApp() {
-    if ((_newPatient.contraceptionInterest == null ||
-        _newPatient.contraceptionInterest != R21Interest.NoInterested())) {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
       return SizedBox();
     }
 
@@ -1859,7 +1862,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
     return _makeQuestion(
       'Interest in using PrEP',
       answer: DropdownButtonFormField<R21Interest>(
-        value: _newPatient.contraceptionInterest,
+        value: _newPatient.srhContraceptionInterest,
         onChanged: (R21Interest newValue) {
           setState(() {
             _newPatient.prepInterest = newValue;
@@ -2206,8 +2209,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestPrepVeryNotNowPickFacilitySelected() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestContraceptionLikeFindFacilitySchedule == null ||
             _newPatient.interestContraceptionLikeFindFacilitySchedule !=
@@ -2263,7 +2266,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
         makeBold: false,
         forceColumn: true);
   }
-///////////////////////////////
+//MAYBE
 
   Widget _interestPrepMaybeLikeInfoOnMethods() {
     if ((_newPatient.prepInterest == null ||
@@ -2590,8 +2593,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _interestPrepMaybeNotNowPickFacilitySelected() {
-    if ((_newPatient.contraceptionInterest == null ||
-            _newPatient.contraceptionInterest !=
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.interestPrepMaybeNotNowPickFacility == null ||
             _newPatient.interestPrepMaybeNotNowPickFacility !=
@@ -2648,17 +2651,94 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
         forceColumn: true);
   }
 
+//NOT INTERESTED
+  Widget _interestPrepNotLikeInfoOnMethods() {
+    if ((_newPatient.prepInterest == null ||
+        _newPatient.prepInterest != R21Interest.NoInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Would she like more information now about PrEP',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.interestPrepNotLikeInformation,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.interestPrepNotLikeInformation = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestPrepNotLikeInfoOnMethodsShow() {
+    if ((_newPatient.prepInterest == null ||
+            _newPatient.prepInterest != R21Interest.NoInterested()) ||
+        (_newPatient.interestPrepNotLikeInformation == null ||
+            _newPatient.interestPrepNotLikeInformation != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
+      print('Opening Counseling Information...');
+      _pushViewResourcesScreen();
+    });
+  }
 
 
+  Widget _interestPrepNotLikeInformationOnApp() {
+    if ((_newPatient.prepInterest == null ||
+        _newPatient.prepInterest != R21Interest.NoInterested())) {
+      return SizedBox();
+    }
 
+    return _makeQuestion(
+        'Would she like information about PrEP sent through the app that she can read?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.interestPrepNotLikeInformationOnApp,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.interestPrepNotLikeInformationOnApp = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+//END PREP
   Widget _contactFrequency() {
     return _makeQuestion(
       'Frequency of Contact',
       answer: DropdownButtonFormField<R21ContactFrequency>(
-        value: _newPatient.contactFrequency,
+        value: _newPatient.personalContactFrequency,
         onChanged: (R21ContactFrequency newValue) {
           setState(() {
-            _newPatient.contactFrequency = newValue;
+            _newPatient.personalContactFrequency = newValue;
           });
         },
         validator: (value) {
@@ -2735,10 +2815,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
     return _makeQuestion(
       'Does the client know her HIV status? ',
       answer: DropdownButtonFormField<R21HIVStatus>(
-        value: _newPatient.hivStatus,
+        value: _newPatient.historyHIVStatus,
         onChanged: (R21HIVStatus newValue) {
           setState(() {
-            _newPatient.hivStatus = newValue;
+            _newPatient.historyHIVStatus = newValue;
           });
         },
         validator: (value) {
@@ -2758,18 +2838,18 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _takingART() {
-    if (_newPatient.hivStatus == null ||
-        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+    if (_newPatient.historyHIVStatus == null ||
+        _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) {
       return SizedBox();
     }
 
     return _makeQuestion(
       'is she currently taking ART',
       answer: DropdownButtonFormField<R21YesNo>(
-        value: _newPatient.takingART,
+        value: _newPatient.historyHIVTakingART,
         onChanged: (R21YesNo newValue) {
           setState(() {
-            _newPatient.takingART = newValue;
+            _newPatient.historyHIVTakingART = newValue;
           });
         },
         validator: (value) {
@@ -2789,10 +2869,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _lastARTRefilDateQuestion() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
-        (_newPatient.takingART == null ||
-            _newPatient.takingART != R21YesNo.YES())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVTakingART == null ||
+            _newPatient.historyHIVTakingART != R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -2848,44 +2928,12 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
     );
   }
 
-  Widget _ARTRefilCollectionClinic() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
-        (_newPatient.takingART == null ||
-            _newPatient.takingART != R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Where refill was collected from',
-      answer: DropdownButtonFormField<R21ProviderType>(
-        value: _newPatient.ARTRefilCollectionClinic,
-        onChanged: (R21ProviderType newValue) {
-          setState(() {
-            _newPatient.ARTRefilCollectionClinic = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-        },
-        items: R21ProviderType.allValues
-            .map<DropdownMenuItem<R21ProviderType>>((R21ProviderType value) {
-          return DropdownMenuItem<R21ProviderType>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
 
   Widget _specifyARTRefilCollectionClinic() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
-        (_newPatient.takingART == null ||
-            _newPatient.takingART != R21YesNo.YES()) ||
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVTakingART == null ||
+            _newPatient.historyHIVTakingART != R21YesNo.YES()) ||
         (_newPatient.ARTRefilCollectionClinic == null ||
             _newPatient.ARTRefilCollectionClinic != R21ProviderType.Other())) {
       return SizedBox();
@@ -2905,8 +2953,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _problemsTakingART() {
-    if (_newPatient.hivStatus == null ||
-        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+    if (_newPatient.historyHIVStatus == null ||
+        _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) {
       return SizedBox();
     }
 
@@ -2924,8 +2972,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _questionsAboutARTMedication() {
-    if (_newPatient.hivStatus == null ||
-        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+    if (_newPatient.historyHIVStatus == null ||
+        _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) {
       return SizedBox();
     }
 
@@ -2943,8 +2991,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _desiredARTSupport() {
-    if (_newPatient.hivStatus == null ||
-        _newPatient.hivStatus != R21HIVStatus.YesPositive()) {
+    if (_newPatient.historyHIVStatus == null ||
+        _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) {
       return SizedBox();
     }
 
@@ -2952,11 +3000,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
         answer: Column(children: [
           Row(children: [
             Checkbox(
-              value: _newPatient.desiredSupportRefilReminders,
+              value: _newPatient.historyHIVDesiredSupportRemindersAppointments,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.desiredSupportRefilReminders = value;
+                  _newPatient.historyHIVDesiredSupportRemindersAppointments = value;
                 });
               },
             ),
@@ -2966,11 +3014,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.desiredSupportAdherenceReminders,
+              value: _newPatient.historyHIVDesiredSupportRemindersCheckins,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.desiredSupportAdherenceReminders = value;
+                  _newPatient.historyHIVDesiredSupportRemindersCheckins = value;
                 });
               },
             ),
@@ -2980,11 +3028,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.desiredSupportRefilCollectionReminders,
+              value: _newPatient.historyHIVDesiredSupportRefilsAccompany,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.desiredSupportRefilCollectionReminders = value;
+                  _newPatient.historyHIVDesiredSupportRefilsAccompany = value;
                 });
               },
             ),
@@ -2994,11 +3042,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.desiredSupportReerCollectionRefilReminders,
+              value: _newPatient.historyHIVDesiredSupportRefilsPAAccompany,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.desiredSupportReerCollectionRefilReminders =
+                  _newPatient.historyHIVDesiredSupportRefilsPAAccompany =
                       value;
                 });
               },
@@ -3009,11 +3057,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.desiredSupportOther,
+              value: _newPatient.historyHIVDesiredSupportOther,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.desiredSupportOther = value;
+                  _newPatient.historyHIVDesiredSupportOther = value;
                 });
               },
             ),
@@ -3027,11 +3075,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _specifyARTDesiredSupportOther() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus != R21HIVStatus.YesPositive()) ||
-        (_newPatient.takingART == null ||
-            _newPatient.takingART == R21YesNo.NO()) ||
-        !_newPatient.desiredSupportOther) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVTakingART == null ||
+            _newPatient.historyHIVTakingART == R21YesNo.NO()) ||
+        !_newPatient.historyHIVDesiredSupportOther) {
       return SizedBox();
     }
 
@@ -3049,8 +3097,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _lastHIVTestDateQuestion() {
-    if ((_newPatient.hivStatus == null ||
-        _newPatient.hivStatus == R21HIVStatus.YesPositive())) {
+    if ((_newPatient.historyHIVStatus == null ||
+        _newPatient.historyHIVStatus == R21HIVStatus.YesPositive())) {
       return SizedBox();
     }
 
@@ -3062,9 +3110,9 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           child: SizedBox(
             width: double.infinity,
             child: Text(
-              _newPatient.lastHIVTestDate == null
+              _newPatient.historyHIVLastTest == null
                   ? ''
-                  : '${formatDateConsistent(_newPatient.lastHIVTestDate)}',
+                  : '${formatDateConsistent(_newPatient.historyHIVLastTest)}',
               textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 16.0,
@@ -3081,7 +3129,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
             );
             if (date != null) {
               setState(() {
-                _newPatient.lastHIVTestDate = date;
+                _newPatient.historyHIVLastTest = date;
               });
             }
           },
@@ -3107,18 +3155,18 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _clientEverUsedPrep() {
-    if ((_newPatient.hivStatus == null ||
-        _newPatient.hivStatus == R21HIVStatus.YesPositive())) {
+    if ((_newPatient.historyHIVStatus == null ||
+        _newPatient.historyHIVStatus == R21HIVStatus.YesPositive())) {
       return SizedBox();
     }
 
     return _makeQuestion(
       'Has she ever used PrEP ',
       answer: DropdownButtonFormField<R21PrEP>(
-        value: _newPatient.everUsedPrep,
+        value: _newPatient.historyHIVUsedPrep,
         onChanged: (R21PrEP newValue) {
           setState(() {
-            _newPatient.everUsedPrep = newValue;
+            _newPatient.historyHIVUsedPrep = newValue;
           });
         },
         validator: (value) {
@@ -3138,10 +3186,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _specifyPrepStopReason() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesNotCurrently())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesNotCurrently())) {
       return SizedBox();
     }
 
@@ -3159,10 +3207,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _lastPrepRefilDateQuestion() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
       return SizedBox();
     }
 
@@ -3219,10 +3267,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _prepRefilCollectionClinic() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
       return SizedBox();
     }
 
@@ -3252,10 +3300,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _specifyPrepRefilCollectionClinic() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
       return SizedBox();
     }
     return _makeQuestion(
@@ -3272,10 +3320,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _problemsTakingPrep() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
       return SizedBox();
     }
 
@@ -3293,10 +3341,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _questionsAboutPrepMedication() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
       return SizedBox();
     }
 
@@ -3314,10 +3362,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _desiredPrepSupport() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesCurrently())) {
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
       return SizedBox();
     }
 
@@ -3399,10 +3447,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _specifyPrepDesiredSupportOther() {
-    if ((_newPatient.hivStatus == null ||
-            _newPatient.hivStatus == R21HIVStatus.YesPositive()) ||
-        (_newPatient.everUsedPrep == null ||
-            _newPatient.everUsedPrep != R21PrEP.YesCurrently()) ||
+    if ((_newPatient.historyHIVStatus == null ||
+            _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+        (_newPatient.historyHIVUsedPrep == null ||
+            _newPatient.historyHIVUsedPrep != R21PrEP.YesCurrently()) ||
         !_newPatient.desiredSupportPrepOther) {
       return SizedBox();
     }
@@ -3424,10 +3472,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
     return _makeQuestion(
       'Is the client currently using modern contraception or has used in the past?',
       answer: DropdownButtonFormField<R21ContraceptionUse>(
-        value: _newPatient.contraceptionUse,
+        value: _newPatient.historyContraceptionUse,
         onChanged: (R21ContraceptionUse newValue) {
           setState(() {
-            _newPatient.contraceptionUse = newValue;
+            _newPatient.historyContraceptionUse = newValue;
           });
         },
         validator: (value) {
@@ -3448,8 +3496,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _contraceptiveMethod() {
-    if (_newPatient.contraceptionUse == null ||
-        _newPatient.contraceptionUse == R21ContraceptionUse.HasNever()) {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse == R21ContraceptionUse.HasNever()) {
       return SizedBox();
     }
 
@@ -3457,11 +3505,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
         answer: Column(children: [
           Row(children: [
             Checkbox(
-              value: _newPatient.interestContraceptionMaleCondoms,
+              value: _newPatient.historyContraceptionMaleCondoms,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.interestContraceptionMaleCondoms = value;
+                  _newPatient.historyContraceptionMaleCondoms = value;
                 });
               },
             ),
@@ -3471,11 +3519,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.interestContraceptionFemaleCondoms,
+              value: _newPatient.historyContraceptionFemaleCondoms,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.interestContraceptionFemaleCondoms = value;
+                  _newPatient.historyContraceptionFemaleCondoms = value;
                 });
               },
             ),
@@ -3499,11 +3547,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.interestContraceptionInjection,
+              value: _newPatient.historyContraceptionInjection,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.interestContraceptionInjection = value;
+                  _newPatient.historyContraceptionInjection = value;
                 });
               },
             ),
@@ -3513,11 +3561,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.interestContraceptionIUD,
+              value: _newPatient.historyContraceptionIUD,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.interestContraceptionIUD = value;
+                  _newPatient.historyContraceptionIUD = value;
                 });
               },
             ),
@@ -3527,11 +3575,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.interestContraceptionIUS,
+              value: _newPatient.historyContraceptionIUS,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.interestContraceptionIUS = value;
+                  _newPatient.historyContraceptionIUS = value;
                 });
               },
             ),
@@ -3541,11 +3589,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.interestContraceptionPills,
+              value: _newPatient.historyContraceptionPills,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.interestContraceptionPills = value;
+                  _newPatient.historyContraceptionPills = value;
                 });
               },
             ),
@@ -3555,11 +3603,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.contraceptionMethodOther,
+              value: _newPatient.historyContraceptionOther,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.contraceptionMethodOther = value;
+                  _newPatient.historyContraceptionOther = value;
                 });
               },
             ),
@@ -3573,8 +3621,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _contraceptiveMethodOtherSpecify() {
-    if (_newPatient.contraceptionUse == null ||
-        _newPatient.contraceptionUse != R21ContraceptionUse.CurrentlyUsing() ||
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse != R21ContraceptionUse.CurrentlyUsing() ||
         !_newPatient.contraceptionMethodOther) {
       return SizedBox();
     }
@@ -3593,18 +3641,18 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _contraceptionSatisfaction() {
-    if (_newPatient.contraceptionUse == null ||
-        _newPatient.contraceptionUse != R21ContraceptionUse.CurrentlyUsing()) {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse != R21ContraceptionUse.CurrentlyUsing()) {
       return SizedBox();
     }
 
     return _makeQuestion(
       'Satisfaction with current method',
       answer: DropdownButtonFormField<R21Satisfaction>(
-        value: _newPatient.contraceptionSatisfaction,
+        value: _newPatient.historyContraceptionSatisfaction,
         onChanged: (R21Satisfaction newValue) {
           setState(() {
-            _newPatient.contraceptionSatisfaction = newValue;
+            _newPatient.historyContraceptionSatisfaction = newValue;
           });
         },
         validator: (value) {
@@ -3624,8 +3672,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _whyNoContraceptionSatisfaction() {
-    if (_newPatient.contraceptionUse == null ||
-        _newPatient.contraceptionUse != R21ContraceptionUse.CurrentlyUsing()) {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse != R21ContraceptionUse.CurrentlyUsing()) {
       return SizedBox();
     }
 
@@ -3643,8 +3691,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _whyNoContraception() {
-    if (_newPatient.contraceptionUse == null ||
-        _newPatient.contraceptionUse != R21ContraceptionUse.HasNever()) {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse != R21ContraceptionUse.HasNever()) {
       return SizedBox();
     }
 
@@ -3662,8 +3710,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _whyStopContraception() {
-    if (_newPatient.contraceptionUse == null ||
-        _newPatient.contraceptionUse !=
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse !=
             R21ContraceptionUse.NotCurrentButPast()) {
       return SizedBox();
     }
@@ -3711,11 +3759,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   Widget _residencyQuestion() {
     return _makeQuestion(
       'Residence',
-      answer: DropdownButtonFormField<Gender>(
-        value: _newPatient.gender,
-        onChanged: (Gender newValue) {
+      answer: DropdownButtonFormField<R21Residency>(
+        value: _newPatient.personalResidency,
+        onChanged: (R21Residency newValue) {
           setState(() {
-            _newPatient.gender = newValue;
+            _newPatient.personalResidency = newValue;
           });
         },
         validator: (value) {
@@ -3724,8 +3772,8 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           }
           return null;
         },
-        items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
-          return DropdownMenuItem<Gender>(
+        items: R21Residency.allValues.map<DropdownMenuItem<R21Residency>>((R21Residency value) {
+          return DropdownMenuItem<R21Residency>(
             value: value,
             child: Text(value.description),
           );
@@ -3739,7 +3787,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
       'Study Number',
       answer: TextFormField(
         autocorrect: false,
-        controller: _artNumberCtr,
+        controller: _studyNumberCtr,
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp('[A-Za-z0-9]')),
           LengthLimitingTextInputFormatter(5),
@@ -3764,9 +3812,9 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           child: SizedBox(
             width: double.infinity,
             child: Text(
-              _newPatient.birthday == null
+              _newPatient.personalBirthday == null
                   ? ''
-                  : '${formatDateConsistent(_newPatient.birthday)} (age ${calculateAge(_newPatient.birthday)})',
+                  : '${formatDateConsistent(_newPatient.personalBirthday)} (age ${calculateAge(_newPatient.personalBirthday)})',
               textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 16.0,
@@ -3777,13 +3825,13 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           onPressed: () async {
             DateTime date = await showDatePicker(
               context: context,
-              initialDate: _newPatient.birthday ?? minBirthdayForEligibility,
+              initialDate: _newPatient.personalBirthday ?? minBirthdayForEligibility,
               firstDate: minBirthdayForEligibility,
               lastDate: maxBirthdayForEligibility,
             );
             if (date != null) {
               setState(() {
-                _newPatient.birthday = date;
+                _newPatient.personalBirthday = date;
               });
             }
           },
@@ -3811,11 +3859,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   Widget _preferredContactMethodQuestion() {
     return _makeQuestion(
       'Preferred way to contact',
-      answer: DropdownButtonFormField<SexualOrientation>(
-        value: _newPatient.sexualOrientation,
-        onChanged: (SexualOrientation newValue) {
+      answer: DropdownButtonFormField<R21PreferredContactMethod>(
+        value: _newPatient.personalPreferredContactMethod,
+        onChanged: (R21PreferredContactMethod newValue) {
           setState(() {
-            _newPatient.sexualOrientation = newValue;
+            _newPatient.personalPreferredContactMethod = newValue;
           });
         },
         validator: (value) {
@@ -3824,10 +3872,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           }
           return null;
         },
-        items: SexualOrientation.allValues
-            .map<DropdownMenuItem<SexualOrientation>>(
-                (SexualOrientation value) {
-          return DropdownMenuItem<SexualOrientation>(
+        items: R21PreferredContactMethod.allValues
+            .map<DropdownMenuItem<R21PreferredContactMethod>>(
+                (R21PreferredContactMethod value) {
+          return DropdownMenuItem<R21PreferredContactMethod>(
             value: value,
             child: Text(value.description),
           );
@@ -3839,11 +3887,11 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   Widget _phoneAvailabilityQuestion() {
     return _makeQuestion(
       'Is your phone',
-      answer: DropdownButtonFormField<PhoneNumberSecurity>(
-        value: _newPatient.phoneAvailability,
-        onChanged: (PhoneNumberSecurity newValue) {
+      answer: DropdownButtonFormField<R21PhoneNumberSecurity>(
+        value: _newPatient.personalPhoneNumberAvailability,
+        onChanged: (R21PhoneNumberSecurity newValue) {
           setState(() {
-            _newPatient.phoneAvailability = newValue;
+            _newPatient.personalPhoneNumberAvailability = newValue;
           });
         },
         validator: (value) {
@@ -3852,10 +3900,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
           }
           return null;
         },
-        items: PhoneNumberSecurity.allValues
-            .map<DropdownMenuItem<PhoneNumberSecurity>>(
-                (PhoneNumberSecurity value) {
-          return DropdownMenuItem<PhoneNumberSecurity>(
+        items: R21PhoneNumberSecurity.allValues
+            .map<DropdownMenuItem<R21PhoneNumberSecurity>>(
+                (R21PhoneNumberSecurity value) {
+          return DropdownMenuItem<R21PhoneNumberSecurity>(
             value: value,
             child: Text(value.description),
           );
@@ -3887,10 +3935,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
     return _makeQuestion(
       'Has the client downloaded the messenger app?',
       answer: DropdownButtonFormField<bool>(
-        value: _newPatient.downloadedChatAPp,
+        value: _newPatient.messengerDownloaded,
         onChanged: (bool newValue) {
           setState(() {
-            _newPatient.downloadedChatAPp = newValue;
+            _newPatient.messengerDownloaded = newValue;
           });
         },
         validator: (value) {
@@ -3911,17 +3959,17 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _noConsentReasonQuestion() {
-    if (_newPatient.downloadedChatAPp == null ||
-        _newPatient.downloadedChatAPp) {
+    if (_newPatient.messengerDownloaded == null ||
+        _newPatient.messengerDownloaded) {
       return Container();
     }
     return _makeQuestion(
       'Why',
       answer: DropdownButtonFormField<NoChatDownloadReason>(
-        value: _newPatient.noConsentReason,
+        value: _newPatient.messengerNoDownloadReason,
         onChanged: (NoChatDownloadReason newValue) {
           setState(() {
-            _newPatient.noConsentReason = newValue;
+            _newPatient.messengerNoDownloadReason = newValue;
           });
         },
         validator: (value) {
@@ -3943,10 +3991,10 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _noConsentReasonOtherQuestion() {
-    if (_newPatient.downloadedChatAPp == null ||
-        _newPatient.downloadedChatAPp ||
-        _newPatient.noConsentReason == null ||
-        _newPatient.noConsentReason != NoChatDownloadReason.OTHER()) {
+    if (_newPatient.messengerDownloaded == null ||
+        _newPatient.messengerDownloaded ||
+        _newPatient.messengerNoDownloadReason == null ||
+        _newPatient.messengerNoDownloadReason != NoChatDownloadReason.OTHER()) {
       return Container();
     }
     return _makeQuestion(
@@ -3968,7 +4016,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   // ----------
 
   Widget _eligibilityDisclaimer() {
-    if (_newPatient.birthday != null) {
+    if (_newPatient.personalBirthday != null) {
       return Container();
     }
     return Padding(
@@ -3981,7 +4029,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   }
 
   Widget _notEligibleDisclaimer() {
-    if (_newPatient.birthday == null || _eligible) {
+    if (_newPatient.personalBirthday == null || _eligible) {
       return Container();
     }
     return Padding(
@@ -3999,7 +4047,7 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
   bool _validatePatientBirthday() {
     // if the birthday is not specified show the error message under the
     // birthday field and return false.
-    if (_newPatient.birthday == null) {
+    if (_newPatient.personalBirthday == null) {
       setState(() {
         _patientBirthdayValid = false;
       });
@@ -4023,53 +4071,53 @@ class _R21NewFlatPatientFormState extends State<R21NewFlatPatientScreen> {
         ) {
       final DateTime now = DateTime.now();
 
-      _newPatient.enrollmentDate = now;
+      _newPatient.utilityEnrollmentDate = now;
       _newPatient.isEligible = _eligible;
-      _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = (_newPatient.downloadedChatAPp ?? false)
+      _newPatient.personalStudyNumber = _studyNumberCtr.text;
+      _newPatient.stickerNumber = (_newPatient.messengerDownloaded ?? false)
           ? 'P${_stickerNumberCtr.text}'
           : null;
       _newPatient.village = _villageCtr.text;
-      _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
+      _newPatient.personalPhoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noChatDownloadReasonOtherCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.checkLogicAndResetUnusedFields();
 
-      _newPatient.providerLocation = (_newPatient.downloadedChatAPp ?? false)
+      _newPatient.providerLocation = (_newPatient.messengerDownloaded ?? false)
           ? _reasonNoContraceptionCtr.text
           : null;
 
-      if (_newPatient.isEligible && _newPatient.downloadedChatAPp) {
+      if (_newPatient.isEligible && _newPatient.messengerDownloaded) {
         await DatabaseProvider().insertRequiredAction(RequiredAction(
-            _newPatient.artNumber,
+            _newPatient.personalStudyNumber,
             RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED,
             addMonths(now, 2, addHalfMonth: true)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(
-            _newPatient.artNumber,
+            _newPatient.personalStudyNumber,
             RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED,
             addMonths(now, 5)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(
-            _newPatient.artNumber,
+            _newPatient.personalStudyNumber,
             RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED,
             addMonths(now, 9)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(
-            _newPatient.artNumber,
+            _newPatient.personalStudyNumber,
             RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED,
             addMonths(now, 5)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(
-            _newPatient.artNumber,
+            _newPatient.personalStudyNumber,
             RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED,
             addMonths(now, 9)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(
-            _newPatient.artNumber,
+            _newPatient.personalStudyNumber,
             RequiredActionType.VIRAL_LOAD_9M_REQUIRED,
             addMonths(now, 9)));
       }
 
-      if (_newPatient.isEligible && _newPatient.downloadedChatAPp) {
-        _viralLoadBaseline.patientART = _artNumberCtr.text;
+      if (_newPatient.isEligible && _newPatient.messengerDownloaded) {
+        _viralLoadBaseline.patientART = _studyNumberCtr.text;
       }
 
       await _newPatient.initializeRequiredActionsField();

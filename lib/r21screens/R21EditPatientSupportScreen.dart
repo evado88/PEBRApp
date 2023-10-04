@@ -54,7 +54,7 @@ class _R21EditPatientSupportFormState
     _screenWidth = MediaQuery.of(context).size.width;
     return PopupScreen(
       title: 'Edit Participant',
-      subtitle: _patientToBeEdited.artNumber,
+      subtitle: _patientToBeEdited.personalStudyNumber,
       child: Form(
         key: _formKey,
         child: Column(
@@ -139,10 +139,10 @@ class _R21EditPatientSupportFormState
     return _makeQuestion(
       'Frequency of Contact',
       answer: DropdownButtonFormField<R21ContactFrequency>(
-        value: _patientToBeEdited.contactFrequency,
+        value: _patientToBeEdited.personalContactFrequency,
         onChanged: (R21ContactFrequency newValue) {
           setState(() {
-            _patientToBeEdited.contactFrequency = newValue;
+            _patientToBeEdited.personalContactFrequency = newValue;
           });
         },
         validator: (value) {

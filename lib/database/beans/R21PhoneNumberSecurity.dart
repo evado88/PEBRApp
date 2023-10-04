@@ -1,4 +1,4 @@
-class PhoneNumberSecurity {
+class R21PhoneNumberSecurity {
   // Class Variables
   // ---------------
 
@@ -23,17 +23,17 @@ class PhoneNumberSecurity {
   // ------------
 
   // make default constructor private
-  PhoneNumberSecurity._();
+  R21PhoneNumberSecurity._();
 
-  PhoneNumberSecurity.YES() {
+  R21PhoneNumberSecurity.YES() {
     _availability = _PhoneAvailability.PRIVATE;
   }
 
-  PhoneNumberSecurity.NO_NO_PHONE() {
+  R21PhoneNumberSecurity.NO_NO_PHONE() {
     _availability = _PhoneAvailability.SHARED;
   }
 
-  static PhoneNumberSecurity fromCode(int code) {
+  static R21PhoneNumberSecurity fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
@@ -41,7 +41,7 @@ class PhoneNumberSecurity {
         _encoding.entries.firstWhere((MapEntry<_PhoneAvailability, int> entry) {
       return entry.value == code;
     }).key;
-    PhoneNumberSecurity object = PhoneNumberSecurity._();
+    R21PhoneNumberSecurity object = R21PhoneNumberSecurity._();
     object._availability = availability;
     return object;
   }
@@ -52,15 +52,15 @@ class PhoneNumberSecurity {
   // override the equality operator
   @override
   bool operator ==(o) =>
-      o is PhoneNumberSecurity && o._availability == _availability;
+      o is R21PhoneNumberSecurity && o._availability == _availability;
 
   // override hashcode
   @override
   int get hashCode => _availability.hashCode;
 
-  static List<PhoneNumberSecurity> get allValues => [
-        PhoneNumberSecurity.YES(),
-        PhoneNumberSecurity.NO_NO_PHONE(),
+  static List<R21PhoneNumberSecurity> get allValues => [
+        R21PhoneNumberSecurity.YES(),
+        R21PhoneNumberSecurity.NO_NO_PHONE(),
       ];
 
   /// Returns the text description of this availability.

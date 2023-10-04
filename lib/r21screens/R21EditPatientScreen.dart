@@ -4,9 +4,9 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
-import 'package:pebrapp/database/beans/SexualOrientation.dart';
+import 'package:pebrapp/database/beans/R21Residency.dart';
+import 'package:pebrapp/database/beans/R21PhoneNumberSecurity.dart';
+import 'package:pebrapp/database/beans/R21PreferredContactMethod.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
@@ -41,8 +41,8 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
     // false (isEligible, consentGiven, isActivated...)
     _patientBeforeEditing = Patient.fromMap(_patientToBeEdited.toMap());
     _villageCtr.text = _patientToBeEdited.village;
-    if (_patientToBeEdited.phoneNumber != null) {
-      _phoneNumberCtr.text = _patientToBeEdited.phoneNumber.substring(5);
+    if (_patientToBeEdited.personalPhoneNumber != null) {
+      _phoneNumberCtr.text = _patientToBeEdited.personalPhoneNumber.substring(5);
     }
   }
 
@@ -53,7 +53,7 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
     _screenWidth = MediaQuery.of(context).size.width;
     return PopupScreen(
       title: 'Edit Participant',
-      subtitle: _patientToBeEdited.artNumber,
+      subtitle: _patientToBeEdited.personalStudyNumber,
       child: Form(
         key: _formKey,
         child: Column(
@@ -108,11 +108,11 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
   Widget _genderQuestion() {
     return _makeQuestion(
       'Gender',
-      answer: DropdownButtonFormField<Gender>(
-        value: _patientToBeEdited.gender,
-        onChanged: (Gender newValue) {
+      answer: DropdownButtonFormField<R21Residency>(
+        value: _patientToBeEdited.personalResidency,
+        onChanged: (R21Residency newValue) {
           setState(() {
-            _patientToBeEdited.gender = newValue;
+            _patientToBeEdited.personalResidency = newValue;
           });
         },
         validator: (value) {
@@ -120,8 +120,8 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
             return 'Please answer this question.';
           }
         },
-        items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
-          return DropdownMenuItem<Gender>(
+        items: R21Residency.allValues.map<DropdownMenuItem<R21Residency>>((R21Residency value) {
+          return DropdownMenuItem<R21Residency>(
             value: value,
             child: Text(value.description),
           );
@@ -133,11 +133,11 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
   Widget _sexualOrientationQuestion() {
     return _makeQuestion(
       'Sexual Orientation',
-      answer: DropdownButtonFormField<SexualOrientation>(
-        value: _patientToBeEdited.sexualOrientation,
-        onChanged: (SexualOrientation newValue) {
+      answer: DropdownButtonFormField<R21PreferredContactMethod>(
+        value: _patientToBeEdited.personalPreferredContactMethod,
+        onChanged: (R21PreferredContactMethod newValue) {
           setState(() {
-            _patientToBeEdited.sexualOrientation = newValue;
+            _patientToBeEdited.personalPreferredContactMethod = newValue;
           });
         },
         validator: (value) {
@@ -145,10 +145,10 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
             return 'Please answer this question.';
           }
         },
-        items: SexualOrientation.allValues
-            .map<DropdownMenuItem<SexualOrientation>>(
-                (SexualOrientation value) {
-          return DropdownMenuItem<SexualOrientation>(
+        items: R21PreferredContactMethod.allValues
+            .map<DropdownMenuItem<R21PreferredContactMethod>>(
+                (R21PreferredContactMethod value) {
+          return DropdownMenuItem<R21PreferredContactMethod>(
             value: value,
             child: Text(value.description),
           );
@@ -174,11 +174,11 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
   Widget _phoneAvailabilityQuestion() {
     return _makeQuestion(
       'Do you have regular access to a phone (with Zambia number) where you can receive confidential information?',
-      answer: DropdownButtonFormField<PhoneNumberSecurity>(
-        value: _patientToBeEdited.phoneAvailability,
-        onChanged: (PhoneNumberSecurity newValue) {
+      answer: DropdownButtonFormField<R21PhoneNumberSecurity>(
+        value: _patientToBeEdited.personalPhoneNumberAvailability,
+        onChanged: (R21PhoneNumberSecurity newValue) {
           setState(() {
-            _patientToBeEdited.phoneAvailability = newValue;
+            _patientToBeEdited.personalPhoneNumberAvailability = newValue;
           });
         },
         validator: (value) {
@@ -186,10 +186,10 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
             return 'Please answer this question.';
           }
         },
-        items: PhoneNumberSecurity.allValues
-            .map<DropdownMenuItem<PhoneNumberSecurity>>(
-                (PhoneNumberSecurity value) {
-          return DropdownMenuItem<PhoneNumberSecurity>(
+        items: R21PhoneNumberSecurity.allValues
+            .map<DropdownMenuItem<R21PhoneNumberSecurity>>(
+                (R21PhoneNumberSecurity value) {
+          return DropdownMenuItem<R21PhoneNumberSecurity>(
             value: value,
             child: Text(value.description),
           );
@@ -199,8 +199,8 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (_patientToBeEdited.phoneAvailability == null ||
-        _patientToBeEdited.phoneAvailability != PhoneNumberSecurity.YES()) {
+    if (_patientToBeEdited.personalPhoneNumberAvailability == null ||
+        _patientToBeEdited.personalPhoneNumberAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeQuestion(
@@ -228,20 +228,20 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
   _onSubmitForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
-      if (_patientToBeEdited.phoneAvailability == PhoneNumberSecurity.YES()) {
-        _patientToBeEdited.phoneNumber = '+260${_phoneNumberCtr.text}';
+      if (_patientToBeEdited.personalPhoneNumberAvailability == R21PhoneNumberSecurity.YES()) {
+        _patientToBeEdited.personalPhoneNumber = '+260${_phoneNumberCtr.text}';
       } else {
-        _patientToBeEdited.phoneNumber = null;
+        _patientToBeEdited.personalPhoneNumber = null;
       }
       _patientToBeEdited.village = _villageCtr.text;
       await DatabaseProvider().insertPatient(_patientToBeEdited);
-      if (_patientToBeEdited.gender != _patientBeforeEditing.gender ||
-          _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber ||
-          _patientToBeEdited.birthday != _patientBeforeEditing.birthday) {
+      if (_patientToBeEdited.personalResidency != _patientBeforeEditing.personalResidency ||
+          _patientToBeEdited.personalPhoneNumber != _patientBeforeEditing.personalPhoneNumber ||
+          _patientToBeEdited.personalBirthday != _patientBeforeEditing.personalBirthday) {
         // upload to VisibleImpact is required
-        final bool phoneNumberChanged = _patientToBeEdited.phoneAvailability !=
-                _patientBeforeEditing.phoneAvailability ||
-            _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber;
+        final bool phoneNumberChanged = _patientToBeEdited.personalPhoneNumberAvailability !=
+                _patientBeforeEditing.personalPhoneNumberAvailability ||
+            _patientToBeEdited.personalPhoneNumber != _patientBeforeEditing.personalPhoneNumber;
         uploadPatientCharacteristics(_patientToBeEdited,
             reUploadNotifications: phoneNumberChanged);
       }

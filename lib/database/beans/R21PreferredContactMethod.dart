@@ -1,4 +1,4 @@
-class SexualOrientation {
+class R21PreferredContactMethod {
   // Class Variables
   // ---------------
 
@@ -23,18 +23,18 @@ class SexualOrientation {
   // ------------
 
   // make default constructor private
-  SexualOrientation._();
+  R21PreferredContactMethod._();
 
-  SexualOrientation.HETEROSEXUAL() {
+  R21PreferredContactMethod.HETEROSEXUAL() {
     _orientation = _SexualOrientation.TWYSHE;
   }
 
-  SexualOrientation.BISEXUAL() {
+  R21PreferredContactMethod.BISEXUAL() {
     _orientation = _SexualOrientation.PHONECALL;
   }
 
 
-  static SexualOrientation fromCode(int code) {
+  static R21PreferredContactMethod fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
@@ -42,7 +42,7 @@ class SexualOrientation {
         _encoding.entries.firstWhere((MapEntry<_SexualOrientation, int> entry) {
       return entry.value == code;
     }).key;
-    SexualOrientation object = SexualOrientation._();
+    R21PreferredContactMethod object = R21PreferredContactMethod._();
     object._orientation = orientation;
     return object;
   }
@@ -53,15 +53,15 @@ class SexualOrientation {
   // override the equality operator
   @override
   bool operator ==(o) =>
-      o is SexualOrientation && o._orientation == _orientation;
+      o is R21PreferredContactMethod && o._orientation == _orientation;
 
   // override hashcode
   @override
   int get hashCode => _orientation.hashCode;
 
-  static List<SexualOrientation> get allValues => [
-        SexualOrientation.HETEROSEXUAL(),
-        SexualOrientation.BISEXUAL(),
+  static List<R21PreferredContactMethod> get allValues => [
+        R21PreferredContactMethod.HETEROSEXUAL(),
+        R21PreferredContactMethod.BISEXUAL(),
       ];
 
   /// Returns the text description of this orientation.

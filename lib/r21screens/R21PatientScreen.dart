@@ -8,7 +8,7 @@ import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/R21Residency.dart';
 import 'package:pebrapp/database/beans/R21ScreenType.dart';
 import 'package:pebrapp/database/beans/SupportOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
@@ -83,13 +83,13 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
 
   loadEvents() async {
     final List<R21Event> events =
-        await DatabaseProvider().retrieveEventsForPatient(_patient.artNumber);
+        await DatabaseProvider().retrieveEventsForPatient(_patient.personalStudyNumber);
 
     final List<R21Followup> followups = await DatabaseProvider()
-        .retrieveFollowupsForPatient(_patient.artNumber);
+        .retrieveFollowupsForPatient(_patient.personalStudyNumber);
 
     final List<R21Appointment> appointments = await DatabaseProvider()
-        .retrieveAppointmentsForPatient(_patient.artNumber);
+        .retrieveAppointmentsForPatient(_patient.personalStudyNumber);
 
     print(
         'Found events: ${events.length}, appointments ${appointments.length}, followups ${followups.length}');
@@ -116,9 +116,9 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
     });
     _appStateStream = PatientBloc.instance.appState.listen((streamEvent) {
       if (streamEvent is AppStatePatientData &&
-          streamEvent.patient.artNumber == _patient.artNumber) {
+          streamEvent.patient.personalStudyNumber == _patient.personalStudyNumber) {
         print(
-            '*** R21PatientScreen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
+            '*** R21PatientScreen received AppStatePatientData: ${streamEvent.patient.personalStudyNumber} ***');
         final Set<RequiredAction> newVisibleRequiredActions =
             streamEvent.patient.calculateDueRequiredActions();
         for (RequiredAction a in newVisibleRequiredActions) {
@@ -132,7 +132,7 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
         setState(() {});
       }
       if (streamEvent is AppStateRequiredActionData &&
-          streamEvent.action.patientART == _patient.artNumber) {
+          streamEvent.action.patientART == _patient.personalStudyNumber) {
         print(
             '*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
 
@@ -179,19 +179,19 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
     _screenWidth = MediaQuery.of(context).size.width;
 
     DateTime nextRefillDate = _patient.latestMedicationRefil?.nextRefillDate ??
-        _patient.enrollmentDate;
+        _patient.utilityEnrollmentDate;
     _nextRefillText = formatDate(nextRefillDate);
 
     DateTime nextAppointmentDate =
-        _patient.latestAppointment?.nextDate ?? _patient.enrollmentDate;
+        _patient.latestAppointment?.nextDate ?? _patient.utilityEnrollmentDate;
     _nextAppointment = formatDate(nextAppointmentDate);
 
     DateTime nextEventDate =
-        _patient.latestEvent?.nextDate ?? _patient.enrollmentDate;
+        _patient.latestEvent?.nextDate ?? _patient.utilityEnrollmentDate;
     _nextEvent = formatDate(nextEventDate);
 
     DateTime nextFollowupDate =
-        _patient.latestFollowup?.nextDate ?? _patient.enrollmentDate;
+        _patient.latestFollowup?.nextDate ?? _patient.utilityEnrollmentDate;
     _nextFollowup = formatDate(nextFollowupDate);
 
     print('Next dates: event ${nextEventDate}, appointment ${nextAppointmentDate}, followup ${nextFollowupDate}, refil ${nextRefillDate}');
@@ -218,7 +218,7 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
       backgroundColor: BACKGROUND_COLOR,
       body: TransparentHeaderPage(
         title: 'Participant',
-        subtitle: _patient.artNumber,
+        subtitle: _patient.personalStudyNumber,
         actions: <Widget>[
           IconButton(
             onPressed: () {
@@ -311,9 +311,9 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
     }
 
     String pronoun = 'his/her';
-    if (_patient.gender == Gender.FEMALE()) {
+    if (_patient.personalResidency == R21Residency.UNZA()) {
       pronoun = 'her';
-    } else if (_patient.gender == Gender.MALE()) {
+    } else if (_patient.personalResidency == R21Residency.ADDRESS()) {
       pronoun = 'his';
     }
     return Column(
@@ -390,16 +390,16 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
       child: Column(
         children: [
           _buildRow(
-              'Enrollment Date', formatDateConsistent(_patient.enrollmentDate)),
-          _buildRow('Study Number', _patient.artNumber),
+              'Enrollment Date', formatDateConsistent(_patient.utilityEnrollmentDate)),
+          _buildRow('Study Number', _patient.personalStudyNumber),
           _buildRow('Sticker Number', _patient.stickerNumber),
           _buildRow('Birthday',
-              '${formatDateConsistent(_patient.birthday)} (age ${calculateAge(_patient.birthday)})'),
-          _buildRow('Gender', _patient.gender.description),
+              '${formatDateConsistent(_patient.personalBirthday)} (age ${calculateAge(_patient.personalBirthday)})'),
+          _buildRow('Gender', _patient.personalResidency.description),
           _buildRow(
-              'Sexual Orientation', _patient.sexualOrientation.description),
+              'Sexual Orientation', _patient.personalPreferredContactMethod.description),
           _buildRow('Village', _patient.village),
-          _buildRow('Phone Number', _patient.phoneNumber),
+          _buildRow('Phone Number', _patient.personalPhoneNumber),
         ],
       ),
     );
@@ -417,9 +417,9 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
                   : _patient.supportType.description),
           _buildRow(
               'Frequency of contact',
-              _patient.contactFrequency == null
+              _patient.personalContactFrequency == null
                   ? '-'
-                  : _patient.contactFrequency.description),
+                  : _patient.personalContactFrequency.description),
           _buildRow(
               'SRH Service Preferred',
               _patient.srhServicePreffered == null

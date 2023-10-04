@@ -102,26 +102,26 @@ class _R21MainScreenState extends State<R21MainScreen>
       if (streamEvent is AppStatePatientData) {
         final newPatient = streamEvent.patient;
         print(
-            '*** R21MainScreen received AppStatePatientData: ${newPatient.artNumber} ***');
+            '*** R21MainScreen received AppStatePatientData: ${newPatient.personalStudyNumber} ***');
         setState(() {
           this._isLoading = false;
           int indexOfExisting = this
               ._patients
-              .indexWhere((p) => p.artNumber == newPatient.artNumber);
+              .indexWhere((p) => p.personalStudyNumber == newPatient.personalStudyNumber);
           if (indexOfExisting > -1) {
             // replace if patient exists (patient was edited)
             this._patients[indexOfExisting] = newPatient;
             // make sure the animation has run
-            animationControllers[newPatient.artNumber].forward();
+            animationControllers[newPatient.personalStudyNumber].forward();
           } else {
             // add if not exists (new patient was added)
-            if (newPatient.isEligible && newPatient.downloadedChatAPp) {
+            if (newPatient.isEligible && newPatient.messengerDownloaded) {
               this._patients.add(newPatient);
               // add animation controller for this patient card
               final controller = AnimationController(
                   duration: const Duration(milliseconds: _ANIMATION_TIME),
                   vsync: this);
-              animationControllers[newPatient.artNumber] = controller;
+              animationControllers[newPatient.personalStudyNumber] = controller;
               // start animation
               controller.forward();
             }
@@ -132,12 +132,12 @@ class _R21MainScreenState extends State<R21MainScreen>
         print(
             '*** R21MainScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
         Patient affectedPatient = _patients.singleWhere(
-            (Patient p) => p.artNumber == streamEvent.action.patientART,
+            (Patient p) => p.personalStudyNumber == streamEvent.action.patientART,
             orElse: () => null);
         if (affectedPatient != null && !_patientScreenPushed) {
           setState(() {
             if (streamEvent.isDone) {
-              shouldAnimateRequiredActionBadge[affectedPatient.artNumber] =
+              shouldAnimateRequiredActionBadge[affectedPatient.personalStudyNumber] =
                   true;
               affectedPatient.requiredActions.removeWhere(
                   (RequiredAction a) => a.type == streamEvent.action.type);
@@ -146,7 +146,7 @@ class _R21MainScreenState extends State<R21MainScreen>
                       (RequiredAction a) => a.type == streamEvent.action.type,
                       orElse: () => null) ==
                   null) {
-                shouldAnimateRequiredActionBadge[affectedPatient.artNumber] =
+                shouldAnimateRequiredActionBadge[affectedPatient.personalStudyNumber] =
                     true;
                 affectedPatient.requiredActions.add(streamEvent.action);
               }
@@ -316,7 +316,7 @@ class _R21MainScreenState extends State<R21MainScreen>
       final Set<RequiredAction> newActions = p.calculateDueRequiredActions();
       final bool shouldAnimate = previousActions.length != newActions.length;
       if (shouldAnimate) {
-        shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
+        shouldAnimateRequiredActionBadge[p.personalStudyNumber] = shouldAnimate;
         PatientBloc.instance
             .sinkNewPatientData(p, oldRequiredActions: previousActions);
       }
@@ -597,14 +597,14 @@ class _R21MainScreenState extends State<R21MainScreen>
 
     for (var i = 0; i < numberOfPatients; i++) {
       final Patient curPatient = _patients[i];
-      final patientART = curPatient.artNumber;
+      final patientART = curPatient.personalStudyNumber;
 
       final _curCardMargin = EdgeInsets.symmetric(
           vertical: _cardMarginVertical, horizontal: _cardMarginHorizontal);
 
       void _showAlertDialogToActivatePatient() {
         final AnimationController controller =
-            animationControllers[curPatient.artNumber];
+            animationControllers[curPatient.personalStudyNumber];
         final originalAnimationDuration = controller.duration;
         final Duration _quickAnimationDuration =
             Duration(milliseconds: (_ANIMATION_TIME / 2).round());
@@ -612,7 +612,7 @@ class _R21MainScreenState extends State<R21MainScreen>
         showDialog(
           context: _context,
           builder: (BuildContext context) => AlertDialog(
-            title: Text(curPatient.artNumber),
+            title: Text(curPatient.personalStudyNumber),
             backgroundColor: BACKGROUND_COLOR,
             content: Column(mainAxisSize: MainAxisSize.min, children: [
               SizedBox(
@@ -659,7 +659,7 @@ class _R21MainScreenState extends State<R21MainScreen>
                           Navigator.of(context).pop();
                           DatabaseProvider().deletePatient(curPatient);
                           _patients.removeWhere((Patient p) =>
-                              p.artNumber == curPatient.artNumber);
+                              p.personalStudyNumber == curPatient.personalStudyNumber);
                           await controller.animateBack(0.0,
                               duration: _quickAnimationDuration,
                               curve: Curves.ease); // fold patient card up
@@ -715,11 +715,11 @@ class _R21MainScreenState extends State<R21MainScreen>
                     ),
                     Expanded(
                       child: _formatPatientRowText(
-                          '${formatDateConsistent(curPatient.birthday)} (age ${calculateAge(curPatient.birthday)})'),
+                          '${formatDateConsistent(curPatient.personalBirthday)} (age ${calculateAge(curPatient.personalBirthday)})'),
                     ),
                     Expanded(
                       child:
-                          _formatPatientRowText(curPatient.gender.description),
+                          _formatPatientRowText(curPatient.personalResidency.description),
                     ),
                     Expanded(
                       flex: 2,

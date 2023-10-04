@@ -84,7 +84,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer>
     return FlatButton(
       onPressed: () async {
         DatabaseProvider()
-            .removeRequiredAction(widget.patient.artNumber, action.type);
+            .removeRequiredAction(widget.patient.personalStudyNumber, action.type);
         PatientBloc.instance.sinkRequiredActionData(action, true);
       },
       splashColor: NOTIFICATION_INFO_SPLASH,
@@ -228,7 +228,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer>
                       children: [
                         Hero(
                           tag:
-                              "RequiredAction_${widget.patient.artNumber}_${widget.actionNumber}",
+                              "RequiredAction_${widget.patient.personalStudyNumber}_${widget.actionNumber}",
                           child: Container(
                             width: badgeSize,
                             height: badgeSize,

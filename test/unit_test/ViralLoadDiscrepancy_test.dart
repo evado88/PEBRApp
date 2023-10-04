@@ -33,7 +33,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -67,7 +67,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -76,7 +76,7 @@ void main() {
 
     test('database and manual baseline missing', () async {
       final List<ViralLoad> viralLoads = [];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -120,7 +120,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -162,7 +162,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -188,7 +188,7 @@ void main() {
           failed: true,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -246,7 +246,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -291,7 +291,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -334,7 +334,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -360,7 +360,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -403,7 +403,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -447,7 +447,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -489,7 +489,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -531,7 +531,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -573,7 +573,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
@@ -617,7 +617,7 @@ void main() {
           failed: false,
         ),
       ];
-      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      final Patient patient = Patient(utilityEnrollmentDate: DateTime(2000, 1, 1));
       patient.viralLoads = viralLoads;
       final bool discrepancy =
           await checkForViralLoadDiscrepancies(patient, testingEnabled: true);

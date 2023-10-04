@@ -694,7 +694,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient,
   // filter out failed viral loads and viral loads created after patient enrollment date
   viralLoads = allViralLoadsForPatient
       .where((a) =>
-          a.dateOfBloodDraw.isBefore(patient.enrollmentDate) &&
+          a.dateOfBloodDraw.isBefore(patient.utilityEnrollmentDate) &&
           a.failed == false)
       .toList();
 
@@ -759,7 +759,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient,
   }
   if (newDiscrepancyFound && !testingEnabled) {
     RequiredAction vlRequired = RequiredAction(
-        patient.artNumber,
+        patient.personalStudyNumber,
         RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING,
         DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);

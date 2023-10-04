@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
+import 'package:pebrapp/database/beans/R21Residency.dart';
+import 'package:pebrapp/database/beans/R21PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -33,17 +33,17 @@ Future<void> uploadPatientCharacteristics(Patient patient,
     final String token = await _getAPIToken();
     final int patientId = await _getPatientIdVisibleImpact(patient, token);
     String gender;
-    if (patient.gender == Gender.MALE()) gender = "M";
-    if (patient.gender == Gender.FEMALE()) gender = "F";
+    if (patient.personalResidency == R21Residency.ADDRESS()) gender = "M";
+    if (patient.personalResidency == R21Residency.UNZA()) gender = "F";
     Map<String, dynamic> body = {
       "patient_id": patientId,
-      "mobile_phone": patient.phoneAvailability == PhoneNumberSecurity.YES()
-          ? _formatPhoneNumberForVI(patient.phoneNumber)
+      "mobile_phone": patient.personalPhoneNumberAvailability == R21PhoneNumberSecurity.YES()
+          ? _formatPhoneNumberForVI(patient.personalPhoneNumber)
           : null,
-      "mobile_owner": patient.phoneAvailability == PhoneNumberSecurity.YES()
+      "mobile_owner": patient.personalPhoneNumberAvailability == R21PhoneNumberSecurity.YES()
           ? "patient"
           : null,
-      "birth_date": formatDateForVisibleImpact(patient.birthday),
+      "birth_date": formatDateForVisibleImpact(patient.personalBirthday),
       "sex": gender,
     };
     final _resp = await http.put(
@@ -255,7 +255,7 @@ Future<void> _uploadAdherenceReminder(
   Map<String, dynamic> body = {
     "message_type": "adherence_reminder",
     "patient_id": patientId,
-    "mobile_phone": _formatPhoneNumberForVI(patient.phoneNumber),
+    "mobile_phone": _formatPhoneNumberForVI(patient.personalPhoneNumber),
     "send_frequency": pa.adherenceReminderFrequency.visibleImpactAPIString,
     "mobile_owner": "patient",
     "send_time": formatTimeForVisibleImpact(pa.adherenceReminderTime),
@@ -307,7 +307,7 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
   Map<String, dynamic> body = {
     "message_type": "refill_reminder",
     "patient_id": patientId,
-    "mobile_phone": _formatPhoneNumberForVI(patient.phoneNumber),
+    "mobile_phone": _formatPhoneNumberForVI(patient.personalPhoneNumber),
     "send_dates": sendDates,
     "mobile_owner": "patient",
     "message": composeSMS(
@@ -351,7 +351,7 @@ Future<void> _uploadViralLoadNotification(
   Map<String, dynamic> body = {
     "message_type": "vl_notification",
     "patient_id": patientId,
-    "mobile_phone": _formatPhoneNumberForVI(patient.phoneNumber),
+    "mobile_phone": _formatPhoneNumberForVI(patient.personalPhoneNumber),
     "active": true,
     "mobile_owner": "patient",
     "message_suppressed": composeSMS(
@@ -403,7 +403,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(Patient patient) async {
   final List<dynamic> list = jsonDecode(_resp.body);
   List<ViralLoad> viralLoadsFromDB = list.map((dynamic vlLabResult) {
     final ViralLoad vl = ViralLoad(
-      patientART: patient.artNumber,
+      patientART: patient.personalStudyNumber,
       dateOfBloodDraw: DateTime.parse(vlLabResult['date_sample']),
       labNumber: vlLabResult['lab_number'],
       viralLoad: vlLabResult['lab_hivvmnumerical'],
@@ -414,14 +414,14 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(Patient patient) async {
   }).toList();
   // ignore viral loads which date back more than one year before patient's enrollment date
   viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(
-      DateTime(patient.enrollmentDate.year - 1, patient.enrollmentDate.month,
-          patient.enrollmentDate.day)));
+      DateTime(patient.utilityEnrollmentDate.year - 1, patient.utilityEnrollmentDate.month,
+          patient.utilityEnrollmentDate.day)));
   viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) =>
       a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
     // if the last viral load has failed, send the patient to blood draw
     RequiredAction vlRequired = RequiredAction(
-        patient.artNumber,
+        patient.personalStudyNumber,
         RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED,
         DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
@@ -484,16 +484,16 @@ Future<int> _createPatient(Patient patient, String apiToken,
     {VIPatientStatus status: VIPatientStatus.ACTIVE}) async {
   print('🌟 creating new patient on VisibleImpact...');
   String gender;
-  if (patient.gender == Gender.MALE()) gender = "M";
-  if (patient.gender == Gender.FEMALE()) gender = "F";
+  if (patient.personalResidency == R21Residency.ADDRESS()) gender = "M";
+  if (patient.personalResidency == R21Residency.UNZA()) gender = "F";
   Map<String, dynamic> body = {
-    "art_number": patient.artNumber,
-    "mobile_phone": patient.phoneAvailability == PhoneNumberSecurity.YES()
-        ? _formatPhoneNumberForVI(patient.phoneNumber)
+    "art_number": patient.personalStudyNumber,
+    "mobile_phone": patient.personalPhoneNumberAvailability == R21PhoneNumberSecurity.YES()
+        ? _formatPhoneNumberForVI(patient.personalPhoneNumber)
         : null,
     "mobile_owner":
-        patient.phoneAvailability == PhoneNumberSecurity.YES() ? "patient" : null,
-    "birth_date": formatDateForVisibleImpact(patient.birthday),
+        patient.personalPhoneNumberAvailability == R21PhoneNumberSecurity.YES() ? "patient" : null,
+    "birth_date": formatDateForVisibleImpact(patient.personalBirthday),
     "sex": gender,
     "patient_status": toStringVIPatientStatus(status),
   };
@@ -524,7 +524,7 @@ Future<int> _createPatient(Patient patient, String apiToken,
 Future<int> _getPatientIdVisibleImpact(
     Patient patient, String _apiAuthToken) async {
   final _resp = await http.get(
-    '$VI_API/patient?art_number=${patient.artNumber}',
+    '$VI_API/patient?art_number=${patient.personalStudyNumber}',
     headers: {'Authorization': 'Custom $_apiAuthToken'},
   );
   _checkStatusCode(_resp);
@@ -549,7 +549,7 @@ Future<int> _getPatientIdVisibleImpact(
       patientIds[0] = match['patient_id'];
     } else {
       showFlushbar(
-          'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
+          'Several matching patients with ART number ${patient.personalStudyNumber}\ found on VisibleImpact.',
           title: 'Resolve the issue',
           error: true);
       // set the duplicate flag in the database
@@ -566,9 +566,9 @@ Future<int> _getPatientIdVisibleImpact(
 /// if (patient.gender == Gender.MALE()) gender = "M";
 ///  if (patient.gender == Gender.FEMALE()) gender = "F";
 String _formatGenderForVisibleImpact(Patient patient) {
-  if (patient.gender == Gender.MALE()) {
+  if (patient.personalResidency == R21Residency.ADDRESS()) {
     return "M";
-  } else if (patient.gender == Gender.FEMALE()) {
+  } else if (patient.personalResidency == R21Residency.UNZA()) {
     return "F";
   }
   return "";
@@ -583,7 +583,7 @@ String _formatGenderForVisibleImpact(Patient patient) {
 dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
   List<dynamic> matches = [];
   for (dynamic p in patients) {
-    if (DateTime.parse(p['birth_date']).year == patient.birthday.year &&
+    if (DateTime.parse(p['birth_date']).year == patient.personalBirthday.year &&
         p['sex'] == _formatGenderForVisibleImpact(patient)) {
       matches.add(p);
     }
@@ -597,15 +597,15 @@ dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
 Future<void> _handleSuccess(
     Patient patient, RequiredActionType actionType) async {
   print('$actionType uploaded to visible impact database successfully.');
-  await DatabaseProvider().removeRequiredAction(patient.artNumber, actionType);
+  await DatabaseProvider().removeRequiredAction(patient.personalStudyNumber, actionType);
   PatientBloc.instance.sinkRequiredActionData(
-      RequiredAction(patient.artNumber, actionType, null), true);
+      RequiredAction(patient.personalStudyNumber, actionType, null), true);
 }
 
 Future<void> _handleFailure(
     Patient patient, RequiredActionType actionType) async {
   final newAction = RequiredAction(
-      patient.artNumber, actionType, DateTime.fromMillisecondsSinceEpoch(0));
+      patient.personalStudyNumber, actionType, DateTime.fromMillisecondsSinceEpoch(0));
   await DatabaseProvider().insertRequiredAction(newAction);
   PatientBloc.instance.sinkRequiredActionData(newAction, false);
 }

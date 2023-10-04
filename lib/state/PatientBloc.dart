@@ -43,7 +43,7 @@ class PatientBloc {
       _appStateStreamController.sink.add(AppStateNoData());
     }
     for (Patient p in patientList) {
-      print('Putting patient ${p.artNumber} in the sink');
+      print('Putting patient ${p.personalStudyNumber} in the sink');
       _appStateStreamController.sink.add(AppStatePatientData(p));
 //      await Future.delayed(Duration(milliseconds: 200 + random.nextInt(1800)));
     }
@@ -52,7 +52,7 @@ class PatientBloc {
   /// Trigger an [AppStatePatientData] stream event.
   Future<void> sinkNewPatientData(Patient patient,
       {Set<RequiredAction> oldRequiredActions}) async {
-    print('Putting patient ${patient.artNumber} down the sink');
+    print('Putting patient ${patient.personalStudyNumber} down the sink');
     _appStateStreamController.sink.add(
         AppStatePatientData(patient, oldRequiredActions: oldRequiredActions));
   }

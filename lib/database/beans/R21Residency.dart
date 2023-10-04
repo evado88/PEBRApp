@@ -1,4 +1,4 @@
-class Gender {
+class R21Residency {
   // Class Variables
   // ---------------
 
@@ -23,17 +23,17 @@ class Gender {
   // ------------
 
   // make default constructor private
-  Gender._();
+  R21Residency._();
 
-  Gender.FEMALE() {
+  R21Residency.UNZA() {
     _gender = _Gender.UNZA;
   }
 
-  Gender.MALE() {
+  R21Residency.ADDRESS() {
     _gender = _Gender.ADDRESS;
   }
 
-  static Gender fromCode(int code) {
+  static R21Residency fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
@@ -41,7 +41,7 @@ class Gender {
         _encoding.entries.firstWhere((MapEntry<_Gender, int> entry) {
       return entry.value == code;
     }).key;
-    Gender object = Gender._();
+    R21Residency object = R21Residency._();
     object._gender = gender;
     return object;
   }
@@ -51,15 +51,15 @@ class Gender {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is Gender && o._gender == _gender;
+  bool operator ==(o) => o is R21Residency && o._gender == _gender;
 
   // override hashcode
   @override
   int get hashCode => _gender.hashCode;
 
-  static List<Gender> get allValues => [
-        Gender.FEMALE(),
-        Gender.MALE(),
+  static List<R21Residency> get allValues => [
+        R21Residency.UNZA(),
+        R21Residency.ADDRESS(),
       ];
 
   /// Returns the text description of this gender.

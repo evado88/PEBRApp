@@ -71,31 +71,70 @@ class DatabaseProvider {
     print('Creating database with version $version');
     await db.execute("""
         CREATE TABLE IF NOT EXISTS ${Patient.tableName} (
-          ${Patient.colId} INTEGER PRIMARY KEY,
-          ${Patient.colCreatedDate} TEXT NOT NULL,
-          ${Patient.colEnrollmentDate} TEXT NOT NULL,
-          ${Patient.colARTNumber} TEXT NOT NULL,
-          ${Patient.colBirthday} TEXT NOT NULL,
-          ${Patient.colIsEligible} BIT NOT NULL,
-          ${Patient.colStickerNumber} TEXT,
-          ${Patient.colIsVLBaselineAvailable} BIT,
-          ${Patient.colGender} INTEGER,
-          ${Patient.colSexualOrientation} INTEGER,
-          ${Patient.colVillage} TEXT,
-          ${Patient.colPhoneAvailability} INTEGER,
-          ${Patient.colPhoneNumber} TEXT,
-          ${Patient.colConsentGiven} BIT,
-          ${Patient.colNoConsentReason} INTEGER,
-          ${Patient.colNoConsentReasonOther} TEXT,
-          ${Patient.colIsActivated} BIT,
-          ${Patient.colIsDuplicate} BIT,
-          ${Patient.colSupportType} INTEGER,
-          ${Patient.colContactFrequency} INTEGER,
-          ${Patient.colSrhServicePreffered} INTEGER,
-          ${Patient.colPrep} INTEGER,
-          ${Patient.colContraceptionMethod} INTEGER,
-          ${Patient.colProviderLocation} TEXT,
-          ${Patient.colProviderType} INTEGER
+          ${Patient.colUtilityId} INTEGER PRIMARY KEY, -- utility
+          ${Patient.colUtilityEnrollmentDate} TEXT NULL,
+          ${Patient.colPersonalStudyNumber} TEXT NULL, --personal
+          ${Patient.colPersonalBirthday} TEXT NULL,
+          ${Patient.colMessengerDownloaded} INTEGER NULL,  --messenger
+          ${Patient.colMessengerNoDownloadReason} TEXT NULL,
+          ${Patient.colContactPhoneNumber} TEXT NULL, --contact
+          ${Patient.colContactOwnPhone} INTEGER NULL,
+          ${Patient.colContactResidency} INTEGER NULL,
+          ${Patient.colContactPrefferedContactMethod} INTEGER NULL,
+          ${Patient.colContactContactFrequency} INTEGER NULL,
+          ${Patient.colHistoryContraceptionUse} INTEGER NULL, -- history contraception
+          ${Patient.colHistoryContraceptiontMaleCondom} BIT NULL,
+          ${Patient.colHistoryContraceptionFemaleCondom} BIT NULL,
+          ${Patient.colHistoryContraceptionImplant} BIT NULL,
+          ${Patient.colHistoryContraceptionInjection} BIT NULL,
+          ${Patient.colHistoryContraceptionIUD} BIT NULL,
+          ${Patient.colHistoryContraceptionIUS} BIT NULL,
+          ${Patient.colHistoryContraceptionPills} BIT NULL,
+          ${Patient.colHistoryContraceptionOther} BIT NULL,
+          ${Patient.colHistoryContraceptionOtherSpecify} TEXT NULL,
+          ${Patient.colHistoryContraceptionSatisfaction} INTEGER NULL,
+          ${Patient.colHistoryContraceptionSatisfactionReason} TEXT NULL,
+          ${Patient.colHistoryHIVKnowStatus} INTEGER NULL, -- history hiv
+          ${Patient.colHistoryHIVART} INTEGER NULL,
+          ${Patient.colHistoryHIVLastTest} TEXT NULL, 
+          ${Patient.colHistoryHIVUsedPrep} INTEGER NULL,
+          ${Patient.colHistoryHIVARTProblems} TEXT NULL,
+          ${Patient.colHistoryHIVARTQuestions} TEXT NULL,
+          ${Patient.colHistoryHIVDesiredSupportRemindersAppointments} BIT NULL,
+          ${Patient.colHistoryHIVDesiredSupportRemindersCheckins} BIT NULL,
+          ${Patient.colHistoryHIVDesiredSupportRefilsAccompany} BIT NULL,
+          ${Patient.colHistoryHIVDesiredSupportRefilsPAAccompany} BIT NULL,
+          ${Patient.colHistoryHIVDesiredSupportOther} BIT NULL,
+          ${Patient.colHistoryHIVDesiredSupportOtherSpecify} TEXT NULL,
+          ${Patient.colSRHContraceptionInterest} INTEGER NULL, -- srh contraception
+          ${Patient.colSRHContraceptionInterestMaleCondom} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestFemaleCondom} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestImplant} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestInjection} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestIUD} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestIUS} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestPills} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestOther} BIT NULL, 
+          ${Patient.colSRHContraceptionInterestOtherSpecify} TEXT NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacility} INTEGER NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilityYesDate} TEXT NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilityYesPNAccompany} INTEGER NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilityNoDate} TEXT NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilityNoPick} INTEGER NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilitySelected} TEXT NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilityOther} INTEGER NULL,
+          ${Patient.colSRHContraceptionInformationApp} INTEGER NULL,
+          ${Patient.colSRHContraceptionLearnMethods} INTEGER NULL,
+          ${Patient.colSRHCPrePInterest} INTEGER NULL, -- srh prep
+          ${Patient.colSRHCPrePInformationApp} INTEGER NULL, 
+          ${Patient.colSRHPrePFindScheduleFacility} INTEGER NULL, 
+          ${Patient.colSRHPrePFindScheduleFacilityYesDate} TEXT NULL, 
+          ${Patient.colSRHPrePFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
+          ${Patient.colSRHPrePFindScheduleFacilityNoDate} TEXT NULL, 
+          ${Patient.colSRHPrePFindScheduleFacilityNoPick} INTEGER NULL, 
+          ${Patient.colSRHPrePFindScheduleFacilitySelected} TEXT NULL, 
+          ${Patient.colSRHPrePFindScheduleFacilityOther} TEXT NULL, 
+          ${Patient.colSRHPrePInformationRead} INTEGER NULL, 
         );
         """);
 
@@ -449,7 +488,7 @@ class DatabaseProvider {
 
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
-    newPatient.createdDate = DateTime.now();
+    //newPatient.createdDate = DateTime.now();
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
@@ -523,39 +562,7 @@ class DatabaseProvider {
     return res;
   }
 
-  /// Retrieves a list of all patient ART numbers in the database.
-  ///
-  /// @param [retrieveNonEligibles] Whether patients which are not eligible
-  /// should also be retrieved. If false, only eligible patients are retrieved.
-  ///
-  /// @param [retrieveNonConsents] Whether patients which did not give consent
-  /// should also be retrieved. If false, only patients which gave their consent
-  /// are retrieved.
-  Future<List<String>> retrievePatientsART(
-      {retrieveNonEligibles: true, retrieveNonConsents: true}) async {
-    final Database db = await _databaseInstance;
-    List<Map<String, dynamic>> res;
-    if (!retrieveNonEligibles && !retrieveNonConsents) {
-      // don't retrieve non-eligible and don't retrieve non-consent patients
-      res = await db.rawQuery(
-          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colIsEligible}=1 AND ${Patient.colConsentGiven}=1");
-    } else if (!retrieveNonConsents) {
-      // don't retrieve non-consent patients
-      res = await db.rawQuery(
-          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colConsentGiven}=1");
-    } else if (!retrieveNonEligibles) {
-      // don't retrieve non-eligible patients
-      res = await db.rawQuery(
-          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colIsEligible}=1");
-    } else {
-      // retrieve all
-      res = await db.rawQuery(
-          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
-    }
-    return res.isNotEmpty
-        ? res.map((entry) => entry[Patient.colARTNumber] as String).toList()
-        : List<String>();
-  }
+
 
   /// Retrieves only the latest patients from the database, i.e. the ones with the latest changes.
   ///
@@ -575,34 +582,11 @@ class DatabaseProvider {
       {retrieveNonEligibles: true, retrieveNonConsents: true}) async {
     final Database db = await _databaseInstance;
     List<Map<String, dynamic>> res;
-    if (retrieveNonEligibles && retrieveNonConsents) {
-      res = await db.rawQuery("""
-    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
-	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
-	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
+
+    res = await db.rawQuery("""
+    SELECT ${Patient.tableName}.* FROM ${Patient.tableName}
     """);
-    } else if (retrieveNonEligibles && !retrieveNonConsents) {
-      res = await db.rawQuery("""
-    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
-	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
-	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
-	  WHERE ${Patient.colConsentGiven} == 1
-    """);
-    } else if (!retrieveNonEligibles && retrieveNonConsents) {
-      res = await db.rawQuery("""
-    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
-	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
-	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
-	  WHERE ${Patient.colIsEligible} == 1
-    """);
-    } else if (!retrieveNonEligibles && !retrieveNonConsents) {
-      res = await db.rawQuery("""
-    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
-	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
-	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
-	  WHERE ${Patient.colConsentGiven} == 1 AND ${Patient.colIsEligible} == 1
-    """);
-    }
+
     List<Patient> list = List<Patient>();
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
@@ -1101,9 +1085,9 @@ class DatabaseProvider {
   /// Deletes a patient from the Patient table and its corresponding entries from all other tables.
   Future<int> deletePatient(Patient deletePatient) async {
     final Database db = await _databaseInstance;
-    final String artNumber = deletePatient.artNumber;
+    final String artNumber = deletePatient.personalStudyNumber;
     final int rowsDeletedPatientTable = await db.delete(Patient.tableName,
-        where: '${Patient.colARTNumber} = ?', whereArgs: [artNumber]);
+        where: '${Patient.colPersonalStudyNumber} = ?', whereArgs: [artNumber]);
     final int rowsDeletedViralLoadTable = await db.delete(ViralLoad.tableName,
         where: '${ViralLoad.colPatientART} = ?', whereArgs: [artNumber]);
     final int rowsDeletedPreferenceAssessmentTable = await db.delete(

@@ -11,10 +11,10 @@ import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/R21Residency.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
-import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
+import 'package:pebrapp/database/beans/R21PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportOption.dart';
@@ -44,7 +44,7 @@ class PreferenceAssessmentScreen extends StatelessWidget {
       backgroundColor: BACKGROUND_COLOR,
       body: TransparentHeaderPage(
         title: 'Preference Assessment',
-        subtitle: _patient.artNumber,
+        subtitle: _patient.personalStudyNumber,
         child: PreferenceAssessmentForm(_patient),
         actions: <Widget>[
           IconButton(
@@ -74,8 +74,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   Patient _patient;
   // if this is true we will store another row in Patient table of the database
   bool _patientUpdated = false;
-  PhoneNumberSecurity _phoneAvailability;
-  PhoneNumberSecurity _phoneAvailabilityBeforeAssessment;
+  R21PhoneNumberSecurity _phoneAvailability;
+  R21PhoneNumberSecurity _phoneAvailabilityBeforeAssessment;
   String _patientPhoneNumberBeforeAssessment;
   UserData _user;
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
@@ -104,14 +104,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   // constructor
   _PreferenceAssessmentFormState(Patient patient) {
     _patient = patient;
-    final String _existingPatientPhoneNumber = _patient.phoneNumber;
+    final String _existingPatientPhoneNumber = _patient.personalPhoneNumber;
     if (_existingPatientPhoneNumber != null) {
       _patientPhoneNumberCtr.text = _existingPatientPhoneNumber.substring(5);
     }
-    _phoneAvailability = _patient.phoneAvailability;
-    _phoneAvailabilityBeforeAssessment = _patient.phoneAvailability;
-    _patientPhoneNumberBeforeAssessment = _patient.phoneNumber;
-    _pa.patientART = patient.artNumber;
+    _phoneAvailability = _patient.personalPhoneNumberAvailability;
+    _phoneAvailabilityBeforeAssessment = _patient.personalPhoneNumberAvailability;
+    _patientPhoneNumberBeforeAssessment = _patient.personalPhoneNumber;
+    _pa.patientART = patient.personalStudyNumber;
     _pa.supportPreferences = SupportPreferencesSelection.fromLastAssessment(
         _patient.latestPreferenceAssessment);
     DatabaseProvider().retrieveLatestUserData().then((UserData user) {
@@ -292,10 +292,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
       String possesivePronoun = 'his/her';
       String pronoun = 'he/she';
-      if (_patient.gender == Gender.FEMALE()) {
+      if (_patient.personalResidency == R21Residency.UNZA()) {
         possesivePronoun = 'her';
         pronoun = 'she';
-      } else if (_patient.gender == Gender.MALE()) {
+      } else if (_patient.personalResidency == R21Residency.ADDRESS()) {
         possesivePronoun = 'his';
         pronoun = 'he';
       }
@@ -649,9 +649,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   Widget _phoneAvailableQuestion() {
     return _makeQuestion(
       'Do you have regular access to a phone where you can receive confidential information?',
-      answer: DropdownButtonFormField<PhoneNumberSecurity>(
+      answer: DropdownButtonFormField<R21PhoneNumberSecurity>(
         value: _phoneAvailability,
-        onChanged: (PhoneNumberSecurity newValue) {
+        onChanged: (R21PhoneNumberSecurity newValue) {
           setState(() {
             _phoneAvailability = newValue;
           });
@@ -662,10 +662,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           }
           return null;
         },
-        items: PhoneNumberSecurity.allValues
-            .map<DropdownMenuItem<PhoneNumberSecurity>>(
-                (PhoneNumberSecurity value) {
-          return DropdownMenuItem<PhoneNumberSecurity>(
+        items: R21PhoneNumberSecurity.allValues
+            .map<DropdownMenuItem<R21PhoneNumberSecurity>>(
+                (R21PhoneNumberSecurity value) {
+          return DropdownMenuItem<R21PhoneNumberSecurity>(
             value: value,
             child: Text(value.description),
           );
@@ -676,7 +676,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _phoneNumberPatientQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeQuestion(
@@ -699,7 +699,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _adherenceReminderSubtitle() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeSubtitle('Adherence Reminder');
@@ -707,7 +707,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _adherenceReminderQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeQuestion(
@@ -746,7 +746,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _adherenceReminderFrequencyQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES() ||
+        _phoneAvailability != R21PhoneNumberSecurity.YES() ||
         _pa.adherenceReminderEnabled == null ||
         !_pa.adherenceReminderEnabled) {
       return Container();
@@ -780,7 +780,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _adherenceReminderTimeQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES() ||
+        _phoneAvailability != R21PhoneNumberSecurity.YES() ||
         _pa.adherenceReminderEnabled == null ||
         !_pa.adherenceReminderEnabled) {
       return Container();
@@ -835,7 +835,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _adherenceReminderMessageQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES() ||
+        _phoneAvailability != R21PhoneNumberSecurity.YES() ||
         _pa.adherenceReminderEnabled == null ||
         !_pa.adherenceReminderEnabled) {
       return Container();
@@ -870,7 +870,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _artRefillReminderSubtitle() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeSubtitle('ART Refill Reminder');
@@ -878,7 +878,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _artRefillReminderQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeQuestion(
@@ -920,7 +920,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _artRefillReminderDaysBeforeQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES() ||
+        _phoneAvailability != R21PhoneNumberSecurity.YES() ||
         _pa.artRefillReminderEnabled == null ||
         !_pa.artRefillReminderEnabled) {
       return Container();
@@ -983,7 +983,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _artRefillReminderMessageQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES() ||
+        _phoneAvailability != R21PhoneNumberSecurity.YES() ||
         _pa.artRefillReminderEnabled == null ||
         !_pa.artRefillReminderEnabled) {
       return Container();
@@ -1017,7 +1017,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _viralLoadNotificationSubtitle() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeSubtitle('Viral Load Notification');
@@ -1025,7 +1025,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _viralLoadNotificationQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeQuestion(
@@ -1064,7 +1064,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _viralLoadMessageSuppressedQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES() ||
+        _phoneAvailability != R21PhoneNumberSecurity.YES() ||
         _pa.vlNotificationEnabled == null ||
         !_pa.vlNotificationEnabled) {
       return Container();
@@ -1098,7 +1098,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _viralLoadMessageUnsuppressedQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES() ||
+        _phoneAvailability != R21PhoneNumberSecurity.YES() ||
         _pa.vlNotificationEnabled == null ||
         !_pa.vlNotificationEnabled) {
       return Container();
@@ -1132,7 +1132,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _phoneNumberPEPadding() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return Container(
@@ -1142,7 +1142,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _phoneNumberPEQuestion() {
     if (_phoneAvailability == null ||
-        _phoneAvailability != PhoneNumberSecurity.YES()) {
+        _phoneAvailability != R21PhoneNumberSecurity.YES()) {
       return Container();
     }
     return _makeQuestion(
@@ -1289,8 +1289,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 })),
       ),
       _vmmcInfoFollowUpQuestions(),
-      _patient.gender == Gender.FEMALE() ||
-              _patient.gender == Gender.MALE()
+      _patient.personalResidency == R21Residency.UNZA() ||
+              _patient.personalResidency == R21Residency.ADDRESS()
           ? _makeQuestion(
               '',
               answer: CheckboxListTile(
@@ -1304,8 +1304,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             )
           : Container(),
       _youngMothersFollowUpQuestions(),
-      _patient.gender == Gender.FEMALE() ||
-              _patient.gender == Gender.FEMALE()
+      _patient.personalResidency == R21Residency.UNZA() ||
+              _patient.personalResidency == R21Residency.UNZA()
           ? _makeQuestion(
               '',
               answer: CheckboxListTile(
@@ -1783,8 +1783,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _youngMothersFollowUpQuestions() {
     if (!_pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected ||
-        !(_patient.gender == Gender.FEMALE() ||
-            _patient.gender == Gender.MALE())) {
+        !(_patient.personalResidency == R21Residency.UNZA() ||
+            _patient.personalResidency == R21Residency.ADDRESS())) {
       return Container();
     }
     return _makeQuestion(
@@ -1823,8 +1823,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _femaleWorthFollowUpQuestions() {
     if (!_pa.supportPreferences.FEMALE_WORTH_GROUP_selected ||
-        !(_patient.gender == Gender.FEMALE() ||
-            _patient.gender == Gender.MALE())) {
+        !(_patient.personalResidency == R21Residency.UNZA() ||
+            _patient.personalResidency == R21Residency.ADDRESS())) {
       return Container();
     }
     return _makeQuestion(
@@ -2067,7 +2067,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     // the error message under the adherence reminder time field and return
     // false.
     if (_phoneAvailability != null &&
-        _phoneAvailability == PhoneNumberSecurity.YES() &&
+        _phoneAvailability == R21PhoneNumberSecurity.YES() &&
         _pa.adherenceReminderEnabled != null &&
         _pa.adherenceReminderEnabled &&
         _pa.adherenceReminderTime == null) {
@@ -2093,7 +2093,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption3 = _artRefillOptionSelections[2];
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
       _pa.artRefillOption5 = _artRefillOptionSelections[4];
-      _pa.patientPhoneAvailable = _phoneAvailability == PhoneNumberSecurity.YES();
+      _pa.patientPhoneAvailable = _phoneAvailability == R21PhoneNumberSecurity.YES();
       bool _patientPhoneNumberChanged = false;
       bool _pePhoneNumberChanged = false;
 
@@ -2134,14 +2134,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if (_phoneAvailability != _phoneAvailabilityBeforeAssessment) {
         // if the new value is different from before the assessment we should
         // update the patient in the database
-        _patient.phoneAvailability = _phoneAvailability;
+        _patient.personalPhoneNumberAvailability = _phoneAvailability;
         _patientUpdated = true;
       }
-      if (_phoneAvailability == PhoneNumberSecurity.YES()) {
+      if (_phoneAvailability == R21PhoneNumberSecurity.YES()) {
         final String newPatientPhoneNumber =
             '+266-${_patientPhoneNumberCtr.text}';
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
-          _patient.phoneNumber = newPatientPhoneNumber;
+          _patient.personalPhoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
           _patientPhoneNumberChanged = true;
         }
@@ -2149,11 +2149,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           _pa.adherenceReminderTime = null;
         }
       }
-      if (_phoneAvailability != PhoneNumberSecurity.YES()) {
+      if (_phoneAvailability != R21PhoneNumberSecurity.YES()) {
         // reset all phone related fields
         final String newPatientPhoneNumber = null;
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
-          _patient.phoneNumber = newPatientPhoneNumber;
+          _patient.personalPhoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
           _patientPhoneNumberChanged = true;
         }
@@ -2269,13 +2269,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _patient.latestPreferenceAssessment = _pa;
       if (_patientUpdated) {
         print(
-            'PATIENT UPDATED, INSERTING NEW PATIENT ROW FOR ${_patient.artNumber}');
+            'PATIENT UPDATED, INSERTING NEW PATIENT ROW FOR ${_patient.personalStudyNumber}');
         await DatabaseProvider().insertPatient(_patient);
       }
       // send an event indicating that the preference assessment was done
       PatientBloc.instance.sinkRequiredActionData(
           RequiredAction(
-              _patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED, null),
+              _patient.personalStudyNumber, RequiredActionType.ASSESSMENT_REQUIRED, null),
           true);
       Navigator.of(context).pop(); // close Preference Assessment screen
       uploadNotificationsPreferences(_patient);

@@ -20,7 +20,7 @@ class ARTRefillNotDoneScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupScreen(
       title: 'ART Refill Not Done',
-      subtitle: _patient.artNumber,
+      subtitle: _patient.personalStudyNumber,
       child: ARTRefillNotDoneForm(_patient),
     );
   }
@@ -52,7 +52,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   // constructor
   _ARTRefillNotDoneFormState(Patient patient) {
     _patient = patient;
-    _artRefill = ARTRefill(patient.artNumber, RefillType.NOT_DONE());
+    _artRefill = ARTRefill(patient.personalStudyNumber, RefillType.NOT_DONE());
   }
 
   @override

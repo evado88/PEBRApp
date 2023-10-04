@@ -29,7 +29,7 @@ class AddViralLoadScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupScreen(
         title: 'Add Viral Load',
-        subtitle: _patient.artNumber,
+        subtitle: _patient.personalStudyNumber,
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
@@ -67,7 +67,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   // constructor
   _AddViralLoadFormState(this._patient) {
     _viralLoad = ViralLoad(
-        patientART: _patient.artNumber, source: ViralLoadSource.MANUAL_INPUT());
+        patientART: _patient.personalStudyNumber, source: ViralLoadSource.MANUAL_INPUT());
   }
 
   @override
@@ -298,8 +298,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     return showDatePicker(
       context: context,
       initialDate: initialDate ?? now,
-      firstDate: DateTime(_patient.enrollmentDate.year - 1,
-          _patient.enrollmentDate.month, _patient.enrollmentDate.day),
+      firstDate: DateTime(_patient.utilityEnrollmentDate.year - 1,
+          _patient.utilityEnrollmentDate.month, _patient.utilityEnrollmentDate.day),
       lastDate: now,
     );
   }
@@ -325,7 +325,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
       if (_viralLoad.failed) {
         // if the new viral load has failed, send the patient to blood draw
         RequiredAction vlRequired = RequiredAction(
-            _patient.artNumber,
+            _patient.personalStudyNumber,
             RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED,
             DateTime.fromMillisecondsSinceEpoch(0));
         DatabaseProvider().insertRequiredAction(vlRequired);

@@ -28,7 +28,7 @@ class R21AddEventScreen extends StatelessWidget {
       //end anlytics
 
       _analytic.stopAnalytics(
-          resultAction: 'Cancel', subjectEntity: this._patient.artNumber);
+          resultAction: 'Cancel', subjectEntity: this._patient.personalStudyNumber);
 
       return route.settings.name == '/patient';
     });
@@ -41,7 +41,7 @@ class R21AddEventScreen extends StatelessWidget {
 
     return PopupScreen(
         title: 'Add ${this._title}',
-        subtitle: _patient.artNumber,
+        subtitle: _patient.personalStudyNumber,
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
@@ -79,7 +79,7 @@ class _R21AddEventFormState extends State<R21AddEventForm> {
 
   // constructor
   _R21AddEventFormState(this._patient, this._analytic) {
-    _event = R21Event(patientART: this._patient.artNumber);
+    _event = R21Event(patientART: this._patient.personalStudyNumber);
   }
 
   @override
@@ -356,7 +356,7 @@ class _R21AddEventFormState extends State<R21AddEventForm> {
       Navigator.of(context).popUntil((Route<dynamic> route) {
         //end anlytics
         _analytic.stopAnalytics(
-            resultAction: 'Saved', subjectEntity: this._patient.artNumber);
+            resultAction: 'Saved', subjectEntity: this._patient.personalStudyNumber);
 
         return route.settings.name == '/patient';
       });

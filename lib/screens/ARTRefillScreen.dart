@@ -35,7 +35,7 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
   Widget build(BuildContext context) {
     return PopupScreen(
       title: 'Next ART Refill',
-      subtitle: widget._patient.artNumber,
+      subtitle: widget._patient.personalStudyNumber,
       child: Center(child: _buildBody(context, widget._patient)),
     );
   }
@@ -81,7 +81,7 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
         await _showDatePickerWithTitle(context, 'Select the ART Refill Date');
     if (nextRefillDate != null) {
       final ARTRefill artRefill = ARTRefill(
-          this.widget._patient.artNumber, RefillType.CHANGE_DATE(),
+          this.widget._patient.personalStudyNumber, RefillType.CHANGE_DATE(),
           nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       widget._patient.latestARTRefill = artRefill;
@@ -90,13 +90,13 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
       if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done
         PatientBloc.instance.sinkRequiredActionData(
-            RequiredAction(widget._patient.artNumber,
+            RequiredAction(widget._patient.personalStudyNumber,
                 RequiredActionType.REFILL_REQUIRED, null),
             true);
       } else {
         // send an event indicating that the art refill is overdue and has to be done
         PatientBloc.instance.sinkRequiredActionData(
-            RequiredAction(widget._patient.artNumber,
+            RequiredAction(widget._patient.personalStudyNumber,
                 RequiredActionType.REFILL_REQUIRED, nextRefillDate),
             false);
       }
@@ -116,7 +116,7 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
         context, 'Select the Next ART Refill Date');
     if (nextRefillDate != null) {
       final ARTRefill artRefill = ARTRefill(
-          this.widget._patient.artNumber, RefillType.DONE(),
+          this.widget._patient.personalStudyNumber, RefillType.DONE(),
           nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       widget._patient.latestARTRefill = artRefill;
@@ -125,13 +125,13 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
       if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done
         PatientBloc.instance.sinkRequiredActionData(
-            RequiredAction(widget._patient.artNumber,
+            RequiredAction(widget._patient.personalStudyNumber,
                 RequiredActionType.REFILL_REQUIRED, null),
             true);
       } else {
         // send an event indicating that the art refill is overdue and has to be done
         PatientBloc.instance.sinkRequiredActionData(
-            RequiredAction(widget._patient.artNumber,
+            RequiredAction(widget._patient.personalStudyNumber,
                 RequiredActionType.REFILL_REQUIRED, nextRefillDate),
             false);
       }

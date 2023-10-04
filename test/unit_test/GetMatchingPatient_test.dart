@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/R21Residency.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 void main() {
@@ -54,12 +54,12 @@ void main() {
     ];
 
     final Patient patient = Patient(
-        artNumber: "B/01/11111",
-        birthday: DateTime(1994, 9, 27),
-        gender: Gender.MALE(),
-        phoneNumber: "+266-57-683-501");
+        personalStudyNumber: "B/01/11111",
+        personalBirthday: DateTime(1994, 9, 27),
+        personalResidency: R21Residency.ADDRESS(),
+        personalPhoneNumber: "+266-57-683-501");
     final dynamic p = getMatchingPatient(patients, patient);
-    expect(p['art_number'], patient.artNumber);
+    expect(p['art_number'], patient.personalStudyNumber);
   });
 
   test('No Match found', () {
@@ -112,10 +112,10 @@ void main() {
     ];
 
     final Patient patient = Patient(
-        artNumber: "B/01/22222",
-        birthday: DateTime(1994, 8, 11),
-        gender: Gender.FEMALE(),
-        phoneNumber: "+266-56-543-501");
+        personalStudyNumber: "B/01/22222",
+        personalBirthday: DateTime(1994, 8, 11),
+        personalResidency: R21Residency.UNZA(),
+        personalPhoneNumber: "+266-56-543-501");
     final dynamic p = getMatchingPatient(patients, patient);
     expect(p, null);
   });

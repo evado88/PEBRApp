@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/R21Residency.dart';
 import 'package:pebrapp/database/beans/NoChatDownloadReason.dart';
-import 'package:pebrapp/database/beans/PhoneNumberSecurity.dart';
+import 'package:pebrapp/database/beans/R21PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionUse.dart';
@@ -18,7 +18,7 @@ import 'package:pebrapp/database/beans/R21SupportType.dart';
 import 'package:pebrapp/database/beans/R21Week.dart';
 import 'package:pebrapp/database/beans/R21YesNo.dart';
 import 'package:pebrapp/database/beans/R21YesNoUnsure.dart';
-import 'package:pebrapp/database/beans/SexualOrientation.dart';
+import 'package:pebrapp/database/beans/R21PreferredContactMethod.dart';
 import 'package:pebrapp/database/models/R21Appointment.dart';
 import 'package:pebrapp/database/models/R21Event.dart';
 import 'package:pebrapp/database/models/R21Followup.dart';
@@ -34,57 +34,270 @@ class Patient implements IExcelExportable, IJsonExportable {
   static final tableName = 'Patient';
 
   // column names
-  static final colId = 'id'; // primary key
-  static final colCreatedDate = 'created_date';
-  static final colEnrollmentDate = 'enrollment_date';
-  static final colARTNumber = 'art_number';
-  static final colBirthday = 'birthday';
-  static final colIsEligible = 'is_eligible';
 
-  //R21
-  static final colSupportType = 'support_type';
-  static final colContactFrequency = 'contact_frequency';
-  static final colSrhServicePreffered = 'srh_service_preffered';
-  static final colPrep = 'prep';
-  static final colContraceptionMethod = 'contraception_method';
-  static final colProviderLocation = 'provider_location';
-  static final colProviderType = 'provider_type';
+  //utility columsns
+  static final colUtilityId = 'id'; // primary key
+  static final colUtilityEnrollmentDate = 'enrollment_date';
 
-  // nullables:
-  static final colStickerNumber = 'sticker_number';
-  static final colIsVLBaselineAvailable = 'is_vl_baseline_available';
-  static final colGender = 'gender'; // nullable
-  static final colSexualOrientation = 'sexual_orientation'; // nullable
-  static final colVillage = 'village'; // nullable
-  static final colPhoneAvailability = 'phone_availability'; // nullable
-  static final colPhoneNumber = 'phone_number'; // nullable
-  static final colConsentGiven = 'consent_given'; // nullable
-  static final colNoConsentReason = 'no_consent_reason'; // nullable
-  static final colNoConsentReasonOther = 'no_consent_reason_other'; // nullable
-  static final colIsActivated = 'is_activated'; // nullable
-  static final colIsDuplicate = 'is_duplicate'; // nullable
+  //Personal information
+  static final colPersonalStudyNumber = 'study_number';
+  static final colPersonalBirthday = 'birthday';
 
-  DateTime _createdDate;
-  DateTime enrollmentDate;
-  String artNumber;
-  DateTime birthday;
+  //Messenger app
+  static final colMessengerDownloaded = 'downloaded_messenger';
+  static final colMessengerNoDownloadReason = 'no_download_messenger_reason';
+
+  //Contact information
+  static final colContactPhoneNumber = 'phone_number';
+  static final colContactOwnPhone = 'own_phone';
+  static final colContactResidency = 'residency';
+  static final colContactPrefferedContactMethod = 'prefered_contact_method';
+  static final colContactContactFrequency = 'contact_frequency';
+
+  //Contraception/Prep History
+
+//contraception
+  static final colHistoryContraceptionUse = 'history_modern_contraception_use';
+
+  static final colHistoryContraceptiontMaleCondom =
+      'history_contraception_male_condom';
+
+  static final colHistoryContraceptionFemaleCondom =
+      'history_contraception_female_condom';
+
+  static final colHistoryContraceptionImplant = 'history_contraception_implant';
+
+  static final colHistoryContraceptionInjection =
+      'history_contraception_injection';
+
+  static final colHistoryContraceptionIUD = 'history_contraception_iud';
+
+  static final colHistoryContraceptionIUS = 'history_contraception_ius';
+
+  static final colHistoryContraceptionPills = 'history_contraception_pills';
+
+  static final colHistoryContraceptionOther = 'history_contraception_other';
+
+  static final colHistoryContraceptionOtherSpecify =
+      'history_contraception_other_specify';
+
+  static final colHistoryContraceptionSatisfaction =
+      'history_contraception_satisfaction';
+
+  static final colHistoryContraceptionSatisfactionReason =
+      'history_contraception_satisfaction_reason';
+
+  //hiv status
+  static final colHistoryHIVKnowStatus = 'history_hiv_know_status';
+
+  static final colHistoryHIVLastTest = 'history_hiv_last_test';
+
+  static final colHistoryHIVUsedPrep = 'history_hiv_used_prep';
+
+  static final colHistoryHIVART = 'history_hiv_art';
+
+  static final colHistoryHIVARTProblems = 'history_hiv_art_problems';
+
+  static final colHistoryHIVARTQuestions = 'history_hiv_art_questions';
+
+  static final colHistoryHIVDesiredSupportRemindersAppointments =
+      'history_hiv_desired_support_reminders_appointments';
+
+  static final colHistoryHIVDesiredSupportRemindersCheckins =
+      'history_hiv_desired_support_reminders_checkins';
+
+  static final colHistoryHIVDesiredSupportRefilsAccompany =
+      'history_hiv_desired_support_refil_accompany';
+
+  static final colHistoryHIVDesiredSupportRefilsPAAccompany =
+      'history_hiv_desired_support_refil_pn_accompany';
+
+  static final colHistoryHIVDesiredSupportOther =
+      'history_hiv_desired_support_other';
+
+  static final colHistoryHIVDesiredSupportOtherSpecify =
+      'history_hiv_desired_support_other_specify';
+
+//SRH Preferences
+  //Contraception
+  static final colSRHContraceptionInterest = 'srh_contraception_interest';
+
+  static final colSRHContraceptionNoInterestReason =
+      'srh_contraception_no_interest_reason';
+
+  static final colSRHContraceptionInterestMaleCondom =
+      'srh_contraception_interest_male_condom';
+
+  static final colSRHContraceptionInterestFemaleCondom =
+      'srh_contraception_interest_female_condom';
+
+  static final colSRHContraceptionInterestImplant =
+      'srh_contraception_interest_implant';
+
+  static final colSRHContraceptionInterestInjection =
+      'srh_contraception_interest_injection';
+
+  static final colSRHContraceptionInterestIUD =
+      'srh_contraception_interest_iud';
+
+  static final colSRHContraceptionInterestIUS =
+      'srh_contraception_interest_ius';
+
+  static final colSRHContraceptionInterestPills =
+      'srh_contraception_interest_pills';
+
+  static final colSRHContraceptionInterestOther =
+      'srh_contraception_interest_other';
+
+  static final colSRHContraceptionInterestOtherSpecify =
+      'srh_contraception_interest_other_specify';
+
+  static final colSRHContraceptionMethodInMind =
+      'srh_contraception_method_in_mind';
+
+  static final colSRHContraceptionInformationMethods =
+      'srh_contraception_information_methods';
+
+  static final colSRHContraceptionFindScheduleFacility =
+      'srh_contraception_find_schedule_facility';
+
+  static final colSRHContraceptionFindScheduleFacilityYesDate =
+      'srh_contraception_find_schedule_facility_yes_date';
+  static final colSRHContraceptionFindScheduleFacilityYesPNAccompany =
+      'srh_contraception_find_schedule_facility_yes_pn_accompany';
+
+  static final colSRHContraceptionFindScheduleFacilityNoDate =
+      'srh_contraception_find_schedule_facility_no_date';
+  static final colSRHContraceptionFindScheduleFacilityNoPick =
+      'srh_contraception_find_schedule_facility_no_pick';
+
+  static final colSRHContraceptionFindScheduleFacilitySelected =
+      'srh_contraception_find_schedule_facility_selected';
+
+  static final colSRHContraceptionFindScheduleFacilityOther =
+      'srh_contraception_find_schedule_facility_other';
+
+  static final colSRHContraceptionInformationApp =
+      'srh_contraception_information_app';
+
+  static final colSRHContraceptionLearnMethods =
+      'srh_contraception_learn_methods';
+
+  //prep
+  static final colSRHCPrePInterest = 'srh_prep_interest';
+
+  static final colSRHCPrePInformationApp = 'srh_prep_information_app';
+
+  static final colSRHPrePFindScheduleFacility =
+      'srh_prep_find_schedule_facility';
+
+  static final colSRHPrePFindScheduleFacilityYesDate =
+      'srh_prep_find_schedule_facility_yes_date';
+
+  static final colSRHPrePFindScheduleFacilityYesPNAccompany =
+      'srh_prep_find_schedule_facility_yes_pn_accompany';
+
+  static final colSRHPrePFindScheduleFacilityNoDate =
+      'srh_prep_find_schedule_facility_no_date';
+
+  static final colSRHPrePFindScheduleFacilityNoPick =
+      'srh_prep_find_schedule_facility_no_pick';
+
+  static final colSRHPrePFindScheduleFacilitySelected =
+      'srh_prep_find_schedule_facility_selected';
+
+  static final colSRHPrePFindScheduleFacilityOther =
+      'srh_prep_find_schedule_facility_other';
+
+  static final colSRHPrePInformationRead = 'srh_prep_information_read';
+
+  //utility columsns
+  DateTime utilityEnrollmentDate;
+
+//Personal information
+  String personalStudyNumber;
+  DateTime personalBirthday;
+
+  //Messenger app
+  bool messengerDownloaded;
+  NoChatDownloadReason messengerNoDownloadReason;
+
+  //Contact information
+  String personalPhoneNumber;
+  R21PhoneNumberSecurity personalPhoneNumberAvailability;
+  R21Residency personalResidency;
+  R21PreferredContactMethod personalPreferredContactMethod;
+  R21ContactFrequency personalContactFrequency;
+
+  //Contraception/Prep History
+  //contraception
+
+  R21ContraceptionUse historyContraceptionUse;
+
+  bool historyContraceptionMaleCondoms = false;
+
+  bool historyContraceptionFemaleCondoms = false;
+
+  bool historyContraceptionImplant = false;
+
+  bool historyContraceptionInjection = false;
+
+  bool historyContraceptionIUD = false;
+
+  bool historyContraceptionIUS = false;
+
+  bool historyContraceptionPills = false;
+
+  bool historyContraceptionOther = false;
+
+  String historyContraceptionOtherSpecify;
+
+  R21Satisfaction historyContraceptionSatisfaction;
+
+  //hiv status
+  R21HIVStatus historyHIVStatus;
+
+  R21YesNo historyHIVTakingART;
+
+  String historyHIVARTProblems;
+
+  String historyHIVARTQuestions;
+
+  DateTime historyHIVLastTest;
+
+  R21PrEP historyHIVUsedPrep;
+
+  bool historyHIVDesiredSupportRemindersAppointments = false;
+
+  bool historyHIVDesiredSupportRemindersCheckins = false;
+
+  bool historyHIVDesiredSupportRefilsAccompany = false;
+
+  bool historyHIVDesiredSupportRefilsPAAccompany = false;
+
+  bool historyHIVDesiredSupportOther = false;
+
+  String historyHIVDesiredSupportOtherSpecify;
+
+//SRH Preferences
+
+  //Contraception
+  R21Interest srhContraceptionInterest;
+
+
   bool isEligible;
   String stickerNumber;
   bool isVLBaselineAvailable;
-  Gender gender;
-  SexualOrientation sexualOrientation;
+
   String village;
-  PhoneNumberSecurity phoneAvailability;
-  String phoneNumber;
-  bool downloadedChatAPp;
-  NoChatDownloadReason noConsentReason;
+
   String noConsentReasonOther;
   bool isActivated;
   bool isDuplicate;
 
   //R21 fields
   R21SupportType supportType;
-  R21ContactFrequency contactFrequency;
+
   R21SRHServicePreferred srhServicePreffered;
   R21PrEP prep;
   R21ContraceptionMethod contraceptionMethod;
@@ -98,10 +311,6 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   List<R21Appointment> appointments = [];
   List<R21Followup> followups = [];
-  List<R21Event> events = [];
-
-  List<R21MedicationRefill> medicationRefils = [];
-  PreferenceAssessment latestPreferenceAssessment;
 
   ARTRefill latestARTRefill; // stores the latest ART refill (done or not done)
   ARTRefill latestDoneARTRefill; // stores the latest ART refill that was done
@@ -114,31 +323,9 @@ class Patient implements IExcelExportable, IJsonExportable {
   Set<RequiredAction> requiredActions = {};
   Set<RequiredAction> dueRequiredActionsAtInitialization = {};
 
-  R21ContraceptionUse contraceptionUse;
-
-  R21Satisfaction contraceptionSatisfaction;
-
-  R21HIVStatus hivStatus;
-
-  R21YesNo takingART;
-
   DateTime lastARTRefilDate;
 
   R21ProviderType ARTRefilCollectionClinic;
-
-  bool desiredSupportRefilReminders = false;
-
-  bool desiredSupportAdherenceReminders = false;
-
-  bool desiredSupportRefilCollectionReminders = false;
-
-  bool desiredSupportReerCollectionRefilReminders = false;
-
-  bool desiredSupportOther = false;
-
-  DateTime lastHIVTestDate;
-
-  R21PrEP everUsedPrep;
 
   DateTime lastPrepRefilDate;
 
@@ -154,27 +341,27 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   bool desiredSupportPrepOther = false;
 
-  R21Interest contraceptionInterest;
+
 
   R21Interest prepInterest;
 
   R21YesNo hasContraceptiveMethodInMind;
 
-  bool interestContraceptionOther= false;
+  bool interestContraceptionOther = false;
 
-  bool interestContraceptionPills= false;
+  bool interestContraceptionPills = false;
 
-  bool interestContraceptionIUS= false;
+  bool interestContraceptionIUS = false;
 
-  bool interestContraceptionIUD= false;
+  bool interestContraceptionIUD = false;
 
-  bool interestContraceptionInjection= false;
+  bool interestContraceptionInjection = false;
 
-  bool interestContraceptionImplant= false;
+  bool interestContraceptionImplant = false;
 
-  bool interestContraceptionFemaleCondoms= false;
+  bool interestContraceptionFemaleCondoms = false;
 
-  bool interestContraceptionMaleCondoms= false;
+  bool interestContraceptionMaleCondoms = false;
 
   R21YesNo interestContraceptionLikeMoreInfo;
 
@@ -200,7 +387,7 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   R21YesNoUnsure interestPrepVeryLikeFindFacilitySchedule;
 
-R21YesNo  interestPrepVeryLikePNAAccompany;
+  R21YesNo interestPrepVeryLikePNAAccompany;
 
   R21Week interestPrepNotNowDate;
 
@@ -220,28 +407,32 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
 
   R21YesNo interestPrepMaybeLikeInformationOnApp;
 
+  R21YesNo interestPrepNotLikeInformation;
+
+  R21YesNo interestPrepNotLikeInformationOnApp;
+
   // Constructors
   // ------------
 
   Patient(
-      {this.enrollmentDate,
-      this.artNumber,
+      {this.utilityEnrollmentDate,
+      this.personalStudyNumber,
       this.stickerNumber,
-      this.birthday,
+      this.personalBirthday,
       this.isEligible,
       this.isVLBaselineAvailable,
-      this.gender,
-      this.sexualOrientation,
+      this.personalResidency,
+      this.personalPreferredContactMethod,
       this.village,
-      this.phoneAvailability,
-      this.phoneNumber,
-      this.downloadedChatAPp,
-      this.noConsentReason,
+      this.personalPhoneNumberAvailability,
+      this.personalPhoneNumber,
+      this.messengerDownloaded,
+      this.messengerNoDownloadReason,
       this.noConsentReasonOther,
       this.isActivated,
       this.isDuplicate,
       this.supportType, //R21
-      this.contactFrequency,
+      this.personalContactFrequency,
       this.srhServicePreffered,
       this.prep,
       this.contraceptionMethod,
@@ -249,47 +440,14 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
       this.providerType});
 
   Patient.fromMap(map) {
-    this.createdDate = DateTime.parse(map[colCreatedDate]);
-    this.enrollmentDate = DateTime.parse(map[colEnrollmentDate]);
-    this.artNumber = map[colARTNumber];
-    this.birthday = DateTime.parse(map[colBirthday]);
-    this.isEligible = map[colIsEligible] == 1;
-    // nullables:
-    this.stickerNumber = map[colStickerNumber];
-    if (map[colIsVLBaselineAvailable] != null) {
-      this.isVLBaselineAvailable = map[colIsVLBaselineAvailable] == 1;
-    }
-    this.gender = Gender.fromCode(map[colGender]);
-    this.sexualOrientation =
-        SexualOrientation.fromCode(map[colSexualOrientation]);
-    this.village = map[colVillage];
-    this.phoneAvailability =
-        PhoneNumberSecurity.fromCode(map[colPhoneAvailability]);
-    this.phoneNumber = map[colPhoneNumber];
-    if (map[colConsentGiven] != null) {
-      this.downloadedChatAPp = map[colConsentGiven] == 1;
-    }
-    this.noConsentReason =
-        NoChatDownloadReason.fromCode(map[colNoConsentReason]);
-    this.noConsentReasonOther = map[colNoConsentReasonOther];
-    if (map[colIsActivated] != null) {
-      this.isActivated = map[colIsActivated] == 1;
-    }
-    if (map[colIsDuplicate] != null) {
-      this.isDuplicate = map[colIsDuplicate] == 1;
+    this.personalStudyNumber = map[colPersonalStudyNumber];
+
+    if (map[colPersonalBirthday] != null) {
+      this.isActivated = map[colPersonalBirthday] == 1;
     }
 
     //R21
-    this.supportType = R21SupportType.fromCode(map[colSupportType]);
-    this.contactFrequency =
-        R21ContactFrequency.fromCode(map[colContactFrequency]);
-    this.srhServicePreffered =
-        R21SRHServicePreferred.fromCode(map[colSrhServicePreffered]);
-    this.prep = R21PrEP.fromCode(map[colPrep]);
-    this.contraceptionMethod =
-        R21ContraceptionMethod.fromCode(map[colContraceptionMethod]);
-    this.providerLocation = map[colProviderLocation];
-    this.providerType = R21ProviderType.fromCode(map[colProviderType]);
+    this.supportType = R21SupportType.fromCode(map[colPersonalBirthday]);
   }
 
   // Other
@@ -297,33 +455,11 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
 
   toMap() {
     var map = Map<String, dynamic>();
-    map[colCreatedDate] = createdDate.toIso8601String();
-    map[colEnrollmentDate] = enrollmentDate.toIso8601String();
-    map[colARTNumber] = artNumber;
-    map[colStickerNumber] = stickerNumber;
-    map[colBirthday] = birthday.toIso8601String();
-    map[colIsEligible] = isEligible;
-    // nullables:
-    map[colIsVLBaselineAvailable] = isVLBaselineAvailable;
-    map[colGender] = gender?.code;
-    map[colSexualOrientation] = sexualOrientation?.code;
-    map[colVillage] = village;
-    map[colPhoneAvailability] = phoneAvailability?.code;
-    map[colPhoneNumber] = phoneNumber;
-    map[colConsentGiven] = downloadedChatAPp;
-    map[colNoConsentReason] = noConsentReason?.code;
-    map[colNoConsentReasonOther] = noConsentReasonOther;
-    map[colIsActivated] = isActivated;
-    map[colIsDuplicate] = isDuplicate;
 
-    //R21
-    map[colSupportType] = this.supportType?.code;
-    map[colContactFrequency] = this.contactFrequency?.code;
-    map[colSrhServicePreffered] = this.srhServicePreffered?.code;
-    map[colPrep] = this.prep?.code;
-    map[colContraceptionMethod] = this.contraceptionMethod?.code;
-    map[colProviderLocation] = this.providerLocation;
-    map[colProviderType] = this.providerType?.code;
+    map[colPersonalBirthday] = personalBirthday.toIso8601String();
+    // nullables:
+    map[colPersonalBirthday] = isVLBaselineAvailable;
+    map[colPersonalBirthday] = personalPreferredContactMethod?.code;
 
     return map;
   }
@@ -372,28 +508,28 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
   @override
   List<dynamic> toExcelRow() {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
-    row[0] = formatDateIso(_createdDate);
-    row[1] = formatTimeIso(_createdDate);
-    row[2] = formatDateIso(enrollmentDate);
-    row[3] = formatTimeIso(enrollmentDate);
-    row[4] = artNumber;
-    row[5] = formatDateIso(birthday);
-    row[6] = downloadedChatAPp;
-    row[7] = noConsentReason?.description;
+    //row[0] = formatDateIso(_createdDate);
+    //row[1] = formatTimeIso(_createdDate);
+    row[2] = formatDateIso(utilityEnrollmentDate);
+    row[3] = formatTimeIso(utilityEnrollmentDate);
+    row[4] = personalStudyNumber;
+    row[5] = formatDateIso(personalBirthday);
+    row[6] = messengerDownloaded;
+    row[7] = messengerNoDownloadReason?.description;
     row[8] = noConsentReasonOther;
-    row[9] = gender?.description;
-    row[10] = sexualOrientation?.description;
+    row[9] = personalResidency?.description;
+    row[10] = personalPreferredContactMethod?.description;
     row[11] = stickerNumber;
     row[12] = village;
-    row[13] = phoneAvailability?.description;
-    row[14] = phoneNumber;
+    row[13] = personalPhoneNumberAvailability?.description;
+    row[14] = personalPhoneNumber;
     row[15] = isVLBaselineAvailable;
     row[16] = isActivated;
     row[17] = isEligible;
     row[18] = isDuplicate;
     //R21
     row[19] = supportType?.description;
-    row[20] = contactFrequency?.description;
+    row[20] = personalContactFrequency?.description;
     row[21] = srhServicePreffered?.description;
     row[22] = prep?.description;
     row[23] = contraceptionMethod?.description;
@@ -405,34 +541,36 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
   @override
   Map<String, dynamic> toJson(String username) => {
         "\"username\"": "\"$username\"",
-        "\"studyNo\"": "\"$artNumber\"",
-        "\"createDate\"": "\"${formatDateIso(_createdDate)}\"",
-        "\"enrollDate\"": "\"${formatDateIso(enrollmentDate)}\"",
-        "\"birthDate\"": "\"${formatDateIso(birthday)}\"",
-        "\"consentGiven\"": downloadedChatAPp,
-        "\"noConsentReason\"": noConsentReason == null
+        "\"studyNo\"": "\"$personalStudyNumber\"",
+        //"\"createDate\"": "\"${formatDateIso(_createdDate)}\"",
+        "\"enrollDate\"": "\"${formatDateIso(utilityEnrollmentDate)}\"",
+        "\"birthDate\"": "\"${formatDateIso(personalBirthday)}\"",
+        "\"consentGiven\"": messengerDownloaded,
+        "\"noConsentReason\"": messengerNoDownloadReason == null
             ? null
-            : "\"${noConsentReason.description}\"",
+            : "\"${messengerNoDownloadReason.description}\"",
         "\"noConsentReasonOther\"": "\"$noConsentReasonOther\"",
-        "\"gender\"": gender == null ? null : "\"${gender.description}\"",
-        "\"sexualOrientation\"": sexualOrientation == null
+        "\"gender\"": personalResidency == null
             ? null
-            : "\"${sexualOrientation.description}\"",
+            : "\"${personalResidency.description}\"",
+        "\"sexualOrientation\"": personalPreferredContactMethod == null
+            ? null
+            : "\"${personalPreferredContactMethod.description}\"",
         "\"stickerNumber\"": "\"$stickerNumber\"",
         "\"village\"": "\"$village\"",
-        "\"phoneAvailability\"": phoneAvailability == null
+        "\"phoneAvailability\"": personalPhoneNumberAvailability == null
             ? null
-            : "\"${phoneAvailability.description}\"",
-        "\"phoneNumber\"": "\"$phoneNumber\"",
+            : "\"${personalPhoneNumberAvailability.description}\"",
+        "\"phoneNumber\"": "\"$personalPhoneNumber\"",
         "\"isVLBaselineAvailable\"": isVLBaselineAvailable,
         "\"isActivated\"": isActivated,
         "\"isEligible\"": isEligible,
         "\"isDuplicate\"": isDuplicate,
         "\"supportType\"":
             supportType == null ? null : "\"${supportType.description}\"",
-        "\"contactFrequency\"": contactFrequency == null
+        "\"contactFrequency\"": personalContactFrequency == null
             ? null
-            : "\"${contactFrequency.description}\"",
+            : "\"${personalContactFrequency.description}\"",
         "\"srhServicePreffered\"": srhServicePreffered == null
             ? null
             : "\"${srhServicePreffered.description}\"",
@@ -447,66 +585,66 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
 
   /// Initializes the field [viralLoads] with the latest data from the database.
   Future<void> initializeViralLoadsField() async {
-    this.viralLoads =
-        await DatabaseProvider().retrieveViralLoadsForPatient(artNumber);
+    this.viralLoads = await DatabaseProvider()
+        .retrieveViralLoadsForPatient(personalStudyNumber);
   }
 
   /// Initializes the field [appointments] with the latest data from the database.
   Future<void> initializeAppointmentsField() async {
-    this.appointments =
-        await DatabaseProvider().retrieveAppointmentsForPatient(artNumber);
+    this.appointments = await DatabaseProvider()
+        .retrieveAppointmentsForPatient(personalStudyNumber);
   }
 
   /// Initializes the field [events] with the latest data from the database.
   Future<void> initializeEventsField() async {
-    this.events = await DatabaseProvider().retrieveEventsForPatient(artNumber);
+    // this.events = await DatabaseProvider().retrieveEventsForPatient(artNumber);
   }
 
   /// Initializes the field [followups] with the latest data from the database.
   Future<void> initializeFollowupsField() async {
-    this.followups =
-        await DatabaseProvider().retrieveFollowupsForPatient(artNumber);
+    this.followups = await DatabaseProvider()
+        .retrieveFollowupsForPatient(personalStudyNumber);
   }
 
   /// Initializes the field [events] with the latest data from the database.
   Future<void> initializeMedicationRefilsField() async {
-    this.medicationRefils =
-        await DatabaseProvider().retrieveMedicationRefilsForPatient(artNumber);
+    // this.medicationRefils =
+    //   await DatabaseProvider().retrieveMedicationRefilsForPatient(artNumber);
   }
 
   /// Initializes the field [latestPreferenceAssessment] with the latest data from the database.
   Future<void> initializePreferenceAssessmentField() async {
     PreferenceAssessment pa = await DatabaseProvider()
-        .retrieveLatestPreferenceAssessmentForPatient(artNumber);
-    this.latestPreferenceAssessment = pa;
+        .retrieveLatestPreferenceAssessmentForPatient(personalStudyNumber);
+    //this.latestPreferenceAssessment = pa;
   }
 
   /// Initializes the fields [latestARTRefill] and [latestDoneARTRefill] with
   /// the latest data from the database.
   Future<void> initializeARTRefillField() async {
-    ARTRefill artRefill =
-        await DatabaseProvider().retrieveLatestARTRefillForPatient(artNumber);
+    ARTRefill artRefill = await DatabaseProvider()
+        .retrieveLatestARTRefillForPatient(personalStudyNumber);
     this.latestARTRefill = artRefill;
     ARTRefill doneARTRefill = await DatabaseProvider()
-        .retrieveLatestDoneARTRefillForPatient(artNumber);
+        .retrieveLatestDoneARTRefillForPatient(personalStudyNumber);
     this.latestDoneARTRefill = doneARTRefill;
   }
 
   Future<void> initializeRecentFields() async {
     R21MedicationRefill refill = await DatabaseProvider()
-        .retrieveLatestMedicationRefillForPatient(artNumber);
+        .retrieveLatestMedicationRefillForPatient(personalStudyNumber);
     this.latestMedicationRefil = refill;
 
-    R21Appointment appointment =
-        await DatabaseProvider().retrieveLatestAppointmentForPatient(artNumber);
+    R21Appointment appointment = await DatabaseProvider()
+        .retrieveLatestAppointmentForPatient(personalStudyNumber);
     this.latestAppointment = appointment;
 
-    R21Followup followup =
-        await DatabaseProvider().retrieveLatestFollowupForPatient(artNumber);
+    R21Followup followup = await DatabaseProvider()
+        .retrieveLatestFollowupForPatient(personalStudyNumber);
     this.latestFollowup = followup;
 
-    R21Event event =
-        await DatabaseProvider().retrieveLatestEventForPatient(artNumber);
+    R21Event event = await DatabaseProvider()
+        .retrieveLatestEventForPatient(personalStudyNumber);
     this.latestEvent = event;
   }
 
@@ -518,8 +656,8 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
   /// initialized (null).
   Future<void> initializeRequiredActionsField() async {
     // get required actions stored in database
-    final Set<RequiredAction> actions =
-        await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
+    final Set<RequiredAction> actions = await DatabaseProvider()
+        .retrieveRequiredActionsForPatient(personalStudyNumber);
     final DateTime now = DateTime.now();
     // calculate if ART refill is required
 
@@ -531,12 +669,10 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
       actions.add(artRefillRequired);
     }*/
     // calculate if preference assessment is required
-    final DateTime dueDatePA = calculateNextAssessment(
-            latestPreferenceAssessment?.createdDate, isSuppressed(this)) ??
-        enrollmentDate;
+    final DateTime dueDatePA = utilityEnrollmentDate;
     if (now.isAfter(dueDatePA)) {
-      RequiredAction assessmentRequired = RequiredAction(
-          artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA);
+      RequiredAction assessmentRequired = RequiredAction(personalStudyNumber,
+          RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA);
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
@@ -561,12 +697,13 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
 
   R21MedicationRefill get mostRecentMedicationRefil {
     R21MedicationRefill mostRecent;
+    /*
     for (R21MedicationRefill vl in medicationRefils) {
       if (mostRecent == null ||
           !vl.createdDate.isBefore(mostRecent.createdDate)) {
         mostRecent = vl;
       }
-    }
+    }*/
     return mostRecent;
   }
 
@@ -583,12 +720,12 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
 
   R21Event get mostRecentEvent {
     R21Event mostRecent;
-    for (R21Event ev in events) {
+    /* for (R21Event ev in events) {
       if (mostRecent == null ||
           !ev.createdDate.isBefore(mostRecent.createdDate)) {
         mostRecent = ev;
       }
-    }
+    }*/
     return mostRecent;
   }
 
@@ -603,57 +740,57 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
     return mostRecent;
   }
 
-  /// Sets fields to null if they are not used. E.g. sets [phoneNumber] to null
-  /// if [phoneAvailability] is not YES.
+  /// Sets fields to null if they are not used. E.g. sets [personalPhoneNumber] to null
+  /// if [personalPhoneNumberAvailability] is not YES.
   void checkLogicAndResetUnusedFields() {
     if (!this.isEligible) {
-      this.gender = null;
-      this.sexualOrientation = null;
+      this.personalResidency = null;
+      this.personalPreferredContactMethod = null;
       this.village = null;
-      this.phoneAvailability = null;
-      this.phoneNumber = null;
-      this.downloadedChatAPp = null;
-      this.noConsentReason = null;
+      this.personalPhoneNumberAvailability = null;
+      this.personalPhoneNumber = null;
+      this.messengerDownloaded = null;
+      this.messengerNoDownloadReason = null;
       this.noConsentReasonOther = null;
       this.isActivated = null;
       this.isDuplicate = null;
 
       //R21
       this.supportType = null;
-      this.contactFrequency = null;
+      this.personalContactFrequency = null;
       this.srhServicePreffered = null;
       this.prep = null;
       this.contraceptionMethod = null;
       this.providerLocation = null;
       this.providerType = null;
     }
-    if (this.downloadedChatAPp != null && !this.downloadedChatAPp) {
-      this.gender = null;
-      this.sexualOrientation = null;
+    if (this.messengerDownloaded != null && !this.messengerDownloaded) {
+      this.personalResidency = null;
+      this.personalPreferredContactMethod = null;
       this.village = null;
-      this.phoneAvailability = null;
-      this.phoneNumber = null;
+      this.personalPhoneNumberAvailability = null;
+      this.personalPhoneNumber = null;
       this.isActivated = null;
 
       //R21
       this.supportType = null;
-      this.contactFrequency = null;
+      this.personalContactFrequency = null;
       this.srhServicePreffered = null;
       this.prep = null;
       this.contraceptionMethod = null;
       this.providerLocation = null;
       this.providerType = null;
 
-      if (this.noConsentReason != NoChatDownloadReason.OTHER()) {
+      if (this.messengerNoDownloadReason != NoChatDownloadReason.OTHER()) {
         this.noConsentReasonOther = null;
       }
     }
-    if (this.phoneAvailability != null &&
-        this.phoneAvailability != PhoneNumberSecurity.YES()) {
-      this.phoneNumber = null;
+    if (this.personalPhoneNumberAvailability != null &&
+        this.personalPhoneNumberAvailability != R21PhoneNumberSecurity.YES()) {
+      this.personalPhoneNumber = null;
     }
-    if (this.downloadedChatAPp != null && this.downloadedChatAPp) {
-      this.noConsentReason = null;
+    if (this.messengerDownloaded != null && this.messengerDownloaded) {
+      this.messengerNoDownloadReason = null;
       this.noConsentReasonOther = null;
     }
   }
@@ -661,10 +798,10 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
   // ignore: unnecessary_getters_setters
-  set createdDate(DateTime date) => _createdDate = date;
+  //set createdDate(DateTime date) => _createdDate = date;
 
   // ignore: unnecessary_getters_setters
-  DateTime get createdDate => _createdDate;
+  // DateTime get createdDate => _createdDate;
 
   /// Calculates which required actions for this patient are due based on
   /// today's date and the required actions' due date.
@@ -687,18 +824,18 @@ R21YesNo  interestPrepVeryLikePNAAccompany;
   }
 
   void addEvents(List<R21Event> newEvents) {
-    for (R21Event ev in newEvents) {
+    /* for (R21Event ev in newEvents) {
       if (!events.contains(ev)) {
         events.add(ev);
       }
-    }
+    }*/
   }
 
   void addMedicationRefils(List<R21MedicationRefill> newRefils) {
-    for (R21MedicationRefill ev in newRefils) {
+    /* for (R21MedicationRefill ev in newRefils) {
       if (!medicationRefils.contains(ev)) {
         medicationRefils.add(ev);
       }
-    }
+    }*/
   }
 }
