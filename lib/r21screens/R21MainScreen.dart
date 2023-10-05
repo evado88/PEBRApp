@@ -13,7 +13,6 @@ import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/r21screens/R21NewFlatPatientScreen.dart';
-import 'package:pebrapp/r21screens/R21NewPatientScreen.dart';
 import 'package:pebrapp/r21screens/R21PatientScreen.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
 import 'dart:ui';
@@ -24,7 +23,6 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
-import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class R21MainScreen extends StatefulWidget {
   final bool _isScreenLogged;
@@ -115,7 +113,7 @@ class _R21MainScreenState extends State<R21MainScreen>
             animationControllers[newPatient.personalStudyNumber].forward();
           } else {
             // add if not exists (new patient was added)
-            if (newPatient.isEligible && newPatient.messengerDownloaded) {
+
               this._patients.add(newPatient);
               // add animation controller for this patient card
               final controller = AnimationController(
@@ -124,7 +122,7 @@ class _R21MainScreenState extends State<R21MainScreen>
               animationControllers[newPatient.personalStudyNumber] = controller;
               // start animation
               controller.forward();
-            }
+            
           }
         });
       }
@@ -448,7 +446,7 @@ class _R21MainScreenState extends State<R21MainScreen>
   }
 
   Future<void> _pushNewPatientScreen() async {
-    await _fadeInScreen(R21NewPatientScreen(), routeName: '/new-patient');
+
   }
 
   Future<void> _pushFlatPatientScreen() async {
@@ -615,36 +613,7 @@ class _R21MainScreenState extends State<R21MainScreen>
             title: Text(curPatient.personalStudyNumber),
             backgroundColor: BACKGROUND_COLOR,
             content: Column(mainAxisSize: MainAxisSize.min, children: [
-              SizedBox(
-                width: 180.0,
-                child: PEBRAButtonRaised(
-                  curPatient.isActivated
-                      ? 'Deactivate Participant'
-                      : 'Activate Participant',
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    // *****************************
-                    // activate / deactivate patient
-                    // *****************************
-                    if (!curPatient.isActivated) {
-                      var uploadPatientStatus =
-                          await uploadPatientStatusVisibleImpact(
-                              curPatient, 'active');
-                      print(uploadPatientStatus);
-                    }
-                    curPatient.isActivated = !curPatient.isActivated;
-                    DatabaseProvider().insertPatient(curPatient);
-                    await controller.animateBack(0.0,
-                        duration: _quickAnimationDuration,
-                        curve: Curves.ease); // fold patient card up
-                    setState(
-                        () {}); // re-render the patient card (grey it out / un-grey it and sort it at the right position in the table)
-                    await controller.forward(); // unfold patient card
-                    controller.duration =
-                        originalAnimationDuration; // reset animation duration
-                  },
-                ),
-              ),
+  
               SizedBox(height: kReleaseMode ? 0.0 : 10.0),
               kReleaseMode
                   ? SizedBox()
@@ -690,7 +659,7 @@ class _R21MainScreenState extends State<R21MainScreen>
         ),*/
         child: Card(
           clipBehavior: Clip.hardEdge,
-          color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
+          color: CARD_ACTIVE,
           elevation: 5.0,
           margin: _curCardMargin,
           child: InkWell(
@@ -698,7 +667,7 @@ class _R21MainScreenState extends State<R21MainScreen>
             onTap: () {
               _pushPatientScreen(curPatient);
             },
-            onLongPress: (kReleaseMode && curPatient.isActivated)
+            onLongPress: (kReleaseMode && curPatient.srhContraceptionInterestMaleCondom)
                 ? null
                 : _showAlertDialogToActivatePatient,
             child: Row(mainAxisSize: MainAxisSize.max, children: [
@@ -742,9 +711,9 @@ class _R21MainScreenState extends State<R21MainScreen>
                     Expanded(
                         child: Padding(
                       child: _formatPatientRowText(
-                          curPatient.srhServicePreffered == null
+                          curPatient.historyHIVPrepDesiredSupportOther== null
                               ? "-"
-                              : curPatient.srhServicePreffered.description),
+                              : curPatient.historyHIVPrepDesiredSupportOther),
                       padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                     )),
                   ])),

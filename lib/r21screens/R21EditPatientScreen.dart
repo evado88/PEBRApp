@@ -40,7 +40,7 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
     // Note: toMap -> fromMap copy operation copies all boolean variables as
     // false (isEligible, consentGiven, isActivated...)
     _patientBeforeEditing = Patient.fromMap(_patientToBeEdited.toMap());
-    _villageCtr.text = _patientToBeEdited.village;
+
     if (_patientToBeEdited.personalPhoneNumber != null) {
       _phoneNumberCtr.text = _patientToBeEdited.personalPhoneNumber.substring(5);
     }
@@ -233,7 +233,7 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
       } else {
         _patientToBeEdited.personalPhoneNumber = null;
       }
-      _patientToBeEdited.village = _villageCtr.text;
+
       await DatabaseProvider().insertPatient(_patientToBeEdited);
       if (_patientToBeEdited.personalResidency != _patientBeforeEditing.personalResidency ||
           _patientToBeEdited.personalPhoneNumber != _patientBeforeEditing.personalPhoneNumber ||

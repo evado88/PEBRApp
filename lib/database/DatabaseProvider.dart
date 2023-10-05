@@ -95,9 +95,17 @@ class DatabaseProvider {
           ${Patient.colHistoryContraceptionSatisfaction} INTEGER NULL,
           ${Patient.colHistoryContraceptionSatisfactionReason} TEXT NULL,
           ${Patient.colHistoryHIVKnowStatus} INTEGER NULL, -- history hiv
-          ${Patient.colHistoryHIVART} INTEGER NULL,
           ${Patient.colHistoryHIVLastTest} TEXT NULL, 
           ${Patient.colHistoryHIVUsedPrep} INTEGER NULL,
+          ${Patient.colHistoryHIVPrepLastRefil} TEXT NULL, 
+          ${Patient.colHistoryHIVPrepLastRefilSource} INTEGER NULL,
+          ${Patient.colHistoryHIVPrepLastRefilSourceSpecify} TEXT NULL, 
+          ${Patient.colHistoryHIVPrepProblems} TEXT NULL,
+          ${Patient.colHistoryHIVPrepQuestions} TEXT NULL,
+          ${Patient.colHistoryHIVTakingART} INTEGER NULL,
+          ${Patient.colHistoryHIVLastRefil} TEXT NULL, 
+          ${Patient.colHistoryHIVLastRefilSource} INTEGER NULL,
+          ${Patient.colHistoryHIVLastRefilSourceSpecify} TEXT NULL, 
           ${Patient.colHistoryHIVARTProblems} TEXT NULL,
           ${Patient.colHistoryHIVARTQuestions} TEXT NULL,
           ${Patient.colHistoryHIVDesiredSupportRemindersAppointments} BIT NULL,
@@ -106,7 +114,14 @@ class DatabaseProvider {
           ${Patient.colHistoryHIVDesiredSupportRefilsPAAccompany} BIT NULL,
           ${Patient.colHistoryHIVDesiredSupportOther} BIT NULL,
           ${Patient.colHistoryHIVDesiredSupportOtherSpecify} TEXT NULL,
+          ${Patient.colHistoryHIVPrepDesiredSupportRemindersAppointments} BIT NULL,
+          ${Patient.colHistoryHIVPrepDesiredSupportRemindersAdherence} BIT NULL,
+          ${Patient.colHistoryHIVPrepDesiredSupportRefilsPNAccompany} BIT NULL,
+          ${Patient.colHistoryHIVPrepDesiredSupportPNHIVKit} BIT NULL,
+          ${Patient.colHistoryHIVPrepDesiredSupportOther} BIT NULL,
+          ${Patient.colHistoryHIVPrepDesiredSupportOtherSpecify} TEXT NULL,
           ${Patient.colSRHContraceptionInterest} INTEGER NULL, -- srh contraception
+          ${Patient.colSRHContraceptionNoInterestReason} INTEGER NULL,
           ${Patient.colSRHContraceptionInterestMaleCondom} BIT NULL, 
           ${Patient.colSRHContraceptionInterestFemaleCondom} BIT NULL, 
           ${Patient.colSRHContraceptionInterestImplant} BIT NULL, 
@@ -116,6 +131,8 @@ class DatabaseProvider {
           ${Patient.colSRHContraceptionInterestPills} BIT NULL, 
           ${Patient.colSRHContraceptionInterestOther} BIT NULL, 
           ${Patient.colSRHContraceptionInterestOtherSpecify} TEXT NULL,
+          ${Patient.colSRHContraceptionMethodInMind} INTEGER NULL,
+          ${Patient.colSRHContraceptionInformationMethods} INTEGER NULL,
           ${Patient.colSRHContraceptionFindScheduleFacility} INTEGER NULL,
           ${Patient.colSRHContraceptionFindScheduleFacilityYesDate} TEXT NULL,
           ${Patient.colSRHContraceptionFindScheduleFacilityYesPNAccompany} INTEGER NULL,
@@ -125,8 +142,8 @@ class DatabaseProvider {
           ${Patient.colSRHContraceptionFindScheduleFacilityOther} INTEGER NULL,
           ${Patient.colSRHContraceptionInformationApp} INTEGER NULL,
           ${Patient.colSRHContraceptionLearnMethods} INTEGER NULL,
-          ${Patient.colSRHCPrePInterest} INTEGER NULL, -- srh prep
-          ${Patient.colSRHCPrePInformationApp} INTEGER NULL, 
+          ${Patient.colSRHPrePInterest} INTEGER NULL, -- srh prep
+          ${Patient.colSRHPrePInformationApp} INTEGER NULL, 
           ${Patient.colSRHPrePFindScheduleFacility} INTEGER NULL, 
           ${Patient.colSRHPrePFindScheduleFacilityYesDate} TEXT NULL, 
           ${Patient.colSRHPrePFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
@@ -138,33 +155,6 @@ class DatabaseProvider {
         );
         """);
 
-    // R21Event table:
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${R21Event.tableName} (
-          ${R21Event.colId} INTEGER PRIMARY KEY,
-          ${R21Event.colCreatedDate} TEXT NOT NULL,
-          ${R21Event.colPatientART} TEXT NOT NULL,
-          ${R21Event.colDate} TEXT NOT NULL,
-          ${R21Event.colDescription} TEXT NOT NULL,
-          ${R21Event.colOccured} BIT NOT NULL,
-          ${R21Event.colNoOccurReason} INTEGER,
-          ${R21Event.colNextDate} TEXT NOT NULL
-        );
-        """);
-
-    // R21Appointment table:
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${R21Appointment.tableName} (
-          ${R21Event.colId} INTEGER PRIMARY KEY,
-          ${R21Event.colCreatedDate} TEXT NOT NULL,
-          ${R21Event.colPatientART} TEXT NOT NULL,
-          ${R21Event.colDate} TEXT NOT NULL,
-          ${R21Event.colDescription} TEXT NOT NULL,
-          ${R21Event.colOccured} BIT NOT NULL,
-          ${R21Event.colNoOccurReason} INTEGER,
-          ${R21Event.colNextDate} TEXT NOT NULL
-        );
-        """);
 
     // R21Followup table:
     await db.execute("""
@@ -180,21 +170,6 @@ class DatabaseProvider {
         );
         """);
 
-    // R2MedicationRefill table:
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${R21MedicationRefill.tableName} (
-          ${R21MedicationRefill.colId} INTEGER PRIMARY KEY,
-          ${R21MedicationRefill.colCreatedDate} TEXT NOT NULL,
-          ${R21MedicationRefill.colPatientART} TEXT NOT NULL,
-          ${R21MedicationRefill.colRefillDone} BIT NOT NULL,
-          ${R21MedicationRefill.colRefillDate} TEXT,
-          ${R21MedicationRefill.colNextRefillDate} TEXT NOT NULL,
-          ${R21MedicationRefill.colNotDoneReason} INTEGER,
-          ${R21MedicationRefill.colMedication} TEXT,
-          ${R21MedicationRefill.colMedicationType} INTEGER,
-          ${R21MedicationRefill.colDescription} TEXT
-        );
-        """);
 
     // R21ScreenAnalytic table:
     await db.execute("""
@@ -210,90 +185,7 @@ class DatabaseProvider {
         );
         """);
 
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${PreferenceAssessment.tableName} (
-          ${PreferenceAssessment.colId} INTEGER PRIMARY KEY,
-          ${PreferenceAssessment.colPatientART} TEXT NOT NULL,
-          ${PreferenceAssessment.colCreatedDate} TEXT NOT NULL,
-          ${PreferenceAssessment.colARTRefillOption1} INTEGER NOT NULL,
-          ${PreferenceAssessment.colARTRefillOption2} INTEGER,
-          ${PreferenceAssessment.colARTRefillOption3} INTEGER,
-          ${PreferenceAssessment.colARTRefillOption4} INTEGER,
-          ${PreferenceAssessment.colARTRefillOption5} INTEGER,
-          ${PreferenceAssessment.colARTRefillPENotPossibleReason} INTEGER,
-          ${PreferenceAssessment.colARTRefillPENotPossibleReasonOther} TEXT,
-          ${PreferenceAssessment.colARTRefillVHWName} TEXT,
-          ${PreferenceAssessment.colARTRefillVHWVillage} TEXT,
-          ${PreferenceAssessment.colARTRefillVHWPhoneNumber} TEXT,
-          ${PreferenceAssessment.colARTRefillTreatmentBuddyART} TEXT,
-          ${PreferenceAssessment.colARTRefillTreatmentBuddyVillage} TEXT,
-          ${PreferenceAssessment.colARTRefillTreatmentBuddyPhoneNumber} TEXT,
-          ${PreferenceAssessment.colARTSupplyAmount} INTEGER NOT NULL,
-          ${PreferenceAssessment.colPatientPhoneAvailable} BIT NOT NULL,
-          ${PreferenceAssessment.colAdherenceReminderEnabled} BIT,
-          ${PreferenceAssessment.colAdherenceReminderFrequency} INTEGER,
-          ${PreferenceAssessment.colAdherenceReminderTime} TEXT,
-          ${PreferenceAssessment.colAdherenceReminderMessage} INTEGER,
-          ${PreferenceAssessment.colARTRefillReminderEnabled} BIT,
-          ${PreferenceAssessment.colARTRefillReminderDaysBefore} STRING,
-          ${PreferenceAssessment.colARTRefillReminderMessage} INTEGER,
-          ${PreferenceAssessment.colVLNotificationEnabled} BIT,
-          ${PreferenceAssessment.colVLNotificationMessageSuppressed} INTEGER,
-          ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} INTEGER,
-          ${PreferenceAssessment.colSupportPreferences} TEXT,
-          ${PreferenceAssessment.colSaturdayClinicClubAvailable} BIT,
-          ${PreferenceAssessment.colCommunityYouthClubAvailable} BIT,
-          ${PreferenceAssessment.colHomeVisitPEPossible} BIT,
-          ${PreferenceAssessment.colHomeVisitPENotPossibleReason} INTEGER,
-          ${PreferenceAssessment.colHomeVisitPENotPossibleReasonOther} TEXT,
-          ${PreferenceAssessment.colSchoolVisitPEPossible} BIT,
-          ${PreferenceAssessment.colSchool} TEXT,
-          ${PreferenceAssessment.colSchoolVisitPENotPossibleReason} INTEGER,
-          ${PreferenceAssessment.colSchoolVisitPENotPossibleReasonOther} TEXT,
-          ${PreferenceAssessment.colPitsoPEPossible} BIT,
-          ${PreferenceAssessment.colPitsoPENotPossibleReason} INTEGER,
-          ${PreferenceAssessment.colPitsoPENotPossibleReasonOther} TEXT,
-          ${PreferenceAssessment.colMoreInfoContraceptives} TEXT,
-          ${PreferenceAssessment.colMoreInfoVMMC} TEXT,
-          ${PreferenceAssessment.colYoungMothersAvailable} BIT,
-          ${PreferenceAssessment.colFemaleWorthAvailable} BIT,
-          ${PreferenceAssessment.colPsychosocialShareSomethingAnswer} INTEGER NOT NULL,
-          ${PreferenceAssessment.colPsychosocialShareSomethingContent} TEXT,
-          ${PreferenceAssessment.colPsychosocialHowDoing} TEXT,
-          ${PreferenceAssessment.colUnsuppressedSafeEnvironmentAnswer} INTEGER,
-          ${PreferenceAssessment.colUnsuppressedWhyNotSafe} TEXT
-        );
-        """);
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${ARTRefill.tableName} (
-          ${ARTRefill.colId} INTEGER PRIMARY KEY,
-          ${ARTRefill.colPatientART} TEXT NOT NULL,
-          ${ARTRefill.colCreatedDate} TEXT NOT NULL,
-          ${ARTRefill.colRefillType} INTEGER NOT NULL,
-          ${ARTRefill.colNextRefillDate} TEXT,
-          ${ARTRefill.colNotDoneReason} INTEGER,
-          ${ARTRefill.colDateOfDeath} TEXT,
-          ${ARTRefill.colCauseOfDeath} TEXT,
-          ${ARTRefill.colHospitalizedClinic} TEXT,
-          ${ARTRefill.colOtherClinic} TEXT,
-          ${ARTRefill.colTransferDate} TEXT,
-          ${ARTRefill.colNotTakingARTReason} TEXT
-        );
-        """);
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${ViralLoad.tableName} (
-          ${ViralLoad.colId} INTEGER PRIMARY KEY,
-          ${ViralLoad.colPatientART} TEXT NOT NULL,
-          ${ViralLoad.colCreatedDate} TEXT NOT NULL,
-          ${ViralLoad.colViralLoadSource} INTEGER NOT NULL,
-          ${ViralLoad.colDateOfBloodDraw} TEXT NOT NULL,
-          ${ViralLoad.colFailed} BIT NOT NULL,
-          ${ViralLoad.colViralLoad} INTEGER,
-          ${ViralLoad.colLabNumber} TEXT,
-          ${ViralLoad.colDiscrepancy} BIT,
-          UNIQUE(${ViralLoad.colPatientART}, ${ViralLoad.colViralLoadSource}, ${ViralLoad.colDateOfBloodDraw}, ${ViralLoad.colFailed}, ${ViralLoad.colViralLoad}, ${ViralLoad.colLabNumber}) ON CONFLICT IGNORE
-        );
-        """);
+
     await db.execute("""
         CREATE TABLE IF NOT EXISTS ${UserData.tableName} (
           ${UserData.colId} INTEGER PRIMARY KEY,
@@ -318,15 +210,6 @@ class DatabaseProvider {
           ${RequiredAction.colType} INTEGER NOT NULL,
           ${RequiredAction.colDueDate} TEXT NOT NULL,
           UNIQUE(${RequiredAction.colPatientART}, ${RequiredAction.colType}) ON CONFLICT IGNORE
-        );
-        """);
-    await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${SupportOptionDone.tableName} (
-          ${SupportOptionDone.colId} INTEGER PRIMARY KEY,
-          ${SupportOptionDone.colCreatedDate} TEXT NOT NULL,
-          ${SupportOptionDone.colPreferenceAssessmentId} INTEGER NOT NULL,
-          ${SupportOptionDone.colSupportOption} INTEGER NOT NULL,
-          ${SupportOptionDone.colDone} BIT NOT NULL
         );
         """);
   }
@@ -591,12 +474,9 @@ class DatabaseProvider {
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
         Patient p = Patient.fromMap(map);
-        await p.initializeViralLoadsField();
         await p.initializeEventsField();
-        await p.initializeAppointmentsField();
         await p.initializeFollowupsField();
         await p.initializePreferenceAssessmentField();
-        await p.initializeARTRefillField();
         await p.initializeRequiredActionsField();
 
         //R21

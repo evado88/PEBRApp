@@ -94,7 +94,26 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   static final colHistoryHIVUsedPrep = 'history_hiv_used_prep';
 
-  static final colHistoryHIVART = 'history_hiv_art';
+  static final colHistoryHIVPrepLastRefil = 'history_hiv_prep_last_refil';
+
+  static final colHistoryHIVPrepLastRefilSource =
+      'history_hiv_prep_last_refil_source';
+
+  static final colHistoryHIVPrepLastRefilSourceSpecify =
+      'history_hiv_prep_last_refil_source_specify';
+
+  static final colHistoryHIVPrepProblems = 'history_hiv_prep_problems';
+
+  static final colHistoryHIVPrepQuestions = 'history_hiv_prep_questions';
+
+  static final colHistoryHIVTakingART = 'history_hiv_taking_art';
+
+  static final colHistoryHIVLastRefil = 'history_hiv_last_refil';
+
+  static final colHistoryHIVLastRefilSource = 'history_hiv_last_refil_source';
+
+  static final colHistoryHIVLastRefilSourceSpecify =
+      'history_hiv_last_refil_source_specify';
 
   static final colHistoryHIVARTProblems = 'history_hiv_art_problems';
 
@@ -117,6 +136,24 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   static final colHistoryHIVDesiredSupportOtherSpecify =
       'history_hiv_desired_support_other_specify';
+
+  static final colHistoryHIVPrepDesiredSupportRemindersAppointments =
+      'history_hiv_prep_desired_support_reminders_appointments';
+
+  static final colHistoryHIVPrepDesiredSupportRemindersAdherence =
+      'history_hiv_prep_desired_support_reminders_adherence';
+
+  static final colHistoryHIVPrepDesiredSupportRefilsPNAccompany =
+      'history_hiv_prep_desired_support_refil_pn_accompany';
+
+  static final colHistoryHIVPrepDesiredSupportPNHIVKit =
+      'history_hiv_prep_desired_support_pn_hiv_kit';
+
+  static final colHistoryHIVPrepDesiredSupportOther =
+      'history_hiv_prep_desired_support_other';
+
+  static final colHistoryHIVPrepDesiredSupportOtherSpecify =
+      'history_hiv_prep_desired_support_other_specify';
 
 //SRH Preferences
   //Contraception
@@ -163,11 +200,13 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   static final colSRHContraceptionFindScheduleFacilityYesDate =
       'srh_contraception_find_schedule_facility_yes_date';
+
   static final colSRHContraceptionFindScheduleFacilityYesPNAccompany =
       'srh_contraception_find_schedule_facility_yes_pn_accompany';
 
   static final colSRHContraceptionFindScheduleFacilityNoDate =
       'srh_contraception_find_schedule_facility_no_date';
+
   static final colSRHContraceptionFindScheduleFacilityNoPick =
       'srh_contraception_find_schedule_facility_no_pick';
 
@@ -184,9 +223,9 @@ class Patient implements IExcelExportable, IJsonExportable {
       'srh_contraception_learn_methods';
 
   //prep
-  static final colSRHCPrePInterest = 'srh_prep_interest';
+  static final colSRHPrePInterest = 'srh_prep_interest';
 
-  static final colSRHCPrePInformationApp = 'srh_prep_information_app';
+  static final colSRHPrePInformationApp = 'srh_prep_information_app';
 
   static final colSRHPrePFindScheduleFacility =
       'srh_prep_find_schedule_facility';
@@ -259,6 +298,12 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   R21YesNo historyHIVTakingART;
 
+  DateTime historyHIVLastRefil;
+
+  R21ProviderType historyHIVLastRefilSource;
+
+  String historyHIVLastRefilSourceSpecify;
+
   String historyHIVARTProblems;
 
   String historyHIVARTQuestions;
@@ -266,6 +311,16 @@ class Patient implements IExcelExportable, IJsonExportable {
   DateTime historyHIVLastTest;
 
   R21PrEP historyHIVUsedPrep;
+
+  DateTime historyHIVPrepLastRefil;
+
+  R21ProviderType historyHIVPrepLastRefilSource;
+
+  String historyHIVPrepLastRefilSourceSpecify;
+
+  String historyHIVPrepProblems;
+
+  String historyHIVPrepQuestions;
 
   bool historyHIVDesiredSupportRemindersAppointments = false;
 
@@ -279,137 +334,92 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   String historyHIVDesiredSupportOtherSpecify;
 
+  bool historyHIVPrepDesiredSupportReminderssAppointments = false;
+
+  bool historyHIVPrepDesiredSupportRemindersAdherence = false;
+
+  bool historyHIVPrepDesiredSupportRefilsPNAccompany = false;
+
+  bool historyHIVPrepDesiredSupportPNHIVKit = false;
+
+  bool historyHIVPrepDesiredSupportOther = false;
+
+  String historyHIVPrepDesiredSupportOtherSpecify;
+
 //SRH Preferences
 
   //Contraception
   R21Interest srhContraceptionInterest;
 
+  String srhContraceptionNoInterestReason;
 
-  bool isEligible;
-  String stickerNumber;
-  bool isVLBaselineAvailable;
+  bool srhContraceptionInterestMaleCondom = false;
 
-  String village;
+  bool srhContraceptionInterestFemaleCondom = false;
 
-  String noConsentReasonOther;
-  bool isActivated;
-  bool isDuplicate;
+  bool srhContraceptionInterestImplant = false;
 
-  //R21 fields
-  R21SupportType supportType;
+  bool srhContraceptionInterestInjection = false;
 
-  R21SRHServicePreferred srhServicePreffered;
-  R21PrEP prep;
-  R21ContraceptionMethod contraceptionMethod;
-  String providerLocation;
-  R21ProviderType providerType;
+  bool srhContraceptionInterestIUD = false;
 
-  // The following fields are other database tables, to make access to related
-  // database objects easier.
-  // Will be null until the corresponding initialize... methods were called.
-  List<ViralLoad> viralLoads = [];
+  bool srhContraceptionInterestIUS = false;
 
-  List<R21Appointment> appointments = [];
+  bool srhContraceptionInterestPills = false;
+
+  bool srhContraceptionInterestOther = false;
+
+  String srhContraceptionInterestOtherSpecify;
+
+  R21YesNo srhContraceptionMethodInMind;
+
+  R21YesNo srhContraceptionInformationMethods;
+
+  R21YesNoUnsure srhContraceptionFindScheduleFacility;
+
+  DateTime srhContraceptionFindScheduleFacilityYesDate;
+
+  R21YesNo srhContraceptionFindScheduleFacilityYesPNAccompany;
+
+  R21Week srhContraceptionFindScheduleFacilityNoDate;
+
+  R21YesNo srhContraceptionFindScheduleFacilityNoPick;
+
+  String srhContraceptionFindScheduleFacilitySelected;
+
+  String srhContraceptionFindScheduleFacilityOther;
+
+  R21YesNo srhContraceptionInformationApp;
+
+  R21YesNo srhContraceptionLearnMethods;
+
+//prep
+  R21Interest srhPrePInterest;
+
+  R21YesNo srhPrepLikeMoreInformation;
+
+  R21YesNoUnsure srhPrePFindScheduleFacilitySchedule;
+
+  DateTime srhPrepFindScheduleFacilityYesDate;
+
+  R21YesNo srhPrePFindScheduleFacilityYesPNAccompany;
+
+  R21Week srhPrePFindScheduleFacilityNoDate;
+
+  R21YesNo srhPrePFindScheduleFacilityNoPick;
+
+  String srhPrePFindScheduleFacilitySelected;
+
+  String srhPrePFindScheduleFacilityOther;
+
+  R21YesNo srhPrePInformationRead;
+
   List<R21Followup> followups = [];
 
-  ARTRefill latestARTRefill; // stores the latest ART refill (done or not done)
-  ARTRefill latestDoneARTRefill; // stores the latest ART refill that was done
-
-  R21MedicationRefill latestMedicationRefil;
-  R21Appointment latestAppointment;
-  R21Event latestEvent;
   R21Followup latestFollowup;
 
   Set<RequiredAction> requiredActions = {};
   Set<RequiredAction> dueRequiredActionsAtInitialization = {};
-
-  DateTime lastARTRefilDate;
-
-  R21ProviderType ARTRefilCollectionClinic;
-
-  DateTime lastPrepRefilDate;
-
-  R21ProviderType prepRefilCollectionClinic;
-
-  bool desiredSupportPrepRefilReminders = false;
-
-  bool desiredSupportPrepAdherenceReminders = false;
-
-  bool desiredSupportPrepPeerRefil = false;
-
-  bool desiredSupportPrepPeerHIVSelfTest = false;
-
-  bool desiredSupportPrepOther = false;
-
-
-
-  R21Interest prepInterest;
-
-  R21YesNo hasContraceptiveMethodInMind;
-
-  bool interestContraceptionOther = false;
-
-  bool interestContraceptionPills = false;
-
-  bool interestContraceptionIUS = false;
-
-  bool interestContraceptionIUD = false;
-
-  bool interestContraceptionInjection = false;
-
-  bool interestContraceptionImplant = false;
-
-  bool interestContraceptionFemaleCondoms = false;
-
-  bool interestContraceptionMaleCondoms = false;
-
-  R21YesNo interestContraceptionLikeMoreInfo;
-
-  R21YesNoUnsure interestContraceptionLikeFindFacilitySchedule;
-
-  R21YesNo interestContraceptionLikePNAAccompany;
-
-  R21Week interestContraceptionNotNowDate;
-
-  R21YesNo interestContraceptionNotNowPickFacility;
-
-  R21YesNo interestContraceptionLikeInformationOnApp;
-
-  R21YesNo interestContraceptionLikeInformationOnMethods;
-
-  bool contraceptionMethodOther = false;
-
-  R21YesNo interestContraceptionNotLikeInformationOnMethods;
-
-  R21YesNo interestContraceptionNotLikeInformationOnApp;
-
-  R21YesNo interestPrepVeryLikeInformation;
-
-  R21YesNoUnsure interestPrepVeryLikeFindFacilitySchedule;
-
-  R21YesNo interestPrepVeryLikePNAAccompany;
-
-  R21Week interestPrepNotNowDate;
-
-  R21YesNo interestPrepVeryNotNowPickFacility;
-
-  R21YesNo interestPrepVeryLikeInformationOnApp;
-
-  R21YesNo interestPrepMaybeLikeInformation;
-
-  R21YesNoUnsure interestPrepMaybeLikeFindFacilitySchedule;
-
-  R21YesNo interestPrepMaybeLikePNAAccompany;
-
-  R21Week interestPrepMaybeNotNowDate;
-
-  var interestPrepMaybeNotNowPickFacility;
-
-  R21YesNo interestPrepMaybeLikeInformationOnApp;
-
-  R21YesNo interestPrepNotLikeInformation;
-
-  R21YesNo interestPrepNotLikeInformationOnApp;
 
   // Constructors
   // ------------
@@ -417,37 +427,16 @@ class Patient implements IExcelExportable, IJsonExportable {
   Patient(
       {this.utilityEnrollmentDate,
       this.personalStudyNumber,
-      this.stickerNumber,
       this.personalBirthday,
-      this.isEligible,
-      this.isVLBaselineAvailable,
       this.personalResidency,
       this.personalPreferredContactMethod,
-      this.village,
       this.personalPhoneNumberAvailability,
       this.personalPhoneNumber,
       this.messengerDownloaded,
-      this.messengerNoDownloadReason,
-      this.noConsentReasonOther,
-      this.isActivated,
-      this.isDuplicate,
-      this.supportType, //R21
-      this.personalContactFrequency,
-      this.srhServicePreffered,
-      this.prep,
-      this.contraceptionMethod,
-      this.providerLocation,
-      this.providerType});
+      this.messengerNoDownloadReason});
 
   Patient.fromMap(map) {
     this.personalStudyNumber = map[colPersonalStudyNumber];
-
-    if (map[colPersonalBirthday] != null) {
-      this.isActivated = map[colPersonalBirthday] == 1;
-    }
-
-    //R21
-    this.supportType = R21SupportType.fromCode(map[colPersonalBirthday]);
   }
 
   // Other
@@ -458,7 +447,6 @@ class Patient implements IExcelExportable, IJsonExportable {
 
     map[colPersonalBirthday] = personalBirthday.toIso8601String();
     // nullables:
-    map[colPersonalBirthday] = isVLBaselineAvailable;
     map[colPersonalBirthday] = personalPreferredContactMethod?.code;
 
     return map;
@@ -516,25 +504,16 @@ class Patient implements IExcelExportable, IJsonExportable {
     row[5] = formatDateIso(personalBirthday);
     row[6] = messengerDownloaded;
     row[7] = messengerNoDownloadReason?.description;
-    row[8] = noConsentReasonOther;
     row[9] = personalResidency?.description;
     row[10] = personalPreferredContactMethod?.description;
-    row[11] = stickerNumber;
-    row[12] = village;
+
     row[13] = personalPhoneNumberAvailability?.description;
     row[14] = personalPhoneNumber;
-    row[15] = isVLBaselineAvailable;
-    row[16] = isActivated;
-    row[17] = isEligible;
-    row[18] = isDuplicate;
+
     //R21
-    row[19] = supportType?.description;
+
     row[20] = personalContactFrequency?.description;
-    row[21] = srhServicePreffered?.description;
-    row[22] = prep?.description;
-    row[23] = contraceptionMethod?.description;
-    row[24] = providerLocation;
-    row[25] = providerType?.description;
+
     return row;
   }
 
@@ -549,51 +528,20 @@ class Patient implements IExcelExportable, IJsonExportable {
         "\"noConsentReason\"": messengerNoDownloadReason == null
             ? null
             : "\"${messengerNoDownloadReason.description}\"",
-        "\"noConsentReasonOther\"": "\"$noConsentReasonOther\"",
         "\"gender\"": personalResidency == null
             ? null
             : "\"${personalResidency.description}\"",
         "\"sexualOrientation\"": personalPreferredContactMethod == null
             ? null
             : "\"${personalPreferredContactMethod.description}\"",
-        "\"stickerNumber\"": "\"$stickerNumber\"",
-        "\"village\"": "\"$village\"",
         "\"phoneAvailability\"": personalPhoneNumberAvailability == null
             ? null
             : "\"${personalPhoneNumberAvailability.description}\"",
         "\"phoneNumber\"": "\"$personalPhoneNumber\"",
-        "\"isVLBaselineAvailable\"": isVLBaselineAvailable,
-        "\"isActivated\"": isActivated,
-        "\"isEligible\"": isEligible,
-        "\"isDuplicate\"": isDuplicate,
-        "\"supportType\"":
-            supportType == null ? null : "\"${supportType.description}\"",
         "\"contactFrequency\"": personalContactFrequency == null
             ? null
             : "\"${personalContactFrequency.description}\"",
-        "\"srhServicePreffered\"": srhServicePreffered == null
-            ? null
-            : "\"${srhServicePreffered.description}\"",
-        "\"prep\"": prep == null ? null : "\"${prep.description}\"",
-        "\"contraceptionMethod\"": contraceptionMethod == null
-            ? null
-            : "\"${contraceptionMethod.description}\"",
-        "\"providerLocation\"": "\"$providerLocation\"",
-        "\"providerType\"":
-            providerType == null ? null : "\"${providerType.description}\"",
       };
-
-  /// Initializes the field [viralLoads] with the latest data from the database.
-  Future<void> initializeViralLoadsField() async {
-    this.viralLoads = await DatabaseProvider()
-        .retrieveViralLoadsForPatient(personalStudyNumber);
-  }
-
-  /// Initializes the field [appointments] with the latest data from the database.
-  Future<void> initializeAppointmentsField() async {
-    this.appointments = await DatabaseProvider()
-        .retrieveAppointmentsForPatient(personalStudyNumber);
-  }
 
   /// Initializes the field [events] with the latest data from the database.
   Future<void> initializeEventsField() async {
@@ -619,33 +567,10 @@ class Patient implements IExcelExportable, IJsonExportable {
     //this.latestPreferenceAssessment = pa;
   }
 
-  /// Initializes the fields [latestARTRefill] and [latestDoneARTRefill] with
-  /// the latest data from the database.
-  Future<void> initializeARTRefillField() async {
-    ARTRefill artRefill = await DatabaseProvider()
-        .retrieveLatestARTRefillForPatient(personalStudyNumber);
-    this.latestARTRefill = artRefill;
-    ARTRefill doneARTRefill = await DatabaseProvider()
-        .retrieveLatestDoneARTRefillForPatient(personalStudyNumber);
-    this.latestDoneARTRefill = doneARTRefill;
-  }
-
   Future<void> initializeRecentFields() async {
-    R21MedicationRefill refill = await DatabaseProvider()
-        .retrieveLatestMedicationRefillForPatient(personalStudyNumber);
-    this.latestMedicationRefil = refill;
-
-    R21Appointment appointment = await DatabaseProvider()
-        .retrieveLatestAppointmentForPatient(personalStudyNumber);
-    this.latestAppointment = appointment;
-
     R21Followup followup = await DatabaseProvider()
         .retrieveLatestFollowupForPatient(personalStudyNumber);
     this.latestFollowup = followup;
-
-    R21Event event = await DatabaseProvider()
-        .retrieveLatestEventForPatient(personalStudyNumber);
-    this.latestEvent = event;
   }
 
   /// Initializes the field [requiredActions] with the latest data from the database.
@@ -676,57 +601,6 @@ class Patient implements IExcelExportable, IJsonExportable {
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
-    this.dueRequiredActionsAtInitialization = calculateDueRequiredActions();
-  }
-
-  /// Returns the viral load with the latest blood draw date.
-  ///
-  /// Might return null if no viral loads are available for this patient or the
-  /// viral load fields have not been initialized by calling
-  /// [initializeViralLoadsField].
-  ViralLoad get mostRecentViralLoad {
-    ViralLoad mostRecent;
-    for (ViralLoad vl in viralLoads) {
-      if (mostRecent == null ||
-          !vl.createdDate.isBefore(mostRecent.createdDate)) {
-        mostRecent = vl;
-      }
-    }
-    return mostRecent;
-  }
-
-  R21MedicationRefill get mostRecentMedicationRefil {
-    R21MedicationRefill mostRecent;
-    /*
-    for (R21MedicationRefill vl in medicationRefils) {
-      if (mostRecent == null ||
-          !vl.createdDate.isBefore(mostRecent.createdDate)) {
-        mostRecent = vl;
-      }
-    }*/
-    return mostRecent;
-  }
-
-  R21Appointment get mostRecentAppointment {
-    R21Appointment mostRecent;
-    for (R21Appointment ev in appointments) {
-      if (mostRecent == null ||
-          !ev.createdDate.isBefore(mostRecent.createdDate)) {
-        mostRecent = ev;
-      }
-    }
-    return mostRecent;
-  }
-
-  R21Event get mostRecentEvent {
-    R21Event mostRecent;
-    /* for (R21Event ev in events) {
-      if (mostRecent == null ||
-          !ev.createdDate.isBefore(mostRecent.createdDate)) {
-        mostRecent = ev;
-      }
-    }*/
-    return mostRecent;
   }
 
   R21Followup get mostRecentFollowup {
@@ -743,56 +617,15 @@ class Patient implements IExcelExportable, IJsonExportable {
   /// Sets fields to null if they are not used. E.g. sets [personalPhoneNumber] to null
   /// if [personalPhoneNumberAvailability] is not YES.
   void checkLogicAndResetUnusedFields() {
-    if (!this.isEligible) {
+    if (!this.historyContraceptionIUD) {
       this.personalResidency = null;
       this.personalPreferredContactMethod = null;
-      this.village = null;
       this.personalPhoneNumberAvailability = null;
       this.personalPhoneNumber = null;
       this.messengerDownloaded = null;
       this.messengerNoDownloadReason = null;
-      this.noConsentReasonOther = null;
-      this.isActivated = null;
-      this.isDuplicate = null;
-
-      //R21
-      this.supportType = null;
-      this.personalContactFrequency = null;
-      this.srhServicePreffered = null;
-      this.prep = null;
-      this.contraceptionMethod = null;
-      this.providerLocation = null;
-      this.providerType = null;
     }
-    if (this.messengerDownloaded != null && !this.messengerDownloaded) {
-      this.personalResidency = null;
-      this.personalPreferredContactMethod = null;
-      this.village = null;
-      this.personalPhoneNumberAvailability = null;
-      this.personalPhoneNumber = null;
-      this.isActivated = null;
-
-      //R21
-      this.supportType = null;
-      this.personalContactFrequency = null;
-      this.srhServicePreffered = null;
-      this.prep = null;
-      this.contraceptionMethod = null;
-      this.providerLocation = null;
-      this.providerType = null;
-
-      if (this.messengerNoDownloadReason != NoChatDownloadReason.OTHER()) {
-        this.noConsentReasonOther = null;
-      }
-    }
-    if (this.personalPhoneNumberAvailability != null &&
-        this.personalPhoneNumberAvailability != R21PhoneNumberSecurity.YES()) {
-      this.personalPhoneNumber = null;
-    }
-    if (this.messengerDownloaded != null && this.messengerDownloaded) {
-      this.messengerNoDownloadReason = null;
-      this.noConsentReasonOther = null;
-    }
+    //R21
   }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
@@ -808,34 +641,9 @@ class Patient implements IExcelExportable, IJsonExportable {
   Set<RequiredAction> calculateDueRequiredActions({UserData userData}) {
     final DateTime now = DateTime.now();
     Set<RequiredAction> visibleRequiredActions = {};
-    visibleRequiredActions.addAll(requiredActions);
+    visibleRequiredActions.addAll([]);
     visibleRequiredActions
         .removeWhere((RequiredAction a) => a.dueDate.isAfter(now));
     return visibleRequiredActions;
-  }
-
-  void addViralLoads(List<ViralLoad> newViralLoads) {
-    for (ViralLoad vl in newViralLoads) {
-      if (!viralLoads.contains(vl)) {
-        viralLoads.add(vl);
-      }
-    }
-    sortViralLoads(viralLoads);
-  }
-
-  void addEvents(List<R21Event> newEvents) {
-    /* for (R21Event ev in newEvents) {
-      if (!events.contains(ev)) {
-        events.add(ev);
-      }
-    }*/
-  }
-
-  void addMedicationRefils(List<R21MedicationRefill> newRefils) {
-    /* for (R21MedicationRefill ev in newRefils) {
-      if (!medicationRefils.contains(ev)) {
-        medicationRefils.add(ev);
-      }
-    }*/
   }
 }
