@@ -1,21 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
-import 'package:device_apps/device_apps.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
-import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/main.dart';
 import 'package:pebrapp/screens/LockScreen.dart';
-import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -556,21 +551,6 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
   );
 }
 
-/// Returns true if the patient's most recent viral load is LTDL (lower than
-/// detectable limit) or suppressed.
-///
-/// Returns false if
-///
-/// * there is no viral load data
-///
-/// * viral load data is unsuppressed.
-///
-/// Make sure you have called [patient.initializeViralLoadFields()] before using
-/// this method. Otherwise the viral load will be `null` and this method will
-/// return false.
-bool isSuppressed(Patient patient) {
-  return patient.mostRecentViralLoad?.isSuppressed ?? true;
-}
 
 /// Shows the lock screen, where the user has to enter their PIN code to unlock.
 Future<T> lockApp<T extends Object>(BuildContext context) {
@@ -652,186 +632,10 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
   });
 }
 
-/// Get a corresponding or matching baseline viral load (manual or database)
-/// given a list of viral loads and another viral load.
-///
-/// Returns null if there is no matching viral load.
-///
-/// @param [viralLoads] The viral loads in which to look for a match.
-///
-/// @param [baselineVL] The baseline viral load for which to find a match.
-ViralLoad getMatchingBaselineViralLoad(
-    List<ViralLoad> viralLoads, ViralLoad baselineVL) {
-  ViralLoad result; // initialize the matching viral load
-  for (ViralLoad vl in viralLoads) {
-    // Check for a corresponding viral load with a different source
-    if ((vl.dateOfBloodDraw.compareTo(baselineVL.dateOfBloodDraw) == 0 ||
-            vl.labNumber == baselineVL.labNumber) &&
-        vl.source.code != baselineVL.source.code) {
-      if (result == null || result.createdDate.isBefore(vl.createdDate)) {
-        result = vl;
-      }
-    }
-  }
-  return result;
-}
 
-/// Returns true if a new discrepancy has been found for this patient.
-/// Discrepancies that have already been discovered (discrepancy variable is
-/// true) will not trigger another discrepancy (will return false).
-///
-/// @param [testingEnabled] If set to true, the discrepancy will not be inserted
-/// into the SQLite database. This is useful for unit testing.
-Future<bool> checkForViralLoadDiscrepancies(Patient patient,
-    {bool testingEnabled: false}) async {
-  bool newDiscrepancyFound = false;
 
-  List<ViralLoad> allViralLoadsForPatient = []; // List<ViralLoad>();
-  List<ViralLoad> viralLoads = [];
 
-  allViralLoadsForPatient.addAll(patient.viralLoads);
 
-  // filter out failed viral loads and viral loads created after patient enrollment date
-  viralLoads = allViralLoadsForPatient
-      .where((a) =>
-          a.dateOfBloodDraw.isBefore(patient.utilityEnrollmentDate) &&
-          a.failed == false)
-      .toList();
 
-  // sort the viral loads in descending order of date of blood draw (newest first)
-  viralLoads.sort((ViralLoad a, ViralLoad b) {
-    int result = b.dateOfBloodDraw.compareTo(a.dateOfBloodDraw);
-    if (result == 0 && a.createdDate != null && b.createdDate != null) {
-      // if date of blood draw is the same sort according to created date (newest first)
-      result = b.createdDate.compareTo(a.createdDate);
-    }
-    return result;
-  });
 
-  // check if there are any viral loads
-  if (viralLoads.length < 1) {
-    return false; // because there is nothing to check for discrepancies
-  }
 
-  ViralLoad vlBaseline1 = viralLoads.first; // Get the baseline viral load
-  print(vlBaseline1.dateOfBloodDraw.toString() +
-      " : " +
-      vlBaseline1.viralLoad.toString() +
-      " : " +
-      vlBaseline1.labNumber);
-
-  // get the corresponding baseline viral load (manual or database)
-  ViralLoad vlBaseline2 = getMatchingBaselineViralLoad(viralLoads, vlBaseline1);
-
-  // If there is no match
-  if (vlBaseline2 == null) {
-    if (!(vlBaseline1.discrepancy ?? false)) {
-      newDiscrepancyFound = true;
-    }
-    vlBaseline1.discrepancy = true;
-    if (!testingEnabled)
-      DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
-  } else {
-    print(vlBaseline2.dateOfBloodDraw.toString() +
-        " : " +
-        vlBaseline2.viralLoad.toString() +
-        " : " +
-        vlBaseline2.labNumber);
-    // check if the viral loads differ in at least one of the following:
-    // a) VL result (c/mL)
-    // b) lab number
-    // c) date of blood draw
-    if (vlBaseline2.viralLoad != vlBaseline1.viralLoad ||
-        vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline1.dateOfBloodDraw) !=
-            0 ||
-        vlBaseline2.labNumber != vlBaseline1.labNumber) {
-      if (!(vlBaseline1.discrepancy ?? false) ||
-          !(vlBaseline2.discrepancy ?? false)) {
-        newDiscrepancyFound = true;
-      }
-      vlBaseline1.discrepancy = true;
-      vlBaseline2.discrepancy = true;
-      if (!testingEnabled)
-        DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
-      if (!testingEnabled)
-        DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
-    }
-  }
-  if (newDiscrepancyFound && !testingEnabled) {
-    RequiredAction vlRequired = RequiredAction(
-        patient.personalStudyNumber,
-        RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING,
-        DateTime.fromMillisecondsSinceEpoch(0));
-    DatabaseProvider().insertRequiredAction(vlRequired);
-    PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
-    showFlushbar('Please inform the study supervisor.',
-        title: 'Viral Load Discrepancy Found', error: true);
-  }
-  return newDiscrepancyFound;
-}
-
-String composeSMS(
-    {@required String message,
-    @required String peName,
-    @required String pePhone}) {
-  final String pePhoneNoSpecialChars =
-      pePhone.replaceAll(RegExp(r'[^0-9]'), '');
-  final String pePhoneEightDigits = pePhoneNoSpecialChars.substring(
-      pePhoneNoSpecialChars.length - 8, pePhoneNoSpecialChars.length);
-  return "PEBRA\n\n"
-      "$message\n\n"
-      "Etsetsa call-back nomorong ena $peName, penya *140*$pePhoneEightDigits#"
-      " (VCL) kapa *181*$pePhoneEightDigits# (econet).";
-}
-
-Future<void> openKoboCollectApp() async {
-  const String packageName = 'org.koboc.collect.android';
-  const String appUrl = 'android-app://$packageName';
-  const String marketUrl = 'market://details?id=$packageName';
-  if (Platform.isAndroid && await DeviceApps.isAppInstalled(packageName)) {
-    await launch(appUrl);
-  } else if (await canLaunch(marketUrl)) {
-    await launch(marketUrl);
-  } else {
-    showFlushbar("Make sure KoBoCollect is installed.",
-        title: "KoBoCollect not Found", error: true);
-  }
-}
-
-/// Get patient_status from ARTRefillNotDoneReason code
-String getPatientStatus(int code) {
-  switch (code) {
-    case 1:
-      {
-        return 'dead';
-      }
-    case 2:
-      {
-        return "";
-      }
-    case 3:
-      {
-        return 'transferout';
-      }
-    case 4:
-      {
-        return 'transferout';
-      }
-    case 5:
-      {
-        return "";
-      }
-    case 6:
-      {
-        return "";
-      }
-    case 7:
-      {
-        return 'ltfu';
-      }
-    default:
-      {
-        return "";
-      }
-  }
-}

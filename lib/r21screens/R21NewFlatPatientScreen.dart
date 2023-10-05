@@ -13,7 +13,6 @@ import 'package:pebrapp/database/beans/R21HIVStatus.dart';
 import 'package:pebrapp/database/beans/R21Interest.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
-import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
 import 'package:pebrapp/database/beans/R21Satisfaction.dart';
 import 'package:pebrapp/database/beans/R21Week.dart';
 import 'package:pebrapp/database/beans/R21YesNo.dart';
@@ -30,7 +29,6 @@ import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/database/beans/NoChatDownloadReason.dart';
-import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class R21NewFlatPatientScreen extends StatefulWidget {
   @override
