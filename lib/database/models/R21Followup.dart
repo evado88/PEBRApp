@@ -1,48 +1,200 @@
 import 'package:pebrapp/database/DatabaseExporter.dart';
-import 'package:pebrapp/database/beans/R21EventNoOccurReason.dart';
+import 'package:pebrapp/database/beans/R21Interest.dart';
+import 'package:pebrapp/database/beans/R21Week.dart';
+import 'package:pebrapp/database/beans/R21YesNo.dart';
+import 'package:pebrapp/database/beans/R21YesNoUnsure.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class R21Followup implements IExcelExportable, IJsonExportable {
   static final tableName = 'Followups';
 
   // column names
-  static final colId = 'id'; // primary key
-  static final colCreatedDate = 'created_date';
-  static final colPatientART =
-      'patient_art'; // foreign key to [Patient].art_number
-  static final colDate = 'date';
-  static final colDescription = 'description';
-  static final colOccured = 'occcured';
-  static final colNoOccurReason = 'no_occur_reason';
-  static final colNextDate = 'next_date';
+  static final colUtilityId = 'id'; // primary key
+  static final colUtilityCreatedDate = 'created_date';
+  static final colPersonalStudyNo = 'art_number';
 
-  DateTime _createdDate;
+//SRH Preferences
+  //Contraception
+  static final colSRHContraceptionStarted = 'srh_contraception_started';
+
+  static final colSRHContraceptionInterest = 'srh_contraception_interest';
+
+  static final colSRHContraceptionNoInterestReason =
+      'srh_contraception_no_interest_reason';
+
+  static final colSRHContraceptionInterestMaleCondom =
+      'srh_contraception_interest_male_condom';
+
+  static final colSRHContraceptionInterestFemaleCondom =
+      'srh_contraception_interest_female_condom';
+
+  static final colSRHContraceptionInterestImplant =
+      'srh_contraception_interest_implant';
+
+  static final colSRHContraceptionInterestInjection =
+      'srh_contraception_interest_injection';
+
+  static final colSRHContraceptionInterestIUD =
+      'srh_contraception_interest_iud';
+
+  static final colSRHContraceptionInterestIUS =
+      'srh_contraception_interest_ius';
+
+  static final colSRHContraceptionInterestPills =
+      'srh_contraception_interest_pills';
+
+  static final colSRHContraceptionInterestOther =
+      'srh_contraception_interest_other';
+
+  static final colSRHContraceptionInterestOtherSpecify =
+      'srh_contraception_interest_other_specify';
+
+  static final colSRHContraceptionMethodInMind =
+      'srh_contraception_method_in_mind';
+
+  static final colSRHContraceptionInformationMethods =
+      'srh_contraception_information_methods';
+
+  static final colSRHContraceptionFindScheduleFacility =
+      'srh_contraception_find_schedule_facility';
+
+  static final colSRHContraceptionFindScheduleFacilityYesDate =
+      'srh_contraception_find_schedule_facility_yes_date';
+
+  static final colSRHContraceptionFindScheduleFacilityYesPNAccompany =
+      'srh_contraception_find_schedule_facility_yes_pn_accompany';
+
+  static final colSRHContraceptionFindScheduleFacilityNoDate =
+      'srh_contraception_find_schedule_facility_no_date';
+
+  static final colSRHContraceptionFindScheduleFacilityNoPick =
+      'srh_contraception_find_schedule_facility_no_pick';
+
+  static final colSRHContraceptionFindScheduleFacilitySelected =
+      'srh_contraception_find_schedule_facility_selected';
+
+  static final colSRHContraceptionFindScheduleFacilityOther =
+      'srh_contraception_find_schedule_facility_other';
+
+  static final colSRHContraceptionInformationApp =
+      'srh_contraception_information_app';
+
+  static final colSRHContraceptionLearnMethods =
+      'srh_contraception_learn_methods';
+
+  //prep
+  static final colSRHPrePStarted= 'srh_prep_started';
+
+  static final colSRHPrePInterest = 'srh_prep_interest';
+
+  static final colSRHPrePInformationApp = 'srh_prep_information_app';
+
+  static final colSRHPrePFindScheduleFacility =
+      'srh_prep_find_schedule_facility';
+
+  static final colSRHPrePFindScheduleFacilityYesDate =
+      'srh_prep_find_schedule_facility_yes_date';
+
+  static final colSRHPrePFindScheduleFacilityYesPNAccompany =
+      'srh_prep_find_schedule_facility_yes_pn_accompany';
+
+  static final colSRHPrePFindScheduleFacilityNoDate =
+      'srh_prep_find_schedule_facility_no_date';
+
+  static final colSRHPrePFindScheduleFacilityNoPick =
+      'srh_prep_find_schedule_facility_no_pick';
+
+  static final colSRHPrePFindScheduleFacilitySelected =
+      'srh_prep_find_schedule_facility_selected';
+
+  static final colSRHPrePFindScheduleFacilityOther =
+      'srh_prep_find_schedule_facility_other';
+
+  static final colSRHPrePInformationRead = 'srh_prep_information_read';
+
   String patientART;
-  DateTime date;
-  String description;
-  bool occured;
-  R21EventNoOccurReason noOccurReason;
-  DateTime nextDate;
+  DateTime createDate;
+
+//SRH Preferences
+
+  //Contraception
+  R21YesNo srhContraceptionStarted;
+
+  R21Interest srhContraceptionInterest;
+
+  String srhContraceptionNoInterestReason;
+
+  bool srhContraceptionInterestMaleCondom = false;
+
+  bool srhContraceptionInterestFemaleCondom = false;
+
+  bool srhContraceptionInterestImplant = false;
+
+  bool srhContraceptionInterestInjection = false;
+
+  bool srhContraceptionInterestIUD = false;
+
+  bool srhContraceptionInterestIUS = false;
+
+  bool srhContraceptionInterestPills = false;
+
+  bool srhContraceptionInterestOther = false;
+
+  String srhContraceptionInterestOtherSpecify;
+
+  R21YesNo srhContraceptionMethodInMind;
+
+  R21YesNo srhContraceptionInformationMethods;
+
+  R21YesNoUnsure srhContraceptionFindScheduleFacility;
+
+  DateTime srhContraceptionFindScheduleFacilityYesDate;
+
+  R21YesNo srhContraceptionFindScheduleFacilityYesPNAccompany;
+
+  R21Week srhContraceptionFindScheduleFacilityNoDate;
+
+  R21YesNo srhContraceptionFindScheduleFacilityNoPick;
+
+  String srhContraceptionFindScheduleFacilitySelected;
+
+  String srhContraceptionFindScheduleFacilityOther;
+
+  R21YesNo srhContraceptionInformationApp;
+
+  R21YesNo srhContraceptionLearnMethods;
+
+//prep
+  R21YesNo srhPrePStarted;
+
+  R21Interest srhPrePInterest;
+
+  R21YesNo srhPrepLikeMoreInformation;
+
+  R21YesNoUnsure srhPrePFindScheduleFacilitySchedule;
+
+  DateTime srhPrepFindScheduleFacilityYesDate;
+
+  R21YesNo srhPrePFindScheduleFacilityYesPNAccompany;
+
+  R21Week srhPrePFindScheduleFacilityNoDate;
+
+  R21YesNo srhPrePFindScheduleFacilityNoPick;
+
+  String srhPrePFindScheduleFacilitySelected;
+
+  String srhPrePFindScheduleFacilityOther;
+
+  R21YesNo srhPrePInformationRead;
 
   // Constructors
   // ------------
 
-  R21Followup(
-      {this.patientART,
-      this.date,
-      this.description,
-      this.occured,
-      this.noOccurReason,
-      this.nextDate});
+  R21Followup({this.patientART});
 
   R21Followup.fromMap(map) {
-    this._createdDate = DateTime.parse(map[colCreatedDate]);
-    this.patientART = map[colPatientART];
-    this.date = DateTime.parse(map[colDate]);
-    this.description = map[colDescription];
-    this.occured = map[colOccured] == 1;
-    this.noOccurReason = R21EventNoOccurReason.fromCode(map[colNoOccurReason]);
-    this.nextDate = DateTime.parse(map[colNextDate]);
+    this.createdDate = DateTime.parse(map[colUtilityCreatedDate]);
+    this.patientART = map[colPersonalStudyNo];
   }
 
   // Other
@@ -52,56 +204,32 @@ class R21Followup implements IExcelExportable, IJsonExportable {
   @override
   bool operator ==(o) =>
       o is R21Followup &&
-      o.patientART == this.patientART &&
-      o.date == this.date &&
-      o.description == this.description &&
-      o.occured == this.occured &&
-      o.noOccurReason == this.noOccurReason &&
-      o.nextDate == this.nextDate;
+      o.patientART == this.patientART;
 
   // override hashcode
   @override
   int get hashCode =>
       patientART.hashCode ^
-      date.hashCode ^
-      description.hashCode ^
-      occured.hashCode ^
-      noOccurReason.hashCode ^
-      nextDate.hashCode;
+      createDate.hashCode;
 
   @override
   String toString() {
     return 'R21Followup \n----------\n'
         'patient:     $patientART\n'
-        'date:      $date\n'
-        'description:  $description\n'
-        'occured:     $occured\n'
-        'noOccurReason: ${noOccurReason == null ? '-' : noOccurReason.description}\n'
-        'nextDate: $nextDate';
+        'date:      $createDate\n';
   }
 
   @override
   Map<String, dynamic> toJson(String username) => {
         "\"username\"": "\"$username\"",
         "\"studyNo\"": "\"$patientART\"",
-        "\"createdate\"": "\"${formatDateIso(_createdDate)}\"",
-        "\"date\"": "\"${formatDateIso(date)}\"",
-        "\"description\"": "\"$description\"",
-        "\"occured\"": occured,
-        "\"noOccurReason\"":
-            noOccurReason == null ? null : "\"${noOccurReason.description}\"",
-        "\"nextDate\"": "\"${formatDateIso(nextDate)}\"",
+        "\"createdate\"": "\"${formatDateIso(createDate)}\"}\"",
       };
 
   toMap() {
     var map = Map<String, dynamic>();
-    map[colCreatedDate] = _createdDate.toIso8601String();
-    map[colPatientART] = patientART;
-    map[colDate] = date.toIso8601String();
-    map[colDescription] = description;
-    map[colOccured] = occured;
-    map[colNoOccurReason] = noOccurReason?.code;
-    map[colNextDate] = nextDate.toIso8601String();
+    map[colUtilityCreatedDate] = createDate.toIso8601String();
+    map[colPersonalStudyNo] = patientART;
 
     // nullables:
     return map;
@@ -132,12 +260,7 @@ class R21Followup implements IExcelExportable, IJsonExportable {
   List<dynamic> toExcelRow() {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
     row[0] = patientART;
-    row[1] = formatDateIso(_createdDate);
-    row[2] = formatDateIso(date);
-    row[3] = description;
-    row[4] = occured;
-    row[5] = noOccurReason?.description;
-    row[6] = formatDateIso(nextDate);
+    row[1] = formatDateIso(createDate);
 
     return row;
   }
@@ -145,8 +268,8 @@ class R21Followup implements IExcelExportable, IJsonExportable {
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
   // ignore: unnecessary_getters_setters
-  set createdDate(DateTime date) => _createdDate = date;
+  set createdDate(DateTime date) => createdDate = date;
 
   // ignore: unnecessary_getters_setters
-  DateTime get createdDate => _createdDate;
+  DateTime get createdDate => createdDate;
 }

@@ -4,7 +4,11 @@ import 'package:pebrapp/r21screens/R21MainScreen.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 
-void main() => runApp(PEBRApp());
+ void main() async {
+
+  runApp(PEBRApp());
+
+} 
 
 class PEBRApp extends StatefulWidget {
   @override

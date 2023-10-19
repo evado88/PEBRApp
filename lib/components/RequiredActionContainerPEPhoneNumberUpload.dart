@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/RequiredAction.dart';
-import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
-import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 enum AnimateDirection { FORWARD, BACKWARD }
 
@@ -85,7 +80,7 @@ class _RequiredActionContainerPEPhoneNumberUploadState
         "The automatic upload of your phone number failed. Please upload manually.";
     Widget actionButton = FlatButton(
       onPressed: () async {
-        await uploadPeerEducatorPhoneNumber();
+
       },
       splashColor: NOTIFICATION_INFO_SPLASH,
       child: Text(

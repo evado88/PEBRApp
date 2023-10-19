@@ -2,12 +2,8 @@ import 'dart:async';
 import 'package:pebrapp/config/PebraCloudConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/R21ExportInfo.dart';
-import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
-import 'package:pebrapp/database/models/R21Appointment.dart';
-import 'package:pebrapp/database/models/R21Event.dart';
 import 'package:pebrapp/database/models/R21Followup.dart';
-import 'package:pebrapp/database/models/R21MedicationRefill.dart';
 import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -76,7 +72,7 @@ class DatabaseProvider {
           ${Patient.colPersonalStudyNumber} TEXT NULL, --personal
           ${Patient.colPersonalBirthday} TEXT NULL,
           ${Patient.colMessengerDownloaded} INTEGER NULL,  --messenger
-          ${Patient.colMessengerNoDownloadReason} TEXT NULL,
+          ${Patient.colMessengerNoDownloadReason} INTEGER NULL,
           ${Patient.colContactPhoneNumber} TEXT NULL, --contact
           ${Patient.colContactOwnPhone} INTEGER NULL,
           ${Patient.colContactResidency} INTEGER NULL,
@@ -121,7 +117,7 @@ class DatabaseProvider {
           ${Patient.colHistoryHIVPrepDesiredSupportOther} BIT NULL,
           ${Patient.colHistoryHIVPrepDesiredSupportOtherSpecify} TEXT NULL,
           ${Patient.colSRHContraceptionInterest} INTEGER NULL, -- srh contraception
-          ${Patient.colSRHContraceptionNoInterestReason} INTEGER NULL,
+          ${Patient.colSRHContraceptionNoInterestReason} TEXT NULL,
           ${Patient.colSRHContraceptionInterestMaleCondom} BIT NULL, 
           ${Patient.colSRHContraceptionInterestFemaleCondom} BIT NULL, 
           ${Patient.colSRHContraceptionInterestImplant} BIT NULL, 
@@ -136,22 +132,22 @@ class DatabaseProvider {
           ${Patient.colSRHContraceptionFindScheduleFacility} INTEGER NULL,
           ${Patient.colSRHContraceptionFindScheduleFacilityYesDate} TEXT NULL,
           ${Patient.colSRHContraceptionFindScheduleFacilityYesPNAccompany} INTEGER NULL,
-          ${Patient.colSRHContraceptionFindScheduleFacilityNoDate} TEXT NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilityNoDate} INTEGER NULL,
           ${Patient.colSRHContraceptionFindScheduleFacilityNoPick} INTEGER NULL,
           ${Patient.colSRHContraceptionFindScheduleFacilitySelected} TEXT NULL,
-          ${Patient.colSRHContraceptionFindScheduleFacilityOther} INTEGER NULL,
+          ${Patient.colSRHContraceptionFindScheduleFacilityOther} TEXT NULL,
           ${Patient.colSRHContraceptionInformationApp} INTEGER NULL,
           ${Patient.colSRHContraceptionLearnMethods} INTEGER NULL,
-          ${Patient.colSRHPrePInterest} INTEGER NULL, -- srh prep
-          ${Patient.colSRHPrePInformationApp} INTEGER NULL, 
-          ${Patient.colSRHPrePFindScheduleFacility} INTEGER NULL, 
-          ${Patient.colSRHPrePFindScheduleFacilityYesDate} TEXT NULL, 
-          ${Patient.colSRHPrePFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
-          ${Patient.colSRHPrePFindScheduleFacilityNoDate} TEXT NULL, 
-          ${Patient.colSRHPrePFindScheduleFacilityNoPick} INTEGER NULL, 
-          ${Patient.colSRHPrePFindScheduleFacilitySelected} TEXT NULL, 
-          ${Patient.colSRHPrePFindScheduleFacilityOther} TEXT NULL, 
-          ${Patient.colSRHPrePInformationRead} INTEGER NULL, 
+          ${Patient.colSRHPrepInterest} INTEGER NULL, -- srh prep
+          ${Patient.colSRHPrepInformationApp} INTEGER NULL, 
+          ${Patient.colSRHPrepFindScheduleFacility} INTEGER NULL, 
+          ${Patient.colSRHPrepFindScheduleFacilityYesDate} TEXT NULL, 
+          ${Patient.colSRHPrepFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
+          ${Patient.colSRHPrepFindScheduleFacilityNoDate} INTEGER NULL, 
+          ${Patient.colSRHPrepFindScheduleFacilityNoPick} INTEGER NULL, 
+          ${Patient.colSRHPrepFindScheduleFacilitySelected} TEXT NULL, 
+          ${Patient.colSRHPrepFindScheduleFacilityOther} TEXT NULL, 
+          ${Patient.colSRHPrepLikeMoreInformation} INTEGER NULL
         );
         """);
 
@@ -159,14 +155,41 @@ class DatabaseProvider {
     // R21Followup table:
     await db.execute("""
         CREATE TABLE IF NOT EXISTS ${R21Followup.tableName} (
-          ${R21Event.colId} INTEGER PRIMARY KEY,
-          ${R21Event.colCreatedDate} TEXT NOT NULL,
-          ${R21Event.colPatientART} TEXT NOT NULL,
-          ${R21Event.colDate} TEXT NOT NULL,
-          ${R21Event.colDescription} TEXT NOT NULL,
-          ${R21Event.colOccured} BIT NOT NULL,
-          ${R21Event.colNoOccurReason} INTEGER,
-          ${R21Event.colNextDate} TEXT NOT NULL
+          ${R21Followup.colUtilityId} INTEGER PRIMARY KEY,
+          ${R21Followup.colUtilityCreatedDate} TEXT NULL,
+          ${R21Followup.colPersonalStudyNo} TEXT NULL,
+          ${R21Followup.colSRHContraceptionInterest} INTEGER NULL, -- srh contraception
+          ${R21Followup.colSRHContraceptionNoInterestReason} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionInterestMaleCondom} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestFemaleCondom} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestImplant} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestInjection} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestIUD} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestIUS} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestPills} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestOther} BIT NULL, 
+          ${R21Followup.colSRHContraceptionInterestOtherSpecify} TEXT NULL,
+          ${R21Followup.colSRHContraceptionMethodInMind} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionInformationMethods} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionFindScheduleFacility} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionFindScheduleFacilityYesDate} TEXT NULL,
+          ${R21Followup.colSRHContraceptionFindScheduleFacilityYesPNAccompany} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionFindScheduleFacilityNoDate} TEXT NULL,
+          ${R21Followup.colSRHContraceptionFindScheduleFacilityNoPick} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionFindScheduleFacilitySelected} TEXT NULL,
+          ${R21Followup.colSRHContraceptionFindScheduleFacilityOther} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionInformationApp} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionLearnMethods} INTEGER NULL,
+          ${R21Followup.colSRHPrePInterest} INTEGER NULL, -- srh prep
+          ${R21Followup.colSRHPrePInformationApp} INTEGER NULL, 
+          ${R21Followup.colSRHPrePFindScheduleFacility} INTEGER NULL, 
+          ${R21Followup.colSRHPrePFindScheduleFacilityYesDate} TEXT NULL, 
+          ${R21Followup.colSRHPrePFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
+          ${R21Followup.colSRHPrePFindScheduleFacilityNoDate} TEXT NULL, 
+          ${R21Followup.colSRHPrePFindScheduleFacilityNoPick} INTEGER NULL, 
+          ${R21Followup.colSRHPrePFindScheduleFacilitySelected} TEXT NULL, 
+          ${R21Followup.colSRHPrePFindScheduleFacilityOther} TEXT NULL, 
+          ${R21Followup.colSRHPrePInformationRead} INTEGER NULL
         );
         """);
 
@@ -371,25 +394,11 @@ class DatabaseProvider {
 
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
-    //newPatient.createdDate = DateTime.now();
+    newPatient.utilityEnrollmentDate= DateTime.now();
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
 
-  Future<void> insertEvent(R21Event event, {DateTime createdDate}) async {
-    final Database db = await _databaseInstance;
-    event.createdDate = createdDate ?? DateTime.now();
-    final res = await db.insert(R21Event.tableName, event.toMap());
-    return res;
-  }
-
-  Future<void> insertAppointment(R21Appointment appointment,
-      {DateTime createdDate}) async {
-    final Database db = await _databaseInstance;
-    appointment.createdDate = createdDate ?? DateTime.now();
-    final res = await db.insert(R21Appointment.tableName, appointment.toMap());
-    return res;
-  }
 
   Future<void> insertFollowup(R21Followup followup,
       {DateTime createdDate}) async {
@@ -399,13 +408,7 @@ class DatabaseProvider {
     return res;
   }
 
-  Future<void> insertMedicationRefil(R21MedicationRefill refil,
-      {DateTime createdDate}) async {
-    final Database db = await _databaseInstance;
-    refil.createdDate = createdDate ?? DateTime.now();
-    final res = await db.insert(R21MedicationRefill.tableName, refil.toMap());
-    return res;
-  }
+
 
   Future<void> insertScreenAnalytic(R21ScreenAnalytic analytic,
       {DateTime createdDate}) async {
@@ -415,35 +418,9 @@ class DatabaseProvider {
     return res;
   }
 
-  Future<void> insertViralLoad(ViralLoad viralLoad,
-      {DateTime createdDate}) async {
-    final Database db = await _databaseInstance;
-    viralLoad.createdDate = createdDate ?? DateTime.now();
-    final res = await db.insert(ViralLoad.tableName, viralLoad.toMap());
-    return res;
-  }
 
-  /// Sets the discrepancy attribute to true by updating row for the given [vl].
-  Future<void> setViralLoadDiscrepancy(ViralLoad vl) async {
-    vl.discrepancy = true;
-    final Database db = await _databaseInstance;
-    final res = await db.update(
-      ViralLoad.tableName,
-      vl.toMap(),
-      where:
-          '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadSource} = ? AND ${ViralLoad.colCreatedDate} = ? AND ${ViralLoad.colDateOfBloodDraw} = ? AND ${ViralLoad.colLabNumber} = ? AND ${ViralLoad.colFailed} = ?',
-      whereArgs: [
-        vl.patientART,
-        vl.source.code,
-        vl.createdDate.toIso8601String(),
-        vl.dateOfBloodDraw.toIso8601String(),
-        vl.labNumber,
-        vl.failed
-      ],
-    );
-    assert(res <= 1);
-    return res;
-  }
+
+
 
 
 
@@ -476,12 +453,10 @@ class DatabaseProvider {
         Patient p = Patient.fromMap(map);
         await p.initializeEventsField();
         await p.initializeFollowupsField();
-        await p.initializePreferenceAssessmentField();
         await p.initializeRequiredActionsField();
 
         //R21
         await p.initializeRecentFields();
-        await p.initializeMedicationRefilsField();
         list.add(p);
       }
     }
@@ -541,57 +516,7 @@ class DatabaseProvider {
     }
   }
 
-  Future<List<ViralLoad>> retrieveViralLoadsForPatient(
-      String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-      ViralLoad.tableName,
-      where: '${ViralLoad.colPatientART} = ?',
-      whereArgs: [patientART],
-    );
-    if (res.length > 0) {
-      final List<ViralLoad> vls = res
-          .map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map))
-          .toList();
-      sortViralLoads(vls);
-      return vls;
-    }
-    return [];
-  }
 
-  Future<List<R21Event>> retrieveEventsForPatient(String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-      R21Event.tableName,
-      where: '${R21Event.colPatientART} = ?',
-      whereArgs: [patientART],
-    );
-    if (res.length > 0) {
-      final List<R21Event> events = res
-          .map((Map<dynamic, dynamic> map) => R21Event.fromMap(map))
-          .toList();
-      return events;
-    }
-    return [];
-  }
-
-  Future<List<R21Appointment>> retrieveAppointmentsForPatient(
-      String patientART) async {
-    final Database db = await _databaseInstance;
-
-    final List<Map> res = await db.query(
-      R21Appointment.tableName,
-      where: '${R21Appointment.colPatientART} = ?',
-      whereArgs: [patientART],
-    );
-    if (res.length > 0) {
-      final List<R21Appointment> events = res
-          .map((Map<dynamic, dynamic> map) => R21Appointment.fromMap(map))
-          .toList();
-      return events;
-    }
-    return [];
-  }
 
   Future<List<R21Followup>> retrieveFollowupsForPatient(
       String patientART) async {
@@ -599,7 +524,7 @@ class DatabaseProvider {
 
     final List<Map> res = await db.query(
       R21Followup.tableName,
-      where: '${R21Followup.colPatientART} = ?',
+      where: '${R21Followup.colPersonalStudyNo} = ?',
       whereArgs: [patientART],
     );
     if (res.length > 0) {
@@ -611,22 +536,6 @@ class DatabaseProvider {
     return [];
   }
 
-  Future<List<R21MedicationRefill>> retrieveMedicationRefilsForPatient(
-      String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-      R21MedicationRefill.tableName,
-      where: '${R21MedicationRefill.colPatientART} = ?',
-      whereArgs: [patientART],
-    );
-    if (res.length > 0) {
-      final List<R21MedicationRefill> events = res
-          .map((Map<dynamic, dynamic> map) => R21MedicationRefill.fromMap(map))
-          .toList();
-      return events;
-    }
-    return [];
-  }
 
   Future<List<R21ScreenAnalytic>> retrieveScreenAnalytics() async {
     final Database db = await _databaseInstance;
@@ -642,20 +551,6 @@ class DatabaseProvider {
     return [];
   }
 
-  Future<PreferenceAssessment> retrieveLatestPreferenceAssessmentForPatient(
-      String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(PreferenceAssessment.tableName,
-        where: '${PreferenceAssessment.colPatientART} = ?',
-        whereArgs: [patientART],
-        orderBy: '${PreferenceAssessment.colCreatedDate} DESC');
-    if (res.length > 0) {
-      final PreferenceAssessment pa = PreferenceAssessment.fromMap(res.first);
-      await pa.initializeSupportOptionDoneFields();
-      return pa;
-    }
-    return null;
-  }
 
   /// Only retrieves latest active user data.
   Future<UserData> retrieveLatestUserData() async {
@@ -697,70 +592,20 @@ class DatabaseProvider {
     return null;
   }
 
-  Future<R21MedicationRefill> retrieveLatestMedicationRefillForPatient(
-      String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(R21MedicationRefill.tableName,
-        where: '${R21MedicationRefill.colPatientART} = ?',
-        whereArgs: [patientART],
-        orderBy: '${R21MedicationRefill.colCreatedDate} DESC');
-    if (res.length > 0) {
-      return R21MedicationRefill.fromMap(res.first);
-    }
-    return null;
-  }
-
-  Future<R21Event> retrieveLatestEventForPatient(String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(R21Event.tableName,
-        where: '${R21Event.colPatientART} = ?',
-        whereArgs: [patientART],
-        orderBy: '${R21Event.colCreatedDate} DESC');
-    if (res.length > 0) {
-      return R21Event.fromMap(res.first);
-    }
-    return null;
-  }
-
-  Future<R21Appointment> retrieveLatestAppointmentForPatient(
-      String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(R21Appointment.tableName,
-        where: '${R21Appointment.colPatientART} = ?',
-        whereArgs: [patientART],
-        orderBy: '${R21Appointment.colCreatedDate} DESC');
-    if (res.length > 0) {
-      return R21Appointment.fromMap(res.first);
-    }
-    return null;
-  }
 
   Future<R21Followup> retrieveLatestFollowupForPatient(
       String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(R21Followup.tableName,
-        where: '${R21Followup.colPatientART} = ?',
+        where: '${R21Followup.colPersonalStudyNo} = ?',
         whereArgs: [patientART],
-        orderBy: '${R21Followup.colCreatedDate} DESC');
+        orderBy: '${R21Followup.colUtilityCreatedDate} DESC');
     if (res.length > 0) {
       return R21Followup.fromMap(res.first);
     }
     return null;
   }
 
-  Future<ARTRefill> retrieveLatestDoneARTRefillForPatient(
-      String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(ARTRefill.tableName,
-        where:
-            '${ARTRefill.colPatientART} = ? AND ${ARTRefill.colRefillType} != ?',
-        whereArgs: [patientART, RefillType.NOT_DONE().code],
-        orderBy: '${ARTRefill.colCreatedDate} DESC');
-    if (res.length > 0) {
-      return ARTRefill.fromMap(res.first);
-    }
-    return null;
-  }
 
   Future<Set<RequiredAction>> retrieveRequiredActionsForPatient(
       String patientART) async {
@@ -870,32 +715,8 @@ class DatabaseProvider {
     return list;
   }
 
-  /// Retrieves all user data rows from the database, including all edits.
-  Future<List<R21Event>> retrieveAllEventData() async {
-    final Database db = await _databaseInstance;
-    final res = await db.query(R21Event.tableName);
-    List<R21Event> list = List<R21Event>();
-    if (res.isNotEmpty) {
-      for (Map<String, dynamic> map in res) {
-        R21Event u = R21Event.fromMap(map);
-        list.add(u);
-      }
-    }
-    return list;
-  }
 
-  Future<List<R21Appointment>> retrieveAllAppointmentData() async {
-    final Database db = await _databaseInstance;
-    final res = await db.query(R21Appointment.tableName);
-    List<R21Appointment> list = List<R21Appointment>();
-    if (res.isNotEmpty) {
-      for (Map<String, dynamic> map in res) {
-        R21Appointment u = R21Appointment.fromMap(map);
-        list.add(u);
-      }
-    }
-    return list;
-  }
+
 
   Future<List<R21Followup>> retrieveAllFollowupData() async {
     final Database db = await _databaseInstance;
@@ -923,18 +744,6 @@ class DatabaseProvider {
     return list;
   }
 
-  Future<List<R21MedicationRefill>> retrieveAllMedicationRefillData() async {
-    final Database db = await _databaseInstance;
-    final res = await db.query(R21MedicationRefill.tableName);
-    List<R21MedicationRefill> list = List<R21MedicationRefill>();
-    if (res.isNotEmpty) {
-      for (Map<String, dynamic> map in res) {
-        R21MedicationRefill u = R21MedicationRefill.fromMap(map);
-        list.add(u);
-      }
-    }
-    return list;
-  }
 
   /// Retrieves all support option done data rows from the database, including
   /// all edits.

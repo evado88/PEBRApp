@@ -4,10 +4,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/R21ExportInfo.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:path/path.dart';
-import 'package:pebrapp/database/models/R21Appointment.dart';
-import 'package:pebrapp/database/models/R21Event.dart';
 import 'package:pebrapp/database/models/R21Followup.dart';
-import 'package:pebrapp/database/models/R21MedicationRefill.dart';
 import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'dart:io';
@@ -98,15 +95,7 @@ class DatabaseExporter {
       jParticipants.write('${pt.toJson(username)}\n');
     });
 
-    final List<R21Event> eventsRows = await dbp.retrieveAllEventData();
-    _writeRowsToExcel(eventsSheet, R21Event.excelHeaderRow, eventsRows);
 
-    eventsRows.forEach((ev) {
-      if (jEvents.length != 0) {
-        jEvents.write(',\n');
-      }
-      jEvents.write('${ev.toJson(username)}\n');
-    });
 
     final List<R21Followup> followupsRows = await dbp.retrieveAllFollowupData();
     _writeRowsToExcel(
@@ -119,29 +108,11 @@ class DatabaseExporter {
       jFollowups.write('${fl.toJson(username)}\n');
     });
 
-    final List<R21Appointment> appointmentsRows =
-        await dbp.retrieveAllAppointmentData();
-    _writeRowsToExcel(
-        appointmentsSheet, R21Appointment.excelHeaderRow, appointmentsRows);
 
-    appointmentsRows.forEach((ap) {
-      if (jAppointments.length != 0) {
-        jAppointments.write(',\n');
-      }
-      jAppointments.write('${ap.toJson(username)}\n');
-    });
 
-    final List<R21MedicationRefill> medicationRefils =
-        await dbp.retrieveAllMedicationRefillData();
-    _writeRowsToExcel(medicationRefilsSheet, R21MedicationRefill.excelHeaderRow,
-        medicationRefils);
 
-    medicationRefils.forEach((mf) {
-      if (jMedicationRefils.length != 0) {
-        jMedicationRefils.write(',\n');
-      }
-      jMedicationRefils.write('${mf.toJson(username)}\n');
-    });
+
+
 
     final List<R21ScreenAnalytic> analyticRows =
         await dbp.retrieveAllAnalyticData();

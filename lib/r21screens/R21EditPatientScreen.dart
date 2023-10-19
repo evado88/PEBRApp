@@ -9,7 +9,6 @@ import 'package:pebrapp/database/beans/R21PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/R21PreferredContactMethod.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
-import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class R21EditPatientScreen extends StatefulWidget {
   final Patient _existingPatient;
@@ -242,8 +241,7 @@ class _R21EditPatientFormState extends State<R21EditPatientScreen> {
         final bool phoneNumberChanged = _patientToBeEdited.personalPhoneNumberAvailability !=
                 _patientBeforeEditing.personalPhoneNumberAvailability ||
             _patientToBeEdited.personalPhoneNumber != _patientBeforeEditing.personalPhoneNumber;
-        uploadPatientCharacteristics(_patientToBeEdited,
-            reUploadNotifications: phoneNumberChanged);
+
       }
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return (route.settings.name == '/patient' ||

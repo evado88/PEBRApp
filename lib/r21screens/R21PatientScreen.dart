@@ -7,18 +7,10 @@ import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/R21Residency.dart';
 import 'package:pebrapp/database/beans/R21ScreenType.dart';
-import 'package:pebrapp/database/beans/SupportOption.dart';
-import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
-import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
-import 'package:pebrapp/database/models/R21Appointment.dart';
-import 'package:pebrapp/database/models/R21Event.dart';
 import 'package:pebrapp/database/models/R21Followup.dart';
-import 'package:pebrapp/database/models/R21MedicationRefill.dart';
 import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 
@@ -80,21 +72,14 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
   }
 
   loadEvents() async {
-    final List<R21Event> events =
-        await DatabaseProvider().retrieveEventsForPatient(_patient.personalStudyNumber);
 
-    final List<R21Followup> followups = await DatabaseProvider()
-        .retrieveFollowupsForPatient(_patient.personalStudyNumber);
+    //final List<R21Followup> followups = await DatabaseProvider()
+     //   .retrieveFollowupsForPatient(_patient.personalStudyNumber);
 
-    final List<R21Appointment> appointments = await DatabaseProvider()
-        .retrieveAppointmentsForPatient(_patient.personalStudyNumber);
 
-    print(
-        'Found events: ${events.length}, appointments ${appointments.length}, followups ${followups.length}');
 
-    events.forEach((v) {
-      print(v.toString());
-    });
+
+   
   }
 
   @override
@@ -176,10 +161,10 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
     _context = context;
     _screenWidth = MediaQuery.of(context).size.width;
 
-
+/*
     DateTime nextFollowupDate =
         _patient.latestFollowup?.nextDate ?? _patient.utilityEnrollmentDate;
-    _nextFollowup = formatDate(nextFollowupDate);
+    _nextFollowup = formatDate(nextFollowupDate);*/
 
     final Widget content = Column(
       children: <Widget>[
@@ -187,9 +172,6 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
         _buildPatientCharacteristicsCard(),
         _makeButton('Edit Characteristics', onPressed: () {
           _editCharacteristicsPressed(_patient);
-        }, flat: true),
-        _makeButton('Edit Desired Support', onPressed: () {
-          _editDesiredSupportPressed(_patient);
         }, flat: true),
         _buildNextActions(),
         SizedBox(height: _spacingBetweenCards),
@@ -216,9 +198,6 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
     );
   }
 
-  Widget _buildEmptyBox() {
-    return SizedBox.shrink();
-  }
 
   Widget _buildRequiredActions() {
     final List<RequiredAction> visibleRequiredActionsSorted =
@@ -294,67 +273,21 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
       );
     }
 
-    String pronoun = 'his/her';
-    if (_patient.personalResidency == R21Residency.UNZA()) {
-      pronoun = 'her';
-    } else if (_patient.personalResidency == R21Residency.ADDRESS()) {
-      pronoun = 'his';
-    }
     return Column(
       children: <Widget>[
-        SizedBox(height: _spacingBetweenCards),
-        _buildNextActionRow(
-          title: 'Next Medication Refill',
-          dueDate: _nextRefillText,
-          explanation:
-              'The medication refill date is selected when the participant collects $pronoun medication or has them delivered.',
-          button: !_patient.srhContraceptionInterestIUD
-              ? _makeButton('Manage Refill')
-              : _makeButton('Manage Refill', onPressed: () {
-                }),
-        ),
-        SizedBox(height: _spacingBetweenCards),
-        SizedBox(height: _spacingBetweenCards),
-        _buildNextActionRow(
-          title: 'Next Appointment',
-          dueDate: _nextAppointment,
-          explanation:
-              'The appointment date is selected when the participant shows up for $pronoun appointment with the peer navigator.',
-          button: !_patient.historyContraceptionIUD
-              ? _makeButton('Manage Appointment')
-              : _makeButton('Manage Appointment', onPressed: () {
-
-                }),
-        ),
-        SizedBox(height: _spacingBetweenCards),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
           title: 'Next Followup',
           dueDate: _nextFollowup,
           explanation:
-              'Check if participant is experiecing any side-effects from their medication',
-          button: !_patient.historyContraceptionIUD
-              ? _makeButton('Manage Follow-up')
-              : _makeButton('Manage Follow-up', onPressed: () {
+              'Check if participant has started contraception and whether they are experiencing any side-effects',
+          button: _makeButton('Manage Follow-up', onPressed: () {
                   _manageFollowupPressed(_context, _patient, 'Add Followup');
                 }),
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildFollowupCard("Previous Followups",
             "The list of previous folllow ups and events for this partipant"),
-        SizedBox(height: _spacingBetweenCards),
-        _buildNextActionRow(
-          title: 'Next Event',
-          dueDate: _nextEvent,
-          explanation:
-              'Check if participant is experiecing any side-effects from their medication',
-          button: !_patient.historyContraceptionIUD
-              ? _makeButton('Manage Event')
-              : _makeButton('Manage Event', onPressed: () {
-
-                }),
-        ),
-        SizedBox(height: _spacingBetweenCards),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
@@ -370,9 +303,9 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
           _buildRow('Study Number', _patient.personalStudyNumber),
           _buildRow('Birthday',
               '${formatDateConsistent(_patient.personalBirthday)} (age ${calculateAge(_patient.personalBirthday)})'),
-          _buildRow('Gender', _patient.personalResidency.description),
+          _buildRow('Residency', _patient.personalResidency.description),
           _buildRow(
-              'Sexual Orientation', _patient.personalPreferredContactMethod.description),
+              'Preferred way to contact', _patient.personalPreferredContactMethod.description),
           _buildRow('Phone Number', _patient.personalPhoneNumber),
         ],
       ),
@@ -398,18 +331,18 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               Expanded(
-                child: _formatHeaderRowText('Date'),
+                child: _formatHeaderRowText('DATE'),
                 flex: 1,
               ),
               SizedBox(width: _spaceBetweenColumns),
-              Expanded(child: _formatHeaderRowText('DESCRIPTION')),
+              Expanded(child: _formatHeaderRowText('CONTRACEPTION')),
               SizedBox(width: _spaceBetweenColumns),
-              Expanded(child: _formatHeaderRowText('OCCURED')),
+              Expanded(child: _formatHeaderRowText('PREP')),
               SizedBox(width: _spaceBetweenColumns),
-              Expanded(child: _formatHeaderRowText('REASON')),
+              Expanded(child: _formatHeaderRowText('SIDE-EFFECTS')),
               SizedBox(width: _spaceBetweenColumns),
               Expanded(
-                child: _formatHeaderRowText('NEXT Date'),
+                child: _formatHeaderRowText('NEXT DATE'),
               )
             ],
           ),
@@ -419,8 +352,8 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
     }
 
     Widget _buildEventRow(R21Followup ev, {bool bold: false}) {
-      final String date = '${formatDateConsistent(ev.date)}';
-      final String nextDate = '${formatDateConsistent(ev.nextDate)}';
+      final String date = '${formatDateConsistent(ev.createDate)}';
+      final String nextDate = '${formatDateConsistent(ev.createDate)}';
 
       return Container(
           width: MediaQuery.of(context).size.width - 20,
@@ -441,21 +374,19 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
                                 bold ? FontWeight.bold : FontWeight.normal))),
                 SizedBox(width: _spaceBetweenColumns),
                 Expanded(
-                    child: Text(ev.description ?? '—',
+                    child: Text(ev.patientART ?? '—',
                         style: TextStyle(
                             fontWeight:
                                 bold ? FontWeight.bold : FontWeight.normal))),
                 SizedBox(width: _spaceBetweenColumns),
                 Expanded(
-                    child: Text(ev.occured ? 'Yes' : 'No',
+                    child: Text(ev.patientART,
                         style: TextStyle(
                             fontWeight:
                                 bold ? FontWeight.bold : FontWeight.normal))),
                 Expanded(
                     child: Text(
-                        ev.noOccurReason == null
-                            ? '-'
-                            : ev.noOccurReason.description,
+                        ev.patientART,
                         style: TextStyle(
                             fontWeight:
                                 bold ? FontWeight.bold : FontWeight.normal))),

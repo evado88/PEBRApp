@@ -41,7 +41,7 @@ class R21ContraceptionUse{
   }
 
 
-  static R21ContraceptionUsefromCode(int code) {
+  static fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }

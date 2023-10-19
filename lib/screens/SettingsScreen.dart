@@ -20,7 +20,6 @@ import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/PebraCloudUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
-import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 
@@ -260,11 +259,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
       _loginData.phoneNumberUploadRequired = true;
       await DatabaseProvider().insertUserData(_loginData);
-      final bool uploadSuccessful = await uploadPeerEducatorPhoneNumber();
-      if (!uploadSuccessful) {
-        // only show required action on settings screen if upload failed
-        PatientBloc.instance.sinkSettingsRequiredActionData(false);
-      }
+  
     }
   }
 

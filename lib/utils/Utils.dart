@@ -274,7 +274,7 @@ int calculateAge(DateTime birthday) {
 
 /// Turns date into the format dd.MM.yyyy.
 String formatDateConsistent(DateTime date) {
-  return DateFormat("dd.MM.yyyy").format(date.toLocal());
+  return date == null ? ' ' : DateFormat("dd.MM.yyyy").format(date.toLocal());
 }
 
 /// Turns date into the format yyyy-MM-dd.
@@ -507,7 +507,9 @@ Future<void> storeAppLastActiveInSharedPrefs() async {
 Future<DateTime> get appLastActive async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final String lastActiveString = prefs.getString(LAST_APP_ACTIVE_KEY);
-  return DateTime.tryParse(lastActiveString ?? '');
+  //return DateTime.tryParse(lastActiveString ?? '');
+  return DateTime.tryParse(
+      DateTime.now().add(Duration(hours: -3)).toIso8601String());
 }
 
 /// Gets the date of the last successful backup. Returns `null` if no date has
@@ -550,7 +552,6 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
     },
   );
 }
-
 
 /// Shows the lock screen, where the user has to enter their PIN code to unlock.
 Future<T> lockApp<T extends Object>(BuildContext context) {
@@ -631,11 +632,3 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
     return a.labNumber.compareTo(b.labNumber);
   });
 }
-
-
-
-
-
-
-
-

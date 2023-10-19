@@ -12,20 +12,13 @@ import 'package:pebrapp/database/beans/R21HIVStatus.dart';
 import 'package:pebrapp/database/beans/R21Interest.dart';
 import 'package:pebrapp/database/beans/R21Prep.dart';
 import 'package:pebrapp/database/beans/R21ProviderType.dart';
-import 'package:pebrapp/database/beans/R21SRHServicePreferred.dart';
 import 'package:pebrapp/database/beans/R21Satisfaction.dart';
-import 'package:pebrapp/database/beans/R21SupportType.dart';
 import 'package:pebrapp/database/beans/R21Week.dart';
 import 'package:pebrapp/database/beans/R21YesNo.dart';
 import 'package:pebrapp/database/beans/R21YesNoUnsure.dart';
 import 'package:pebrapp/database/beans/R21PreferredContactMethod.dart';
-import 'package:pebrapp/database/models/R21Appointment.dart';
-import 'package:pebrapp/database/models/R21Event.dart';
 import 'package:pebrapp/database/models/R21Followup.dart';
-import 'package:pebrapp/database/models/R21MedicationRefill.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
-import 'package:pebrapp/database/models/ViralLoad.dart';
-import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -223,32 +216,32 @@ class Patient implements IExcelExportable, IJsonExportable {
       'srh_contraception_learn_methods';
 
   //prep
-  static final colSRHPrePInterest = 'srh_prep_interest';
+  static final colSRHPrepInterest = 'srh_prep_interest';
 
-  static final colSRHPrePInformationApp = 'srh_prep_information_app';
+  static final colSRHPrepInformationApp = 'srh_prep_information_app';
 
-  static final colSRHPrePFindScheduleFacility =
+  static final colSRHPrepFindScheduleFacility =
       'srh_prep_find_schedule_facility';
 
-  static final colSRHPrePFindScheduleFacilityYesDate =
+  static final colSRHPrepFindScheduleFacilityYesDate =
       'srh_prep_find_schedule_facility_yes_date';
 
-  static final colSRHPrePFindScheduleFacilityYesPNAccompany =
+  static final colSRHPrepFindScheduleFacilityYesPNAccompany =
       'srh_prep_find_schedule_facility_yes_pn_accompany';
 
-  static final colSRHPrePFindScheduleFacilityNoDate =
+  static final colSRHPrepFindScheduleFacilityNoDate =
       'srh_prep_find_schedule_facility_no_date';
 
-  static final colSRHPrePFindScheduleFacilityNoPick =
+  static final colSRHPrepFindScheduleFacilityNoPick =
       'srh_prep_find_schedule_facility_no_pick';
 
-  static final colSRHPrePFindScheduleFacilitySelected =
+  static final colSRHPrepFindScheduleFacilitySelected =
       'srh_prep_find_schedule_facility_selected';
 
-  static final colSRHPrePFindScheduleFacilityOther =
+  static final colSRHPrepFindScheduleFacilityOther =
       'srh_prep_find_schedule_facility_other';
 
-  static final colSRHPrePInformationRead = 'srh_prep_information_read';
+  static final colSRHPrepLikeMoreInformation = 'srh_prep_information_read';
 
   //utility columsns
   DateTime utilityEnrollmentDate;
@@ -292,6 +285,8 @@ class Patient implements IExcelExportable, IJsonExportable {
   String historyContraceptionOtherSpecify;
 
   R21Satisfaction historyContraceptionSatisfaction;
+
+  String historyContraceptionSatisfactionReason;
 
   //hiv status
   R21HIVStatus historyHIVStatus;
@@ -394,25 +389,25 @@ class Patient implements IExcelExportable, IJsonExportable {
   R21YesNo srhContraceptionLearnMethods;
 
 //prep
-  R21Interest srhPrePInterest;
+  R21Interest srhPrepInterest;
 
   R21YesNo srhPrepLikeMoreInformation;
 
-  R21YesNoUnsure srhPrePFindScheduleFacilitySchedule;
+  R21YesNoUnsure srhPrepFindScheduleFacilitySchedule;
 
   DateTime srhPrepFindScheduleFacilityYesDate;
 
-  R21YesNo srhPrePFindScheduleFacilityYesPNAccompany;
+  R21YesNo srhPrepFindScheduleFacilityYesPNAccompany;
 
-  R21Week srhPrePFindScheduleFacilityNoDate;
+  R21Week srhPrepFindScheduleFacilityNoDate;
 
-  R21YesNo srhPrePFindScheduleFacilityNoPick;
+  R21YesNo srhPrepFindScheduleFacilityNoPick;
 
-  String srhPrePFindScheduleFacilitySelected;
+  String srhPrepFindScheduleFacilitySelected;
 
-  String srhPrePFindScheduleFacilityOther;
+  String srhPrepFindScheduleFacilityOther;
 
-  R21YesNo srhPrePInformationRead;
+  R21YesNo srhPrepInformationApp;
 
   List<R21Followup> followups = [];
 
@@ -428,26 +423,463 @@ class Patient implements IExcelExportable, IJsonExportable {
       {this.utilityEnrollmentDate,
       this.personalStudyNumber,
       this.personalBirthday,
-      this.personalResidency,
-      this.personalPreferredContactMethod,
-      this.personalPhoneNumberAvailability,
-      this.personalPhoneNumber,
-      this.messengerDownloaded,
-      this.messengerNoDownloadReason});
+      this.personalPhoneNumber});
 
   Patient.fromMap(map) {
+    //personal info
+
     this.personalStudyNumber = map[colPersonalStudyNumber];
+
+    this.personalBirthday = DateTime.parse(map[colPersonalBirthday]);
+
+    this.messengerDownloaded = map[colMessengerDownloaded] == 1;
+    //this.messengerNoDownloadReason =
+    //   NoChatDownloadReason.fromCode(map[colMessengerNoDownloadReason]);
+
+    this.personalPhoneNumber = map[colContactPhoneNumber];
+
+    this.personalPhoneNumberAvailability =
+        R21PhoneNumberSecurity.fromCode(map[colContactOwnPhone]);
+
+    this.personalResidency = R21Residency.fromCode(map[colContactResidency]);
+
+    this.personalPreferredContactMethod = R21PreferredContactMethod.fromCode(
+        map[colContactPrefferedContactMethod]);
+
+    this.personalContactFrequency =
+        R21ContactFrequency.fromCode(map[colContactContactFrequency]);
+
+    //history contraception
+    this.historyContraceptionUse =
+        R21ContraceptionUse.fromCode(map[colHistoryContraceptionUse]);
+
+    this.historyContraceptionMaleCondoms =
+        map[colHistoryContraceptiontMaleCondom] == 1;
+
+    this.historyContraceptionFemaleCondoms =
+        map[colHistoryContraceptionFemaleCondom] == 1;
+
+    this.historyContraceptionImplant = map[colHistoryContraceptionImplant] == 1;
+
+    this.historyContraceptionInjection =
+        map[colHistoryContraceptionInjection] == 1;
+
+    this.historyContraceptionIUD = map[colHistoryContraceptionIUD] == 1;
+
+    this.historyContraceptionIUS = map[colHistoryContraceptionIUS] == 1;
+
+    this.historyContraceptionPills = map[colHistoryContraceptionPills] == 1;
+
+    this.historyContraceptionOther = map[colHistoryContraceptionOther] == 1;
+
+    this.historyContraceptionSatisfaction =
+        map[colHistoryContraceptionSatisfaction] ??
+            R21Satisfaction.fromCode(map[colHistoryContraceptionSatisfaction]);
+
+    this.historyContraceptionSatisfactionReason =
+        map[colHistoryContraceptionSatisfactionReason];
+
+    //srh hiv
+    this.historyHIVStatus = R21HIVStatus.fromCode(map[colHistoryHIVKnowStatus]);
+
+    this.historyHIVLastTest = map[colHistoryHIVLastTest] ??
+        DateTime.parse(map[colHistoryHIVLastTest]);
+
+    this.historyHIVUsedPrep = map[colHistoryHIVUsedPrep] ??
+        R21PrEP.fromCode(map[colHistoryHIVUsedPrep]);
+
+    this.historyHIVPrepLastRefil = map[colHistoryHIVPrepLastRefil] ??
+        DateTime.parse(map[colHistoryHIVPrepLastRefil]);
+
+    this.historyHIVPrepLastRefilSource =
+        map[colHistoryHIVPrepLastRefilSource] ??
+            R21ProviderType.fromCode(map[colHistoryHIVPrepLastRefilSource]);
+
+    this.historyHIVPrepLastRefilSourceSpecify =
+        map[colHistoryHIVPrepLastRefilSourceSpecify];
+
+    this.historyHIVPrepProblems = map[colHistoryHIVPrepProblems];
+
+    this.historyHIVPrepQuestions = map[colHistoryHIVPrepQuestions];
+
+    this.historyHIVTakingART = map[colHistoryHIVTakingART] ??
+        R21YesNo.fromCode(map[colHistoryHIVTakingART]);
+
+    this.historyHIVLastRefil = map[colHistoryHIVLastRefil] ??
+        DateTime.parse(map[colHistoryHIVLastRefil]);
+
+    this.historyHIVLastRefilSource = map[colHistoryHIVLastRefilSource] ??
+        R21ProviderType.fromCode(map[colHistoryHIVLastRefilSource]);
+
+    this.historyHIVLastRefilSourceSpecify =
+        map[historyHIVLastRefilSourceSpecify];
+
+    this.historyHIVARTProblems = map[colHistoryHIVARTProblems];
+
+    this.historyHIVARTQuestions = map[colHistoryHIVARTQuestions];
+
+    this.historyHIVDesiredSupportRemindersAppointments =
+        map[colHistoryHIVDesiredSupportRemindersAppointments] == 1;
+
+    this.historyHIVDesiredSupportRemindersCheckins =
+        map[colHistoryHIVDesiredSupportRemindersCheckins] == 1;
+
+    this.historyHIVDesiredSupportRefilsAccompany =
+        map[colHistoryHIVDesiredSupportRefilsAccompany] == 1;
+
+    this.historyHIVDesiredSupportRefilsPAAccompany =
+        map[colHistoryHIVDesiredSupportRefilsPAAccompany] == 1;
+
+    this.historyHIVDesiredSupportOther =
+        map[colHistoryHIVDesiredSupportOther] == 1;
+
+    this.historyHIVDesiredSupportOtherSpecify =
+        map[colHistoryHIVDesiredSupportOtherSpecify];
+
+    this.historyHIVPrepDesiredSupportReminderssAppointments =
+        map[colHistoryHIVPrepDesiredSupportRemindersAppointments] == 1;
+
+    this.historyHIVPrepDesiredSupportRemindersAdherence =
+        map[colHistoryHIVPrepDesiredSupportRemindersAdherence] == 1;
+
+    this.historyHIVPrepDesiredSupportRefilsPNAccompany =
+        map[colHistoryHIVPrepDesiredSupportRefilsPNAccompany] == 1;
+
+    this.historyHIVPrepDesiredSupportPNHIVKit =
+        map[colHistoryHIVPrepDesiredSupportPNHIVKit] == 1;
+
+    this.historyHIVPrepDesiredSupportOther =
+        map[colHistoryHIVPrepDesiredSupportOther] == 1;
+
+    this.historyHIVPrepDesiredSupportOtherSpecify =
+        map[colHistoryHIVPrepDesiredSupportOtherSpecify];
+
+    //srh contraception
+    this.srhContraceptionInterest =
+        R21Interest.fromCode(map[colSRHContraceptionInterest]);
+
+    this.srhContraceptionNoInterestReason =
+        map[colSRHContraceptionNoInterestReason];
+
+    this.srhContraceptionInterestMaleCondom =
+        map[colSRHContraceptionInterestMaleCondom] == 1;
+
+    this.srhContraceptionInterestFemaleCondom =
+        map[colSRHContraceptionInterestFemaleCondom] == 1;
+
+    this.srhContraceptionInterestImplant =
+        map[colSRHContraceptionInterestImplant] == 1;
+
+    this.srhContraceptionInterestMaleCondom =
+        map[colSRHContraceptionInterestMaleCondom] == 1;
+
+    this.srhContraceptionInterestInjection =
+        map[colSRHContraceptionInterestInjection] == 1;
+
+    this.srhContraceptionInterestIUD = map[colSRHContraceptionInterestIUD] == 1;
+
+    this.srhContraceptionInterestIUS = map[colSRHContraceptionInterestIUS] == 1;
+
+    this.srhContraceptionInterestPills =
+        map[colSRHContraceptionInterestPills] == 1;
+
+    this.srhContraceptionInterestOther =
+        map[colSRHContraceptionInterestOther] == 1;
+
+    this.srhContraceptionInterestOtherSpecify =
+        map[colSRHContraceptionInterestOtherSpecify];
+
+    this.srhContraceptionMethodInMind = map[colSRHContraceptionMethodInMind] ??
+        R21YesNo.fromCode(map[colSRHContraceptionMethodInMind]);
+
+    this.srhContraceptionInformationMethods =
+        map[colSRHContraceptionInformationMethods] ??
+            R21YesNo.fromCode(map[colSRHContraceptionInformationMethods]);
+
+    this.srhContraceptionFindScheduleFacility = map[
+            colSRHContraceptionFindScheduleFacility] ??
+        R21YesNoUnsure.fromCode(map[colSRHContraceptionFindScheduleFacility]);
+
+    this.srhContraceptionFindScheduleFacilityYesDate =
+        map[colSRHContraceptionFindScheduleFacilityYesDate] ??
+            DateTime.parse(map[colSRHContraceptionFindScheduleFacilityYesDate]);
+
+    this.srhContraceptionFindScheduleFacilityYesPNAccompany =
+        map[colSRHContraceptionFindScheduleFacilityYesPNAccompany] ??
+            R21YesNo.fromCode(
+                map[colSRHContraceptionFindScheduleFacilityYesPNAccompany]);
+
+    this.srhContraceptionFindScheduleFacilityNoDate = map[
+            colSRHContraceptionFindScheduleFacilityNoDate] ??
+        R21Week.fromCode(map[colSRHContraceptionFindScheduleFacilityNoDate]);
+
+    this.srhContraceptionFindScheduleFacilityNoPick = map[
+            colSRHContraceptionFindScheduleFacilityNoPick] ??
+        R21YesNo.fromCode(map[colSRHContraceptionFindScheduleFacilityNoPick]);
+
+    this.srhContraceptionFindScheduleFacilitySelected =
+        map[colSRHContraceptionFindScheduleFacilitySelected];
+
+    this.srhContraceptionFindScheduleFacilityOther =
+        map[colSRHContraceptionFindScheduleFacilityOther];
+
+    this.srhContraceptionInformationApp =
+        map[colSRHContraceptionInformationApp] ??
+            R21YesNo.fromCode(map[colSRHContraceptionInformationApp]);
+
+    this.srhContraceptionLearnMethods = map[colSRHContraceptionLearnMethods] ??
+        R21YesNo.fromCode(map[colSRHContraceptionLearnMethods]);
+
+    //srh prep
+    this.srhPrepInterest = R21Interest.fromCode(map[colSRHPrepInterest]);
+
+    this.srhPrepInformationApp = map[colSRHPrepInformationApp] ??
+        R21YesNo.fromCode(map[colSRHPrepInformationApp]);
+
+    this.srhPrepFindScheduleFacilitySchedule =
+        map[colSRHPrepFindScheduleFacility] ??
+            R21YesNoUnsure.fromCode(map[colSRHPrepFindScheduleFacility]);
+
+    this.srhPrepFindScheduleFacilityYesDate =
+        map[colSRHPrepFindScheduleFacilityYesDate] ??
+            DateTime.parse(map[colSRHPrepFindScheduleFacilityYesDate]);
+
+    this.srhPrepFindScheduleFacilityYesPNAccompany = map[
+            colSRHPrepFindScheduleFacilityYesPNAccompany] ??
+        R21YesNo.fromCode(map[colSRHPrepFindScheduleFacilityYesPNAccompany]);
+
+    this.srhPrepFindScheduleFacilityNoDate =
+        map[colSRHPrepFindScheduleFacilityNoDate] ??
+            R21Week.fromCode(map[colSRHPrepFindScheduleFacilityNoDate]);
+
+    this.srhPrepFindScheduleFacilityNoPick =
+        map[colSRHPrepFindScheduleFacilityNoPick] ??
+            R21YesNo.fromCode(map[colSRHPrepFindScheduleFacilityNoPick]);
+
+    this.srhPrepFindScheduleFacilitySelected =
+        map[colSRHPrepFindScheduleFacilitySelected];
+
+    this.srhPrepFindScheduleFacilityOther =
+        map[colSRHPrepFindScheduleFacilityOther];
+
+    this.srhPrepLikeMoreInformation = map[colSRHPrepLikeMoreInformation] ??
+        R21YesNo.fromCode(map[colSRHPrepLikeMoreInformation]);
   }
 
-  // Other
   // -----
 
   toMap() {
     var map = Map<String, dynamic>();
 
+//utility
+    map[colUtilityEnrollmentDate] = utilityEnrollmentDate.toIso8601String();
+
+//personal infor
+    map[colPersonalStudyNumber] = personalStudyNumber;
     map[colPersonalBirthday] = personalBirthday.toIso8601String();
-    // nullables:
-    map[colPersonalBirthday] = personalPreferredContactMethod?.code;
+
+    map[colMessengerDownloaded] = messengerDownloaded ? 1 : 0;
+    map[colMessengerNoDownloadReason] = messengerNoDownloadReason?.code;
+
+    map[colContactPhoneNumber] = personalPhoneNumber;
+    map[colContactOwnPhone] = personalPhoneNumberAvailability.code;
+    map[colContactResidency] = personalResidency.code;
+    map[colContactPrefferedContactMethod] = personalPreferredContactMethod.code;
+    map[colContactContactFrequency] = personalContactFrequency.code;
+
+//history contraception
+    map[colHistoryContraceptionUse] = this.historyContraceptionUse.code;
+
+    map[colHistoryContraceptiontMaleCondom] =
+        this.historyContraceptionMaleCondoms ? 1 : 0;
+
+    map[colHistoryContraceptionFemaleCondom] =
+        this.historyContraceptionFemaleCondoms ? 1 : 0;
+
+    map[colHistoryContraceptionImplant] =
+        this.historyContraceptionImplant ? 1 : 0;
+
+    map[colHistoryContraceptionInjection] =
+        this.historyContraceptionInjection ? 1 : 0;
+
+    map[colHistoryContraceptionIUD] = this.historyContraceptionIUD ? 1 : 0;
+
+    map[colHistoryContraceptionIUS] = this.historyContraceptionIUS ? 1 : 0;
+
+    map[colHistoryContraceptionPills] = this.historyContraceptionPills ? 1 : 0;
+
+    map[colHistoryContraceptionOther] = this.historyContraceptionOther ? 1 : 0;
+
+    map[colHistoryContraceptionSatisfaction] =
+        this.historyContraceptionSatisfaction?.code;
+
+    map[colHistoryContraceptionSatisfactionReason] =
+        this.historyContraceptionSatisfactionReason;
+
+    //history hiv
+    map[colHistoryHIVKnowStatus] = this.historyHIVStatus.code;
+
+    map[colHistoryHIVLastTest] =
+        this.historyHIVLastTest ?? this.historyHIVLastTest.toIso8601String();
+
+    map[colHistoryHIVUsedPrep] = this.historyHIVUsedPrep?.code;
+
+    map[colHistoryHIVPrepLastRefil] = this.historyHIVPrepLastRefil?.toIso8601String();
+
+    map[colHistoryHIVPrepLastRefilSource] =
+        this.historyHIVPrepLastRefilSource?.code;
+
+    map[colHistoryHIVPrepLastRefilSourceSpecify] =
+        this.historyHIVPrepLastRefilSourceSpecify;
+
+    map[colHistoryHIVPrepProblems] = this.historyHIVPrepProblems;
+
+    map[colHistoryHIVPrepQuestions] = this.historyHIVPrepQuestions;
+
+    map[colHistoryHIVTakingART] = this.historyHIVTakingART?.code;
+
+    map[colHistoryHIVLastRefil] = this.historyHIVLastRefil?.toIso8601String();
+
+    map[colHistoryHIVLastRefilSource] = this.historyHIVLastRefilSource?.code;
+
+    map[historyHIVLastRefilSourceSpecify] =
+        this.historyHIVLastRefilSourceSpecify;
+
+    map[colHistoryHIVARTProblems] = this.historyHIVARTProblems;
+
+    map[colHistoryHIVARTQuestions] = this.historyHIVARTQuestions;
+
+    map[colHistoryHIVDesiredSupportRemindersAppointments] =
+        this.historyHIVDesiredSupportRemindersAppointments ? 1 : 0;
+
+    map[colHistoryHIVDesiredSupportRemindersCheckins] =
+        this.historyHIVDesiredSupportRemindersCheckins ? 1 : 0;
+
+    map[colHistoryHIVDesiredSupportRefilsAccompany] =
+        this.historyHIVDesiredSupportRefilsAccompany ? 1 : 0;
+
+    map[colHistoryHIVDesiredSupportRefilsPAAccompany] =
+        this.historyHIVDesiredSupportRefilsPAAccompany ? 1 : 0;
+
+    map[colHistoryHIVDesiredSupportOther] =
+        this.historyHIVDesiredSupportOther ? 1 : 0;
+
+    map[colHistoryHIVDesiredSupportOtherSpecify] =
+        this.historyHIVDesiredSupportOtherSpecify;
+
+    map[colHistoryHIVPrepDesiredSupportRemindersAppointments] =
+        this.historyHIVPrepDesiredSupportReminderssAppointments ? 1 : 0;
+
+    map[colHistoryHIVPrepDesiredSupportRemindersAdherence] =
+        this.historyHIVPrepDesiredSupportRemindersAdherence ? 1 : 0;
+
+    map[colHistoryHIVPrepDesiredSupportRefilsPNAccompany] =
+        this.historyHIVPrepDesiredSupportRefilsPNAccompany ? 1 : 0;
+
+    map[colHistoryHIVPrepDesiredSupportPNHIVKit] =
+        this.historyHIVPrepDesiredSupportPNHIVKit ? 1 : 0;
+
+    map[colHistoryHIVPrepDesiredSupportOther] =
+        this.historyHIVPrepDesiredSupportOther ? 1 : 0;
+
+    map[colHistoryHIVPrepDesiredSupportOtherSpecify] =
+        this.historyHIVPrepDesiredSupportOtherSpecify;
+
+    //srh contraception
+    map[colSRHContraceptionInterest] = this.srhContraceptionInterest.code;
+
+    map[colSRHContraceptionNoInterestReason] =
+        this.srhContraceptionNoInterestReason;
+
+    map[colSRHContraceptionInterestMaleCondom] =
+        this.srhContraceptionInterestMaleCondom ? 1 : 0;
+
+    map[colSRHContraceptionInterestFemaleCondom] =
+        this.srhContraceptionInterestFemaleCondom ? 1 : 0;
+
+    map[colSRHContraceptionInterestImplant] =
+        this.srhContraceptionInterestImplant ? 1 : 0;
+
+    map[colSRHContraceptionInterestMaleCondom] =
+        this.srhContraceptionInterestMaleCondom ? 1 : 0;
+
+    map[colSRHContraceptionInterestInjection] =
+        this.srhContraceptionInterestInjection ? 1 : 0;
+
+    map[colSRHContraceptionInterestIUD] =
+        this.srhContraceptionInterestIUD ? 1 : 0;
+
+    map[colSRHContraceptionInterestIUS] =
+        this.srhContraceptionInterestIUS ? 1 : 0;
+
+    map[colSRHContraceptionInterestPills] =
+        this.srhContraceptionInterestPills ? 1 : 0;
+
+    map[colSRHContraceptionInterestOther] =
+        this.srhContraceptionInterestOther ? 1 : 0;
+
+    map[colSRHContraceptionInterestOtherSpecify] =
+        this.srhContraceptionInterestOtherSpecify;
+
+    map[colSRHContraceptionMethodInMind] =
+        this.srhContraceptionMethodInMind?.code;
+
+    map[colSRHContraceptionInformationMethods] =
+        this.srhContraceptionInformationMethods?.code;
+
+    map[colSRHContraceptionFindScheduleFacility] =
+        this.srhContraceptionFindScheduleFacility?.code;
+
+    map[colSRHContraceptionFindScheduleFacilityYesDate] =
+        this.srhContraceptionFindScheduleFacilityYesDate?.toIso8601String();
+
+    map[colSRHContraceptionFindScheduleFacilityYesPNAccompany] =
+        this.srhContraceptionFindScheduleFacilityYesPNAccompany?.code;
+
+    map[colSRHContraceptionFindScheduleFacilityNoDate] =
+        this.srhContraceptionFindScheduleFacilityNoDate?.code;
+
+    map[colSRHContraceptionFindScheduleFacilityNoPick] =
+        this.srhContraceptionFindScheduleFacilityNoPick?.code;
+
+    map[colSRHContraceptionFindScheduleFacilitySelected] =
+        this.srhContraceptionFindScheduleFacilitySelected;
+
+    map[colSRHContraceptionFindScheduleFacilityOther] =
+        this.srhContraceptionFindScheduleFacilityOther;
+
+    map[colSRHContraceptionInformationApp] =
+        this.srhContraceptionInformationApp?.code;
+
+    map[colSRHContraceptionLearnMethods] =
+        this.srhContraceptionLearnMethods?.code;
+
+    //srh prep
+    map[colSRHPrepInterest] = this.srhPrepInterest.code;
+
+    map[colSRHPrepInformationApp] = this.srhPrepInformationApp?.code;
+
+    map[colSRHPrepFindScheduleFacility] =
+        this.srhPrepFindScheduleFacilitySchedule?.code;
+
+    map[colSRHPrepFindScheduleFacilityYesDate] = this.srhPrepFindScheduleFacilityYesDate?.toIso8601String();
+
+    map[colSRHPrepFindScheduleFacilityYesPNAccompany] =
+        this.srhPrepFindScheduleFacilityYesPNAccompany?.code;
+
+    map[colSRHPrepFindScheduleFacilityNoDate] =
+        this.srhPrepFindScheduleFacilityNoDate?.code;
+
+    map[colSRHPrepFindScheduleFacilityNoPick] =
+        this.srhPrepFindScheduleFacilityNoPick?.code;
+
+    map[colSRHPrepFindScheduleFacilitySelected] =
+        this.srhPrepFindScheduleFacilitySelected;
+
+    map[colSRHPrepFindScheduleFacilityOther] =
+        this.srhPrepFindScheduleFacilityOther;
+
+    map[colSRHPrepLikeMoreInformation] = this.srhPrepLikeMoreInformation?.code;
 
     return map;
   }
@@ -550,27 +982,14 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   /// Initializes the field [followups] with the latest data from the database.
   Future<void> initializeFollowupsField() async {
-    this.followups = await DatabaseProvider()
-        .retrieveFollowupsForPatient(personalStudyNumber);
-  }
-
-  /// Initializes the field [events] with the latest data from the database.
-  Future<void> initializeMedicationRefilsField() async {
-    // this.medicationRefils =
-    //   await DatabaseProvider().retrieveMedicationRefilsForPatient(artNumber);
-  }
-
-  /// Initializes the field [latestPreferenceAssessment] with the latest data from the database.
-  Future<void> initializePreferenceAssessmentField() async {
-    PreferenceAssessment pa = await DatabaseProvider()
-        .retrieveLatestPreferenceAssessmentForPatient(personalStudyNumber);
-    //this.latestPreferenceAssessment = pa;
+    //this.followups = await DatabaseProvider()
+    //    .retrieveFollowupsForPatient(personalStudyNumber);
   }
 
   Future<void> initializeRecentFields() async {
-    R21Followup followup = await DatabaseProvider()
+    /* R21Followup followup = await DatabaseProvider()
         .retrieveLatestFollowupForPatient(personalStudyNumber);
-    this.latestFollowup = followup;
+    this.latestFollowup = followup;*/
   }
 
   /// Initializes the field [requiredActions] with the latest data from the database.
@@ -580,6 +999,7 @@ class Patient implements IExcelExportable, IJsonExportable {
   /// be called, otherwise actions are required because the fields are not
   /// initialized (null).
   Future<void> initializeRequiredActionsField() async {
+    /*
     // get required actions stored in database
     final Set<RequiredAction> actions = await DatabaseProvider()
         .retrieveRequiredActionsForPatient(personalStudyNumber);
@@ -601,13 +1021,14 @@ class Patient implements IExcelExportable, IJsonExportable {
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
+    */
   }
 
   R21Followup get mostRecentFollowup {
     R21Followup mostRecent;
     for (R21Followup ev in followups) {
       if (mostRecent == null ||
-          !ev.createdDate.isBefore(mostRecent.createdDate)) {
+          !ev.createDate.isBefore(mostRecent.createDate)) {
         mostRecent = ev;
       }
     }
@@ -616,17 +1037,7 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   /// Sets fields to null if they are not used. E.g. sets [personalPhoneNumber] to null
   /// if [personalPhoneNumberAvailability] is not YES.
-  void checkLogicAndResetUnusedFields() {
-    if (!this.historyContraceptionIUD) {
-      this.personalResidency = null;
-      this.personalPreferredContactMethod = null;
-      this.personalPhoneNumberAvailability = null;
-      this.personalPhoneNumber = null;
-      this.messengerDownloaded = null;
-      this.messengerNoDownloadReason = null;
-    }
-    //R21
-  }
+  void checkLogicAndResetUnusedFields() {}
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.

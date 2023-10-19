@@ -12,7 +12,7 @@ import 'package:pebrapp/database/beans/R21ScreenType.dart';
 import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
-import 'package:pebrapp/r21screens/R21NewFlatPatientScreen.dart';
+import 'package:pebrapp/r21screens/R21NewPatientScreen.dart';
 import 'package:pebrapp/r21screens/R21PatientScreen.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
 import 'dart:ui';
@@ -455,7 +455,7 @@ class _R21MainScreenState extends State<R21MainScreen>
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
-          return R21NewFlatPatientScreen();
+          return R21NewPatientScreen();
         },
       ),
     );
@@ -531,7 +531,7 @@ class _R21MainScreenState extends State<R21MainScreen>
 
     Text _formatPatientRowText(String text, {bool bold = false}) {
       return Text(
-        text,
+        text ?? 'nul',
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 18,
@@ -564,14 +564,14 @@ class _R21MainScreenState extends State<R21MainScreen>
                   child: _formatHeaderRowText("Age"),
                 ),
                 Expanded(
-                  child: _formatHeaderRowText("Phone"),
+                  child: _formatHeaderRowText("Residency"),
                 ),
                 Expanded(
                   flex: 2,
                   child: _formatHeaderRowText("Support"),
                 ),
                 Expanded(
-                  child: _formatHeaderRowText("SRH Service"),
+                  child: _formatHeaderRowText("Phone No"),
                 ),
               ])),
         ]));
@@ -710,10 +710,7 @@ class _R21MainScreenState extends State<R21MainScreen>
                     ),
                     Expanded(
                         child: Padding(
-                      child: _formatPatientRowText(
-                          curPatient.historyHIVPrepDesiredSupportOther== null
-                              ? "-"
-                              : curPatient.historyHIVPrepDesiredSupportOther),
+                      child: _formatPatientRowText(curPatient.personalPhoneNumber),
                       padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                     )),
                   ])),
