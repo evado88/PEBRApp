@@ -36,13 +36,11 @@ class R21NewPatientScreen extends StatefulWidget {
 }
 
 class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
-
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formParticipantCharacteristicsKey = GlobalKey<FormState>();
   final _formParticipantHistoryKey = GlobalKey<FormState>();
   final _formParticipantSrhPreferenceKey = GlobalKey<FormState>();
-
 
   final _questionsFlex = 1;
   final _answersFlex = 1;
@@ -59,59 +57,36 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   static final DateTime minARTRefilDate =
       DateTime(now.year - minAgeForEligibility, now.month, now.day);
 
-  TextEditingController _specifyPrepRefilCollectionClinicCtr =
-      TextEditingController();
 
-  TextEditingController _problemsTakingPrepCtr = TextEditingController();
 
-  TextEditingController _questionsAboutPrepMedicationCtr =
-      TextEditingController();
 
-  TextEditingController _reasonPrepStopReasonCtr = TextEditingController();
+
+
+
 
   Patient _newPatient = Patient();
 
 
 
-  TextEditingController _contraceptiveMethodOtherSpecifyCtr =
-      TextEditingController();
+  
 
-  TextEditingController _reasonStopContraceptionCtr = TextEditingController();
-  TextEditingController _reasonNoContraceptionCtr = TextEditingController();
-  TextEditingController _specifyContraceptionMethodCtr =
-      TextEditingController();
-  TextEditingController _reasonNoContraceptionSatisfactionCtr =
-      TextEditingController();
 
-  TextEditingController _problemsTakingARTCtr = TextEditingController();
-  TextEditingController _specifyARTRefilCollectionClinicCtr =
-      TextEditingController();
 
-  TextEditingController _questionsAboutARTMedicationCtr =
-      TextEditingController();
 
-  TextEditingController _studyNumberCtr = TextEditingController();
-  TextEditingController _phoneNumberCtr = TextEditingController();
-  TextEditingController _noChatDownloadReasonOtherCtr = TextEditingController();
 
-  TextEditingController _interestContraceptionMethodOtherCtr =
-      TextEditingController();
 
-  TextEditingController _interestContraceptionSelectedFacilityCodeCtr =
-      TextEditingController();
 
-  TextEditingController _interestContraceptionNotNowDateOtherCtr =
-      TextEditingController();
 
-  TextEditingController _interestContraceptionMaybeMethodSpecifyCtr =
-      TextEditingController();
+
+
+
+
 
   // this field is used to display an error when the form is validated and if
   // the viral load baseline date is not selected
   bool _patientBirthdayValid = true;
 
   List<String> _studyNumbersInDB;
-  List<String> _stickerNumbersInDB;
   bool _isLoading = true;
 
   double _screenWidth;
@@ -132,12 +107,10 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         .retrieveLatestPatients(
             retrieveNonEligibles: false, retrieveNonConsents: false)
         .then((List<Patient> patients) {
-
       setState(() {
         _studyNumbersInDB =
             patients.map((Patient p) => p.personalStudyNumber).toList();
         _isLoading = false;
-
       });
     });
   }
@@ -179,7 +152,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       }
 
       if (_patientSaved) {
-
         return Container(
           width: double.infinity,
           child:
@@ -230,9 +202,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     ];
 
     goTo(int step) {
-   
-        //allow going back to any setp
-      
+      //allow going back to any setp
 
       setState(() => _currentStep = step);
     }
@@ -286,7 +256,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     Widget stepper() {
       return Stepper(
         steps: steps,
-      type: StepperType.vertical,
+        type: StepperType.vertical,
         currentStep: _currentStep,
         onStepTapped: goTo,
         onStepContinue: _stepperFinished ? null : next,
@@ -381,7 +351,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  
 //MESSENGER
   Widget _messengerAppCard() {
     return _buildCard(
@@ -396,7 +365,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
- Widget _contactInformationCard() {
+  Widget _contactInformationCard() {
     return _buildCard(
       'Contact Information',
       child: Column(
@@ -410,7 +379,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
-
 
   Widget _contraceptionCard() {
     return _buildCard(
@@ -547,7 +515,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-
 //METHODS
   Future<void> _pushChooseFacilityScreen() async {
     await _fadeInScreen(R21ChooseFacilityScreen(),
@@ -580,9 +547,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-
- 
-
   // ----------
   // CARD CONTENTS
   // ----------
@@ -590,8 +554,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   //PERSONAL INFORMATION
 
 
-  
- Widget _studyNumberQuestion() {
+  TextEditingController _studyNumberCtr = TextEditingController();
+
+  Widget _studyNumberQuestion() {
     return _makeQuestion(
       'Study Number',
       answer: TextFormField(
@@ -726,6 +691,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
+  TextEditingController _noChatDownloadReasonOtherCtr = TextEditingController();
+
   Widget _specifyNoDownloadReasonQuestion() {
     if (_newPatient.messengerDownloaded == null ||
         _newPatient.messengerDownloaded ||
@@ -748,7 +715,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   }
 
 //CONTACT INFORMATION
- Widget _phoneNumberQuestion() {
+
+  TextEditingController _phoneNumberCtr = TextEditingController();
+  Widget _phoneNumberQuestion() {
     return _makeQuestion(
       'Phone Number',
       answer: TextFormField(
@@ -767,7 +736,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-    Widget _phoneAvailabilityQuestion() {
+  Widget _phoneAvailabilityQuestion() {
     return _makeQuestion(
       'Is your phone',
       answer: DropdownButtonFormField<R21PhoneNumberSecurity>(
@@ -795,7 +764,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-
   Widget _residencyQuestion() {
     return _makeQuestion(
       'Residence',
@@ -822,8 +790,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
-
- 
 
   Widget _preferredContactMethodQuestion() {
     return _makeQuestion(
@@ -1033,6 +999,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: true);
   }
 
+  TextEditingController _contraceptiveMethodOtherSpecifyCtr =
+      TextEditingController();
+
   Widget _contraceptiveMethodOtherSpecify() {
     if (_newPatient.historyContraceptionUse == null ||
         _newPatient.historyContraceptionUse !=
@@ -1054,7 +1023,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  
+  TextEditingController _reasonStopContraceptionCtr = TextEditingController();
+
   Widget _whyStopContraception() {
     if (_newPatient.historyContraceptionUse == null ||
         _newPatient.historyContraceptionUse !=
@@ -1107,6 +1077,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
+TextEditingController _reasonNoContraceptionSatisfactionCtr =
+      TextEditingController();
+      
   Widget _whyNoContraceptionSatisfaction() {
     if (_newPatient.historyContraceptionUse == null ||
         _newPatient.historyContraceptionUse !=
@@ -1126,6 +1099,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+  TextEditingController _reasonNoContraceptionCtr = TextEditingController();
 
   Widget _whyNoContraception() {
     if (_newPatient.historyContraceptionUse == null ||
@@ -1145,7 +1119,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
-
 
 //HIV
 
@@ -1266,6 +1239,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
+  TextEditingController _specifyARTRefilCollectionClinicCtr =
+      TextEditingController();
+
   Widget _specifyARTRefilCollectionClinic() {
     if ((_newPatient.historyHIVStatus == null ||
             _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
@@ -1289,6 +1265,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
+  TextEditingController _problemsTakingARTCtr = TextEditingController();
+
   Widget _problemsTakingART() {
     if (_newPatient.historyHIVStatus == null ||
         _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) {
@@ -1307,6 +1285,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
+  TextEditingController _questionsAboutARTMedicationCtr =
+      TextEditingController();
 
   Widget _questionsAboutARTMedication() {
     if (_newPatient.historyHIVStatus == null ||
@@ -1411,6 +1392,10 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: true);
   }
 
+
+  TextEditingController _specifyARTDesiredSupportOtherCtr =
+      TextEditingController();
+
   Widget _specifyARTDesiredSupportOther() {
     if ((_newPatient.historyHIVStatus == null ||
             _newPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
@@ -1423,7 +1408,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Specify other support',
       answer: TextFormField(
-        controller: _reasonNoContraceptionSatisfactionCtr,
+        controller: _specifyARTDesiredSupportOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter a reason';
@@ -1521,6 +1506,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
+  TextEditingController _reasonPrepStopReasonCtr = TextEditingController();
 
   Widget _specifyPrepStopReason() {
     if ((_newPatient.historyHIVStatus == null ||
@@ -1636,6 +1623,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
+  TextEditingController _specifyPrepRefilCollectionClinicCtr =
+      TextEditingController();
+
   Widget _specifyPrepRefilCollectionClinic() {
     if ((_newPatient.historyHIVStatus == null ||
             _newPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
@@ -1655,6 +1645,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
+  TextEditingController _problemsTakingPrepCtr = TextEditingController();
 
   Widget _problemsTakingPrep() {
     if ((_newPatient.historyHIVStatus == null ||
@@ -1676,6 +1668,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
+  TextEditingController _questionsAboutPrepMedicationCtr =
+      TextEditingController();
 
   Widget _questionsAboutPrepMedication() {
     if ((_newPatient.historyHIVStatus == null ||
@@ -1996,6 +1991,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: true);
   }
 
+  TextEditingController _interestContraceptionMethodOtherCtr =
+      TextEditingController();
+
   Widget _specifyInterestContraceptionMethodOther() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
@@ -2211,6 +2209,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       _pushChooseFacilityScreen();
     });
   }
+
+
+  TextEditingController _interestContraceptionSelectedFacilityCodeCtr =
+      TextEditingController();
+
   Widget _interestContraceptionSelectedFacility() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
@@ -2269,6 +2272,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: false,
         forceColumn: true);
   }
+
+  TextEditingController _interestContraceptionNotNowDateOtherCtr =
+      TextEditingController();
 
   Widget _interestContraceptionNotNowDateOther() {
     if ((_newPatient.srhContraceptionInterest == null ||
@@ -2350,6 +2356,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
+    TextEditingController _interestContraceptionNotNowSelectedFacilityCtr =
+      TextEditingController();
+
   Widget _interestContraceptionNotNowPickFacilitySelected() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
@@ -2366,7 +2375,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Selected Facility Code',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _interestContraceptionNotNowSelectedFacilityCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify selected facility';
@@ -2533,6 +2542,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         forceColumn: true,
         makeBold: true);
   }
+  TextEditingController _interestContraceptionMaybeMethodSpecifyCtr =
+      TextEditingController();
 
   Widget _interestContraceptionMaybeMethodSpecify() {
     if ((_newPatient.srhContraceptionInterest == null ||
@@ -2700,6 +2711,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
+TextEditingController _interestContraceptionMaybeSelectedFacilityCtr = TextEditingController();
+
   Widget _interestContraceptionMaybeSelectedFacility() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
@@ -2712,7 +2725,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Selected Facility Code',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _interestContraceptionMaybeSelectedFacilityCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify selected facility';
@@ -2759,6 +2772,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         forceColumn: true);
   }
 
+TextEditingController _interestContraceptionMaybeNotNowSelectedFacilityCtr = TextEditingController();
+
   Widget _interestContraceptionMaybeNotNowDateOther() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
@@ -2775,7 +2790,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Specify other date',
       answer: TextFormField(
-        controller: _interestContraceptionNotNowDateOtherCtr,
+        controller: _interestContraceptionMaybeNotNowSelectedFacilityCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify date';
@@ -2839,6 +2854,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
+TextEditingController _interestContraceptionMaybeNotNowPickFacilitySelectedCtr = TextEditingController();
+
   Widget _interestContraceptionMaybeNotNowPickFacilitySelected() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
@@ -2855,7 +2872,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Selected Facility Code',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _interestContraceptionMaybeNotNowPickFacilitySelectedCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify selected facility';
@@ -2947,6 +2964,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
+TextEditingController _interestContraceptionNotSpecifyReasonCtr = TextEditingController();
+
+
   Widget _interestContraceptionNotSpecifyReason() {
     if ((_newPatient.srhContraceptionInterest == null ||
         _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
@@ -2955,7 +2975,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Why not interest in contraception?',
       answer: TextFormField(
-        controller: _interestContraceptionMaybeMethodSpecifyCtr,
+        controller: _interestContraceptionNotSpecifyReasonCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify reason';
@@ -3045,7 +3065,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         forceColumn: true);
   }
 
-
 //PREP
   Widget _interestPrep() {
     return _makeQuestion(
@@ -3117,6 +3136,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       _pushViewResourcesScreen();
     });
   }
+
   Widget _interestPrepVeryLikeFacilitySchedule() {
     if ((_newPatient.srhPrepInterest == null ||
         _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
@@ -3148,6 +3168,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: false,
         forceColumn: true);
   }
+
   Widget _interestPrepVeryLikeFacilityScheduleDate() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3208,6 +3229,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ]),
     );
   }
+
   Widget _interestPrepVeryLikePNAccompany() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3241,6 +3263,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: false,
         forceColumn: false);
   }
+
   Widget _interestPrepVeryOpenFacilitiesPageShowButton() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3254,6 +3277,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       print('~~~ 3. OPENING FACILITIES PAGE =>');
     });
   }
+
+  TextEditingController _interestPrepVerySelectedFacilityCtr = TextEditingController();
+
   Widget _interestPrepVerySelectedFacility() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3266,7 +3292,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Selected Facility Code',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _interestPrepVerySelectedFacilityCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify selected facility';
@@ -3276,6 +3302,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
   Widget _interestPrepVeryNotNowDate() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3310,6 +3337,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: false,
         forceColumn: true);
   }
+
+  TextEditingController _interestPrepVeryNotNowDateOtherCtr = TextEditingController();
+
   Widget _interestPrepVeryNotNowDateOther() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3324,7 +3354,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Specify other date',
       answer: TextFormField(
-        controller: _interestContraceptionNotNowDateOtherCtr,
+        controller: _interestPrepVeryNotNowDateOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify date';
@@ -3334,6 +3364,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
   Widget _interestPrepVeryNotNowPickFacility() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3367,6 +3398,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
   Widget _interestPrepVeryNotNowPickFacilityShowButton() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
@@ -3383,6 +3415,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       print('4. Opening facilities page');
     });
   }
+
+  TextEditingController _interestPrepVeryNotNowPickFacilitySelectedCtr = TextEditingController();
+
   Widget _interestPrepVeryNotNowPickFacilitySelected() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
@@ -3399,7 +3434,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Selected Facility Code',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _interestPrepVeryNotNowPickFacilitySelectedCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify selected facility';
@@ -3409,6 +3444,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
   Widget _interestPrepVeryLikeInformationOnApp() {
     if ((_newPatient.srhPrepInterest == null ||
         _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
@@ -3628,6 +3664,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
+  TextEditingController _interestPrepMaybeSelectedFacilityCtr = TextEditingController();
+
   Widget _interestPrepMaybeSelectedFacility() {
     if ((_newPatient.srhPrepInterest == null ||
             _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
@@ -3640,7 +3678,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Selected Facility Code',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _interestPrepMaybeSelectedFacilityCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify selected facility';
@@ -3685,6 +3723,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: false,
         forceColumn: true);
   }
+  
+  TextEditingController _interestPrepMaybeNotNowDateOtherCtr = TextEditingController();
 
   Widget _interestPrepMaybeNotNowDateOther() {
     if ((_newPatient.srhPrepInterest == null ||
@@ -3700,7 +3740,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Specify other date',
       answer: TextFormField(
-        controller: _interestContraceptionNotNowDateOtherCtr,
+        controller: _interestPrepMaybeNotNowDateOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify date';
@@ -3761,13 +3801,14 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
+  TextEditingController _interestPrepMaybeNotNowPickFacilitySelectedCtr = TextEditingController();
+
   Widget _interestPrepMaybeNotNowPickFacilitySelected() {
     if ((_newPatient.srhContraceptionInterest == null ||
             _newPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_newPatient.srhPrepFindScheduleFacilityNoPick == null ||
-            _newPatient.srhPrepFindScheduleFacilityNoPick !=
-                R21YesNo.NO()) ||
+            _newPatient.srhPrepFindScheduleFacilityNoPick != R21YesNo.NO()) ||
         (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
             _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
                 R21YesNo.YES())) {
@@ -3777,7 +3818,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     return _makeQuestion(
       'Selected Facility Code',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _interestPrepMaybeNotNowPickFacilitySelectedCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify selected facility';
@@ -3897,17 +3938,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: false,
         forceColumn: true);
   }
-
-
-
-
-
-
- 
-
-
-
-
 
   // ----------
   // OTHER
@@ -4059,5 +4089,4 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   bool _studyNumberExists(artNumber) {
     return _studyNumbersInDB.contains(artNumber);
   }
-
 }
