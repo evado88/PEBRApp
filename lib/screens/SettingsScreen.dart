@@ -122,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
-              //Navigator.of(context).popUntil(ModalRoute.withName('/'));
+              Navigator.of(context).popUntil(ModalRoute.withName('/'));
             })
       ],
     );

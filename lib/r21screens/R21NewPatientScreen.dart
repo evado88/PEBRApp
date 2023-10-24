@@ -18,9 +18,7 @@ import 'package:pebrapp/database/beans/R21Week.dart';
 import 'package:pebrapp/database/beans/R21YesNo.dart';
 import 'package:pebrapp/database/beans/R21YesNoUnsure.dart';
 import 'package:pebrapp/database/beans/R21PreferredContactMethod.dart';
-import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/r21screens/R21ChooseFacilityScreen.dart';
 import 'package:pebrapp/r21screens/R21ViewResourcesScreen.dart';
@@ -38,11 +36,13 @@ class R21NewPatientScreen extends StatefulWidget {
 }
 
 class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
+
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formParticipantCharacteristicsKey = GlobalKey<FormState>();
   final _formParticipantHistoryKey = GlobalKey<FormState>();
   final _formParticipantSrhPreferenceKey = GlobalKey<FormState>();
+
 
   final _questionsFlex = 1;
   final _answersFlex = 1;
@@ -71,8 +71,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
 
   Patient _newPatient = Patient();
 
-  ViralLoad _viralLoadBaseline =
-      ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), failed: false);
+
 
   TextEditingController _contraceptiveMethodOtherSpecifyCtr =
       TextEditingController();
@@ -92,8 +91,6 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       TextEditingController();
 
   TextEditingController _studyNumberCtr = TextEditingController();
-  TextEditingController _stickerNumberCtr = TextEditingController();
-  TextEditingController _villageCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
   TextEditingController _noChatDownloadReasonOtherCtr = TextEditingController();
 
@@ -113,7 +110,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   // the viral load baseline date is not selected
   bool _patientBirthdayValid = true;
 
-  List<String> _artNumbersInDB;
+  List<String> _studyNumbersInDB;
   List<String> _stickerNumbersInDB;
   bool _isLoading = true;
 
@@ -130,14 +127,17 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   @override
   initState() {
     super.initState();
+
     DatabaseProvider()
         .retrieveLatestPatients(
             retrieveNonEligibles: false, retrieveNonConsents: false)
         .then((List<Patient> patients) {
+
       setState(() {
-        _artNumbersInDB =
+        _studyNumbersInDB =
             patients.map((Patient p) => p.personalStudyNumber).toList();
         _isLoading = false;
+
       });
     });
   }
@@ -178,8 +178,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         print('~~~ PATIENT NOT SAVED=>');
       }
 
-      if (_patientSaved &&
-          (_historySaved || !(_newPatient.messengerDownloaded ?? true))) {
+      if (_patientSaved) {
+
         return Container(
           width: double.infinity,
           child:
@@ -230,11 +230,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     ];
 
     goTo(int step) {
-      if (step == 0 && _patientSaved) {
-        // do not allow going back to first step if the patient has already
-        // been saved
-        return;
-      }
+   
+        //allow going back to any setp
+      
 
       setState(() => _currentStep = step);
     }
@@ -288,7 +286,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     Widget stepper() {
       return Stepper(
         steps: steps,
-//      type: StepperType.horizontal,
+      type: StepperType.vertical,
         currentStep: _currentStep,
         onStepTapped: goTo,
         onStepContinue: _stepperFinished ? null : next,
@@ -366,9 +364,10 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   }
 
   // ----------
-  // CARDS
+  // CARDS FOR PATIENT
   // ----------
 
+//PERSONAL INFORMATION
   Widget _personalInformationCard() {
     return _buildCard(
       'Personal Information',
@@ -381,6 +380,37 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
+  
+//MESSENGER
+  Widget _messengerAppCard() {
+    return _buildCard(
+      'Messenger App',
+      child: Column(
+        children: [
+          _downloadedMessengerApp(),
+          _noDownloadReasonQuestion(),
+          _specifyNoDownloadReasonQuestion(),
+        ],
+      ),
+    );
+  }
+
+ Widget _contactInformationCard() {
+    return _buildCard(
+      'Contact Information',
+      child: Column(
+        children: [
+          _phoneNumberQuestion(),
+          _phoneAvailabilityQuestion(),
+          _residencyQuestion(),
+          _preferredContactMethodQuestion(),
+          _contactFrequency(),
+        ],
+      ),
+    );
+  }
+
 
   Widget _contraceptionCard() {
     return _buildCard(
@@ -440,16 +470,16 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           _particularMethodInMind(),
           _specifyInterestContraceptionMethodOther(),
           _interestContraceptionLikeInfoMethods(),
-          _interestContraceptionOpenCounselingInfoPage(),
+          _interestContraceptionOpenCounselingInfoPageButton(),
           _interestContraceptionLikeFacilitySchedule(),
           _interestContraceptionLikeFacilityScheduleDate(),
           _interestContraceptionLikePNAccompany(),
-          _interestContraceptionOpenFacilitiesPage(),
+          _interestContraceptionOpenFacilitiesPageButton(),
           _interestContraceptionSelectedFacility(),
           _interestContraceptionNotNowDate(),
           _interestContraceptionNotNowDateOther(),
           _interestContraceptionNotNowPickFacility(),
-          _interestContraceptionNotNowPickFacilityShow(),
+          _interestContraceptionNotNowPickFacilityShowButton(),
           _interestContraceptionNotNowPickFacilitySelected(),
           _interestContraceptionLikeInformationOnApp(),
           _interestContraceptionMaybeMethod(),
@@ -457,19 +487,19 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           _interestContraceptionMaybeLikeFacilitySchedule(),
           _interestContraceptionMaybeLikeFacilityScheduleDate(),
           _interestContraceptionMaybeLikePNAccompany(),
-          _interestContraceptionMaybeOpenFacilitiesPage(),
+          _interestContraceptionMaybeOpenFacilitiesPagebutton(),
           _interestContraceptionMaybeSelectedFacility(),
           _interestContraceptionMaybeNotNowDate(),
           _interestContraceptionMaybeNotNowDateOther(),
           _interestContraceptionMaybeNotNowPickFacility(),
-          _interestContraceptionMaybeNotNowPickFacilityShow(),
+          _interestContraceptionMaybeNotNowPickFacilityShowButton(),
           _interestContraceptionMaybeNotNowPickFacilitySelected(),
           _interestContraceptionMaybeLikeInformationOnApp(),
           _interestContraceptionMaybeLikeInfoOnMethods(),
-          _interestContraceptionMaybeLikeInfoOnMethodsShow(),
+          _interestContraceptionMaybeLikeInfoOnMethodsShowButton(),
           _interestContraceptionNotSpecifyReason(),
           _interestContraceptionNotLikeInfoOnMethods(),
-          _interestContraceptionNotLikeInfoOnMethodsShow(),
+          _interestContraceptionNotLikeInfoOnMethodsShowButton(),
           _interestContraceptionNotLikeInformationOnApp(),
         ],
       ),
@@ -484,473 +514,41 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         children: [
           _interestPrep(),
           _interestPrepLikeInfoOnMethods(),
-          _interestPrepLikeInfoOnMethodsShow(),
+          _interestPrepLikeInfoOnMethodsShowButton(),
           _interestPrepVeryLikeFacilitySchedule(),
           _interestPrepVeryLikeFacilityScheduleDate(),
           _interestPrepVeryLikePNAccompany(),
-          _interestPrepVeryOpenFacilitiesPage(),
+          _interestPrepVeryOpenFacilitiesPageShowButton(),
           _interestPrepVerySelectedFacility(),
           _interestPrepVeryNotNowDate(),
           _interestPrepVeryNotNowDateOther(),
           _interestPrepVeryNotNowPickFacility(),
-          _interestPrepVeryNotNowPickFacilityShow(),
+          _interestPrepVeryNotNowPickFacilityShowButton(),
           _interestPrepVeryNotNowPickFacilitySelected(),
           _interestPrepVeryLikeInformationOnApp(),
           _interestPrepMaybeLikeInfoOnMethods(),
-          _interestPrepMaybeLikeInfoOnMethodsShow(),
+          _interestPrepMaybeLikeInfoOnMethodsShowButton(),
           _interestPrepMaybeLikeFacilitySchedule(),
           _interestPrepMaybeLikeFacilityScheduleDate(),
           _interestPrepMaybeLikePNAccompany(),
-          _interestPrepMaybeOpenFacilitiesPage(),
+          _interestPrepMaybeOpenFacilitiesPageShowButton(),
           _interestPrepMaybeSelectedFacility(),
           _interestPrepMaybeNotNowDate(),
           _interestPrepMaybeNotNowDateOther(),
           _interestPrepMaybeNotNowPickFacility(),
-          _interestPrepMaybeNotNowPickFacilityShow(),
+          _interestPrepMaybeNotNowPickFacilityShowButton(),
           _interestPrepMaybeNotNowPickFacilitySelected(),
           _interestPrepMaybeLikeInformationOnApp(),
           _interestPrepNotLikeInfoOnMethods(),
-          _interestPrepNotLikeInfoOnMethodsShow(),
+          _interestPrepNotLikeInfoOnMethodsShowButtons(),
           _interestPrepNotLikeInformationOnApp()
         ],
       ),
     );
   }
 
-  Widget _messengerAppCard() {
-    return _buildCard(
-      'Messenger App',
-      child: Column(
-        children: [
-          _consentGivenQuestion(),
-          _noConsentReasonQuestion(),
-          _noConsentReasonOtherQuestion(),
-        ],
-      ),
-    );
-  }
 
-  Widget _contactInformationCard() {
-    return _buildCard(
-      'Contact Information',
-      child: Column(
-        children: [
-          _phoneNumberQuestion(),
-          _phoneAvailabilityQuestion(),
-          _residencyQuestion(),
-          _preferredContactMethodQuestion(),
-          _contactFrequency(),
-        ],
-      ),
-    );
-  }
-
-  // ----------
-  // QUESTIONS
-  // ----------
-
-  //R21
-
-  Widget _contraceptionInterest() {
-    return _makeQuestion(
-      'Interest in using contraception ',
-      answer: DropdownButtonFormField<R21Interest>(
-        value: _newPatient.srhContraceptionInterest,
-        onChanged: (R21Interest newValue) {
-          setState(() {
-            _newPatient.srhContraceptionInterest = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-        },
-        items: R21Interest.allValues
-            .map<DropdownMenuItem<R21Interest>>((R21Interest value) {
-          return DropdownMenuItem<R21Interest>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _hasMethodInMind() {
-    if (_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
-      return SizedBox();
-    }
-    return _makeQuestion(
-      'Does she have a particular method in mind?',
-      answer: DropdownButtonFormField<R21YesNo>(
-        value: _newPatient.srhContraceptionMethodInMind,
-        onChanged: (R21YesNo newValue) {
-          setState(() {
-            _newPatient.srhContraceptionMethodInMind = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-        },
-        items: R21YesNo.allValues
-            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-          return DropdownMenuItem<R21YesNo>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _particularMethodInMind() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionMethodInMind == null ||
-            _newPatient.srhContraceptionMethodInMind == R21YesNo.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion('Which method',
-        answer: Column(children: [
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestMaleCondom,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestMaleCondom = value;
-                });
-              },
-            ),
-            Text(
-              'Male Condoms',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestFemaleCondom,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestFemaleCondom = value;
-                });
-              },
-            ),
-            Text(
-              'Female Condoms',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestImplant,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestImplant = value;
-                });
-              },
-            ),
-            Text(
-              'Implant',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestInjection,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestInjection = value;
-                });
-              },
-            ),
-            Text(
-              'Injection',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestIUD,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestIUD = value;
-                });
-              },
-            ),
-            Text(
-              'IUD (intrauterine Device or Coil)',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestIUS,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestIUS = value;
-                });
-              },
-            ),
-            Text(
-              'IUS (intrauterine System or Hormonal Coil)',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestPills,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestPills = value;
-                });
-              },
-            ),
-            Text(
-              'Contraception Pills (combined or progestogen-only)',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestOther,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestOther = value;
-                });
-              },
-            ),
-            Text(
-              'Other (specify)',
-            ),
-          ])
-        ]),
-        forceColumn: true,
-        makeBold: true);
-  }
-
-  Widget _specifyInterestContraceptionMethodOther() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionMethodInMind == null ||
-            _newPatient.srhContraceptionMethodInMind == R21YesNo.NO()) ||
-        (_newPatient.srhContraceptionInterestOther == null ||
-            _newPatient.srhContraceptionInterestOther == false)) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Specify other method',
-      answer: TextFormField(
-        controller: _interestContraceptionMethodOtherCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify the method';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestContraceptionLikeInfoMethods() {
-    if (_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like more information about different methods right now?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionInformationMethods,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionInformationMethods = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionOpenCounselingInfoPage() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionInformationMethods == null ||
-            _newPatient.srhContraceptionInformationMethods == R21YesNo.NO())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Counseling Information Page', onPressed: () {
-      print('~~~ OPENING COUNSELLING INFO PAGE =>');
-      _pushViewResourcesScreen();
-    });
-  }
-
-  Widget _interestContraceptionLikeFacilitySchedule() {
-    if (_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like to find a facility and schedule a time to go for counseling and possibly a method of her choice NOW?',
-        answer: DropdownButtonFormField<R21YesNoUnsure>(
-          value: _newPatient.srhContraceptionFindScheduleFacility,
-          onChanged: (R21YesNoUnsure newValue) {
-            setState(() {
-              _newPatient.srhContraceptionFindScheduleFacility = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNoUnsure.allValues
-              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
-            return DropdownMenuItem<R21YesNoUnsure>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionLikeFacilityScheduleDate() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'When would she like to go',
-      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        FlatButton(
-          padding: EdgeInsets.all(0.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: Text(
-              _newPatient.srhContraceptionFindScheduleFacilityYesDate == null
-                  ? ''
-                  : '${formatDateConsistent(_newPatient.srhContraceptionFindScheduleFacilityYesDate)}',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ),
-          onPressed: () async {
-            DateTime date = await showDatePicker(
-              context: context,
-              initialDate: now,
-              firstDate: minARTRefilDate,
-              lastDate: now,
-            );
-            if (date != null) {
-              setState(() {
-                _newPatient.srhContraceptionFindScheduleFacilityYesDate = date;
-              });
-            }
-          },
-        ),
-        Divider(
-          color: CUSTOM_FORM_FIELD_UNDERLINE,
-          height: 1.0,
-        ),
-        _patientBirthdayValid
-            ? Container()
-            : Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(
-                  'Please select a date',
-                  style: TextStyle(
-                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
-                    fontSize: 12.0,
-                  ),
-                ),
-              ),
-      ]),
-    );
-  }
-
-  Widget _interestContraceptionLikePNAccompany() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-    return _makeQuestion('Would she like the PN to accompany her',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany =
-                  newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: false);
-  }
-
-  Widget _interestContraceptionOpenFacilitiesPage() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
-      print('~~~ 1. OPENING FACILITIES PAGE NOW =>');
-      _pushChooseFacilityScreen();
-    });
-  }
-
+//METHODS
   Future<void> _pushChooseFacilityScreen() async {
     await _fadeInScreen(R21ChooseFacilityScreen(),
         routeName: '/choose-facility');
@@ -982,404 +580,50 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _interestContraceptionSelectedFacility() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
+
+ 
+
+  // ----------
+  // CARD CONTENTS
+  // ----------
+
+  //PERSONAL INFORMATION
+
+
+  
+ Widget _studyNumberQuestion() {
     return _makeQuestion(
-      'Selected Facility Code',
+      'Study Number',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify selected facility';
+        autocorrect: false,
+        controller: _studyNumberCtr,
+        inputFormatters: [
+          WhitelistingTextInputFormatter(RegExp('[A-Za-z0-9]')),
+          LengthLimitingTextInputFormatter(5),
+          StudyNumberTextInputFormatter(),
+        ],
+        validator: (String value) {
+          if (_studyNumberExists(value)) {
+            return 'Participant with this study number already exists';
           }
-          return null;
+          return validateStudyNumber(value);
         },
       ),
     );
   }
 
-  Widget _interestContraceptionNotNowDate() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.YES())) {
-      return SizedBox();
-    }
-
+  Widget _birthdayQuestion() {
     return _makeQuestion(
-        'When would she like to go for counseling and possibly a method of her choice?',
-        answer: DropdownButtonFormField<R21Week>(
-          value: _newPatient.srhContraceptionFindScheduleFacilityNoDate,
-          onChanged: (R21Week newValue) {
-            setState(() {
-              _newPatient.srhContraceptionFindScheduleFacilityNoDate = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items:
-              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
-            return DropdownMenuItem<R21Week>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionNotNowDateOther() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.YES()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoDate == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoDate !=
-                R21Week.Other())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Specify other date',
-      answer: TextFormField(
-        controller: _interestContraceptionNotNowDateOtherCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify date';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestContraceptionNotNowPickFacility() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.YES())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Would she like to pick a facility now?',
-      answer: DropdownButtonFormField<R21YesNo>(
-        value: _newPatient.srhContraceptionFindScheduleFacilityNoPick,
-        onChanged: (R21YesNo newValue) {
-          setState(() {
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-        },
-        items: R21YesNo.allValues
-            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-          return DropdownMenuItem<R21YesNo>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _interestContraceptionNotNowPickFacilityShow() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.YES()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick ==
-                R21YesNo.NO())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
-      print('~~~ 2. OPENING FACILITIES PAGE =>');
-    });
-  }
-
-  Widget _interestContraceptionNotNowPickFacilitySelected() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.VeryInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.YES()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick ==
-                R21YesNo.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Selected Facility Code',
-      answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify selected facility';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestContraceptionLikeInformationOnApp() {
-    if (_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like information sent through the app that she can read?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionInformationApp,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionInformationApp = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionMaybeMethod() {
-    if (_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.MaybeInterested()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion('What method(s) is the client possibly interested in',
-        answer: Column(children: [
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestMaleCondom,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestMaleCondom = value;
-                });
-              },
-            ),
-            Text(
-              'Male Condoms',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestFemaleCondom,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestFemaleCondom = value;
-                });
-              },
-            ),
-            Text(
-              'Female Condoms',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestImplant,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestImplant = value;
-                });
-              },
-            ),
-            Text(
-              'Implant',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestInjection,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestInjection = value;
-                });
-              },
-            ),
-            Text(
-              'Injection',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestIUD,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestIUD = value;
-                });
-              },
-            ),
-            Text(
-              'IUD (intrauterine Device or Coil)',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestIUS,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestIUS = value;
-                });
-              },
-            ),
-            Text(
-              'IUS (intrauterine System or Hormonal Coil)',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestPills,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestPills = value;
-                });
-              },
-            ),
-            Text(
-              'Contraception Pills (combined or progestogen-only)',
-            ),
-          ]),
-          Row(children: [
-            Checkbox(
-              value: _newPatient.srhContraceptionInterestOther,
-              tristate: false,
-              onChanged: (bool value) {
-                setState(() {
-                  _newPatient.srhContraceptionInterestOther = value;
-                });
-              },
-            ),
-            Text(
-              'Other (specify)',
-            ),
-          ])
-        ]),
-        forceColumn: true,
-        makeBold: true);
-  }
-
-  Widget _interestContraceptionMaybeMethodSpecify() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        !_newPatient.srhContraceptionInterestOther) {
-      return SizedBox();
-    }
-    return _makeQuestion(
-      'Specify other method',
-      answer: TextFormField(
-        controller: _interestContraceptionMaybeMethodSpecifyCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify the method';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestContraceptionMaybeLikeFacilitySchedule() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest !=
-            R21Interest.MaybeInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like to find a facility and schedule a time to go for counseling and possibly a method of her choice NOW?',
-        answer: DropdownButtonFormField<R21YesNoUnsure>(
-          value: _newPatient.srhContraceptionFindScheduleFacility,
-          onChanged: (R21YesNoUnsure newValue) {
-            setState(() {
-              _newPatient.srhContraceptionFindScheduleFacility = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNoUnsure.allValues
-              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
-            return DropdownMenuItem<R21YesNoUnsure>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionMaybeLikeFacilityScheduleDate() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'When would she like to go',
+      'Birthday',
       answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         FlatButton(
           padding: EdgeInsets.all(0.0),
           child: SizedBox(
             width: double.infinity,
             child: Text(
-              _newPatient.srhContraceptionFindScheduleFacilityYesDate == null
+              _newPatient.personalBirthday == null
                   ? ''
-                  : '${formatDateConsistent(_newPatient.srhContraceptionFindScheduleFacilityYesDate)}',
+                  : '${formatDateConsistent(_newPatient.personalBirthday)} (age ${calculateAge(_newPatient.personalBirthday)})',
               textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 16.0,
@@ -1390,13 +634,14 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           onPressed: () async {
             DateTime date = await showDatePicker(
               context: context,
-              initialDate: now,
-              firstDate: minARTRefilDate,
-              lastDate: now,
+              initialDate:
+                  _newPatient.personalBirthday ?? minBirthdayForEligibility,
+              firstDate: minBirthdayForEligibility,
+              lastDate: maxBirthdayForEligibility,
             );
             if (date != null) {
               setState(() {
-                _newPatient.srhContraceptionFindScheduleFacilityYesDate = date;
+                _newPatient.personalBirthday = date;
               });
             }
           },
@@ -1421,169 +666,58 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _interestContraceptionMaybeLikePNAccompany() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-    return _makeQuestion('Would she like the PN to accompany her',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany =
-                  newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: false);
-  }
-
-  Widget _interestContraceptionMaybeOpenFacilitiesPage() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
-      print('~~~ 3. OPENING FACILITIES PAGE =>');
-    });
-  }
-
-  Widget _interestContraceptionMaybeSelectedFacility() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
+  //MESSENGER
+  Widget _downloadedMessengerApp() {
     return _makeQuestion(
-      'Selected Facility Code',
-      answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify selected facility';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestContraceptionMaybeNotNowDate() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility !=
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'When would she like to go for counseling and possibly a method of her choice?-',
-        answer: DropdownButtonFormField<R21Week>(
-          value: _newPatient.srhContraceptionFindScheduleFacilityNoDate,
-          onChanged: (R21Week newValue) {
-            setState(() {
-              _newPatient.srhContraceptionFindScheduleFacilityNoDate = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items:
-              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
-            return DropdownMenuItem<R21Week>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionMaybeNotNowDateOther() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoDate == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoDate !=
-                R21Week.Other())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Specify other date',
-      answer: TextFormField(
-        controller: _interestContraceptionNotNowDateOtherCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify date';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestContraceptionMaybeNotNowPickFacility() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility !=
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Would she like to pick a facility now?-',
-      answer: DropdownButtonFormField<R21YesNo>(
-        value: _newPatient.srhContraceptionFindScheduleFacilityNoPick,
-        onChanged: (R21YesNo newValue) {
+      'Has the client downloaded the messenger app?',
+      answer: DropdownButtonFormField<bool>(
+        value: _newPatient.messengerDownloaded,
+        onChanged: (bool newValue) {
           setState(() {
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick = newValue;
+            _newPatient.messengerDownloaded = newValue;
           });
         },
         validator: (value) {
           if (value == null) {
             return 'Please answer this question.';
           }
+          return null;
         },
-        items: R21YesNo.allValues
-            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-          return DropdownMenuItem<R21YesNo>(
+        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description = value ? 'Yes' : 'No';
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _noDownloadReasonQuestion() {
+    if (_newPatient.messengerDownloaded == null ||
+        _newPatient.messengerDownloaded) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Why',
+      answer: DropdownButtonFormField<NoChatDownloadReason>(
+        value: _newPatient.messengerNoDownloadReason,
+        onChanged: (NoChatDownloadReason newValue) {
+          setState(() {
+            _newPatient.messengerNoDownloadReason = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
+        },
+        items: NoChatDownloadReason.allValues
+            .map<DropdownMenuItem<NoChatDownloadReason>>(
+                (NoChatDownloadReason value) {
+          return DropdownMenuItem<NoChatDownloadReason>(
             value: value,
             child: Text(value.description),
           );
@@ -1592,44 +726,20 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _interestContraceptionMaybeNotNowPickFacilityShow() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
-                R21YesNo.YES())) {
-      return SizedBox();
+  Widget _specifyNoDownloadReasonQuestion() {
+    if (_newPatient.messengerDownloaded == null ||
+        _newPatient.messengerDownloaded ||
+        _newPatient.messengerNoDownloadReason == null ||
+        _newPatient.messengerNoDownloadReason != NoChatDownloadReason.OTHER()) {
+      return Container();
     }
-
-    return PEBRAButtonFlat('XOpen Facilities Page-', onPressed: () {
-      print('4. Opening facilities page');
-    });
-  }
-
-  Widget _interestContraceptionMaybeNotNowPickFacilitySelected() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
-                R21YesNo.YES())) {
-      return SizedBox();
-    }
-
     return _makeQuestion(
-      'Selected Facility Code',
+      'Other, specify',
       answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        controller: _noChatDownloadReasonOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
-            return 'Please specify selected facility';
+            return 'Please specify the reasons';
           }
           return null;
         },
@@ -1637,204 +747,46 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _interestContraceptionMaybeLikeInformationOnApp() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest !=
-            R21Interest.MaybeInterested())) {
-      return SizedBox();
-    }
-
+//CONTACT INFORMATION
+ Widget _phoneNumberQuestion() {
     return _makeQuestion(
-        'Would she like information sent through the app that she can read?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionInformationApp,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionInformationApp = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionMaybeLikeInfoOnMethods() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest !=
-            R21Interest.MaybeInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like to learn more about different contraceptive methods right now?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionLearnMethods,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionLearnMethods = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionMaybeLikeInfoOnMethodsShow() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionLearnMethods == null ||
-            _newPatient.srhContraceptionLearnMethods != R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
-      print('Opening Counseling Information...');
-      _pushViewResourcesScreen();
-    });
-  }
-
-  Widget _interestContraceptionNotSpecifyReason() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
-      return SizedBox();
-    }
-    return _makeQuestion(
-      'Why not interest in contraception?',
+      'Phone Number',
       answer: TextFormField(
-        controller: _interestContraceptionMaybeMethodSpecifyCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify reason';
-          }
-          return null;
-        },
+        decoration: InputDecoration(
+          prefixText: '+260',
+        ),
+        controller: _phoneNumberCtr,
+        keyboardType: TextInputType.phone,
+        inputFormatters: [
+          WhitelistingTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(9),
+          ZambiaPhoneNumberTextInputFormatter(),
+        ],
+        validator: validatePhoneNumber,
       ),
     );
   }
 
-  Widget _interestContraceptionNotLikeInfoOnMethods() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
-      return SizedBox();
-    }
-
+    Widget _phoneAvailabilityQuestion() {
     return _makeQuestion(
-        'Would she like to learn more about different contraceptive methods right now?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionInformationMethods,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionInformationMethods = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestContraceptionNotLikeInfoOnMethodsShow() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.NoInterested()) ||
-        (_newPatient.srhContraceptionInformationMethods == null ||
-            _newPatient.srhContraceptionInformationMethods != R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
-      print('Opening Counseling Information...');
-      _pushViewResourcesScreen();
-    });
-  }
-
-  Widget _interestContraceptionNotLikeInformationOnApp() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like information sent through the app that she can read?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhContraceptionInformationApp,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhContraceptionInformationApp = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-//PREP
-  Widget _interestPrep() {
-    return _makeQuestion(
-      'Interest in using PrEP',
-      answer: DropdownButtonFormField<R21Interest>(
-        value: _newPatient.srhPrepInterest,
-        onChanged: (R21Interest newValue) {
+      'Is your phone',
+      answer: DropdownButtonFormField<R21PhoneNumberSecurity>(
+        value: _newPatient.personalPhoneNumberAvailability,
+        onChanged: (R21PhoneNumberSecurity newValue) {
           setState(() {
-            _newPatient.srhPrepInterest = newValue;
+            _newPatient.personalPhoneNumberAvailability = newValue;
           });
         },
         validator: (value) {
           if (value == null) {
             return 'Please answer this question.';
           }
+          return null;
         },
-        items: R21Interest.allValues
-            .map<DropdownMenuItem<R21Interest>>((R21Interest value) {
-          return DropdownMenuItem<R21Interest>(
+        items: R21PhoneNumberSecurity.allValues
+            .map<DropdownMenuItem<R21PhoneNumberSecurity>>(
+                (R21PhoneNumberSecurity value) {
+          return DropdownMenuItem<R21PhoneNumberSecurity>(
             value: value,
             child: Text(value.description),
           );
@@ -1843,670 +795,26 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _interestPrepLikeInfoOnMethods() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
-      return SizedBox();
-    }
 
-    return _makeQuestion('Would she like more information now about PrEP',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepLikeMoreInformation,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepLikeMoreInformation = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestPrepLikeInfoOnMethodsShow() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        (_newPatient.srhPrepLikeMoreInformation == null ||
-            _newPatient.srhPrepLikeMoreInformation != R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
-      print('Opening Counseling Information...');
-      _pushViewResourcesScreen();
-    });
-  }
-  Widget _interestPrepVeryLikeFacilitySchedule() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
-      return SizedBox();
-    }
-
+  Widget _residencyQuestion() {
     return _makeQuestion(
-        'Would she like to find a facility and schedule a time to go for counseling and possibly get PrEP NOW?',
-        answer: DropdownButtonFormField<R21YesNoUnsure>(
-          value: _newPatient.srhPrepFindScheduleFacilitySchedule,
-          onChanged: (R21YesNoUnsure newValue) {
-            setState(() {
-              _newPatient.srhPrepFindScheduleFacilitySchedule = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNoUnsure.allValues
-              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
-            return DropdownMenuItem<R21YesNoUnsure>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-  Widget _interestPrepVeryLikeFacilityScheduleDate() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'When would she like to go',
-      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        FlatButton(
-          padding: EdgeInsets.all(0.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: Text(
-              _newPatient.srhPrepFindScheduleFacilityYesDate == null
-                  ? ''
-                  : '${formatDateConsistent(_newPatient.srhPrepFindScheduleFacilityYesDate)}',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ),
-          onPressed: () async {
-            DateTime date = await showDatePicker(
-              context: context,
-              initialDate: now,
-              firstDate: minARTRefilDate,
-              lastDate: now,
-            );
-            if (date != null) {
-              setState(() {
-                _newPatient.srhPrepFindScheduleFacilityYesDate = date;
-              });
-            }
-          },
-        ),
-        Divider(
-          color: CUSTOM_FORM_FIELD_UNDERLINE,
-          height: 1.0,
-        ),
-        _patientBirthdayValid
-            ? Container()
-            : Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(
-                  'Please select a date',
-                  style: TextStyle(
-                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
-                    fontSize: 12.0,
-                  ),
-                ),
-              ),
-      ]),
-    );
-  }
-  Widget _interestPrepVeryLikePNAccompany() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return _makeQuestion('Would she like the PN to accompany her',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepFindScheduleFacilityYesPNAccompany,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepFindScheduleFacilityYesPNAccompany = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: false);
-  }
-  Widget _interestPrepVeryOpenFacilitiesPage() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
-      print('~~~ 3. OPENING FACILITIES PAGE =>');
-    });
-  }
-  Widget _interestPrepVerySelectedFacility() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Selected Facility Code',
-      answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify selected facility';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-  Widget _interestPrepVeryNotNowDate() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'If no, when would she like to go for counseling and possibly get PrEP?',
-        answer: DropdownButtonFormField<R21Week>(
-          value: _newPatient.srhPrepFindScheduleFacilityNoDate,
-          onChanged: (R21Week newValue) {
-            setState(() {
-              _newPatient.srhPrepFindScheduleFacilityNoDate = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items:
-              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
-            return DropdownMenuItem<R21Week>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-  Widget _interestPrepVeryNotNowDateOther() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhPrepFindScheduleFacilityNoDate == null ||
-            _newPatient.srhPrepFindScheduleFacilityNoDate != R21Week.Other())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Specify other date',
-      answer: TextFormField(
-        controller: _interestContraceptionNotNowDateOtherCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify date';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-  Widget _interestPrepVeryNotNowPickFacility() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Would she like to pick a facility now?-',
-      answer: DropdownButtonFormField<R21YesNo>(
-        value: _newPatient.srhPrepFindScheduleFacilityNoPick,
-        onChanged: (R21YesNo newValue) {
+      'Residence',
+      answer: DropdownButtonFormField<R21Residency>(
+        value: _newPatient.personalResidency,
+        onChanged: (R21Residency newValue) {
           setState(() {
-            _newPatient.srhPrepFindScheduleFacilityNoPick = newValue;
+            _newPatient.personalResidency = newValue;
           });
         },
         validator: (value) {
           if (value == null) {
             return 'Please answer this question.';
           }
-        },
-        items: R21YesNo.allValues
-            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-          return DropdownMenuItem<R21YesNo>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-  Widget _interestPrepVeryNotNowPickFacilityShow() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhPrepFindScheduleFacilityNoPick == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
-                R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('XOpen Facilities Page-', onPressed: () {
-      print('4. Opening facilities page');
-    });
-  }
-  Widget _interestPrepVeryNotNowPickFacilitySelected() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhContraceptionFindScheduleFacility == null ||
-            _newPatient.srhContraceptionFindScheduleFacility !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
-                R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Selected Facility Code',
-      answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify selected facility';
-          }
           return null;
         },
-      ),
-    );
-  }
-  Widget _interestPrepVeryLikeInformationOnApp() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like information about PrEP sent through the app that she can read?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepInformationApp,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepInformationApp = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-//MAYBE
-
-  Widget _interestPrepMaybeLikeInfoOnMethods() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.MaybeInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion('Would she like more information now about PrEP',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepLikeMoreInformation,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepLikeMoreInformation = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestPrepMaybeLikeInfoOnMethodsShow() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        (_newPatient.srhPrepLikeMoreInformation == null ||
-            _newPatient.srhPrepLikeMoreInformation != R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
-      print('Opening Counseling Information...');
-      _pushViewResourcesScreen();
-    });
-  }
-
-  Widget _interestPrepMaybeLikeFacilitySchedule() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.MaybeInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like to find a facility and schedule a time to go for counseling and possibly get PrEP NOW?',
-        answer: DropdownButtonFormField<R21YesNoUnsure>(
-          value: _newPatient.srhPrepFindScheduleFacilitySchedule,
-          onChanged: (R21YesNoUnsure newValue) {
-            setState(() {
-              _newPatient.srhPrepFindScheduleFacilitySchedule = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNoUnsure.allValues
-              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
-            return DropdownMenuItem<R21YesNoUnsure>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestPrepMaybeLikeFacilityScheduleDate() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'When would she like to go',
-      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        FlatButton(
-          padding: EdgeInsets.all(0.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: Text(
-              _newPatient.srhContraceptionFindScheduleFacilityYesDate == null
-                  ? ''
-                  : '${formatDateConsistent(_newPatient.srhContraceptionFindScheduleFacilityYesDate)}',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ),
-          onPressed: () async {
-            DateTime date = await showDatePicker(
-              context: context,
-              initialDate: now,
-              firstDate: minARTRefilDate,
-              lastDate: now,
-            );
-            if (date != null) {
-              setState(() {
-                _newPatient.srhContraceptionFindScheduleFacilityYesDate = date;
-              });
-            }
-          },
-        ),
-        Divider(
-          color: CUSTOM_FORM_FIELD_UNDERLINE,
-          height: 1.0,
-        ),
-        _patientBirthdayValid
-            ? Container()
-            : Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(
-                  'Please select a date',
-                  style: TextStyle(
-                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
-                    fontSize: 12.0,
-                  ),
-                ),
-              ),
-      ]),
-    );
-  }
-
-  Widget _interestPrepMaybeLikePNAccompany() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return _makeQuestion('Would she like the PN to accompany her',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepFindScheduleFacilityYesPNAccompany,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepFindScheduleFacilityYesPNAccompany = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: false);
-  }
-
-  Widget _interestPrepMaybeOpenFacilitiesPage() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
-      print('~~~ 3. OPENING FACILITIES PAGE =>');
-    });
-  }
-
-  Widget _interestPrepMaybeSelectedFacility() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.YES()))) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Selected Facility Code',
-      answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify selected facility';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestPrepMaybeNotNowDate() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'If no, when would she like to go for counseling and possibly get PrEP?',
-        answer: DropdownButtonFormField<R21Week>(
-          value: _newPatient.srhPrepFindScheduleFacilityNoDate,
-          onChanged: (R21Week newValue) {
-            setState(() {
-              _newPatient.srhPrepFindScheduleFacilityNoDate = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items:
-              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
-            return DropdownMenuItem<R21Week>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestPrepMaybeNotNowDateOther() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhPrepFindScheduleFacilityNoDate == null ||
-            _newPatient.srhPrepFindScheduleFacilityNoDate != R21Week.Other())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Specify other date',
-      answer: TextFormField(
-        controller: _interestContraceptionNotNowDateOtherCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify date';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _interestPrepMaybeNotNowPickFacility() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Would she like to pick a facility now?-',
-      answer: DropdownButtonFormField<R21YesNo>(
-        value: _newPatient.srhPrepFindScheduleFacilityNoPick,
-        onChanged: (R21YesNo newValue) {
-          setState(() {
-            _newPatient.srhPrepFindScheduleFacilityNoPick = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-        },
-        items: R21YesNo.allValues
-            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-          return DropdownMenuItem<R21YesNo>(
+        items: R21Residency.allValues
+            .map<DropdownMenuItem<R21Residency>>((R21Residency value) {
+          return DropdownMenuItem<R21Residency>(
             value: value,
             child: Text(value.description),
           );
@@ -2515,160 +823,36 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _interestPrepMaybeNotNowPickFacilityShow() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
-            _newPatient.srhPrepFindScheduleFacilitySchedule !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhPrepFindScheduleFacilityNoPick == null ||
-            _newPatient.srhPrepFindScheduleFacilityNoPick != R21YesNo.YES())) {
-      return SizedBox();
-    }
+ 
 
-    return PEBRAButtonFlat('XOpen Facilities Page-', onPressed: () {
-      print('4. Opening facilities page');
-    });
-  }
-
-  Widget _interestPrepMaybeNotNowPickFacilitySelected() {
-    if ((_newPatient.srhContraceptionInterest == null ||
-            _newPatient.srhContraceptionInterest !=
-                R21Interest.MaybeInterested()) ||
-        (_newPatient.srhPrepFindScheduleFacilityNoPick == null ||
-            _newPatient.srhPrepFindScheduleFacilityNoPick !=
-                R21YesNoUnsure.NO()) ||
-        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
-            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
-                R21YesNo.YES())) {
-      return SizedBox();
-    }
-
+  Widget _preferredContactMethodQuestion() {
     return _makeQuestion(
-      'Selected Facility Code',
-      answer: TextFormField(
-        controller: _interestContraceptionSelectedFacilityCodeCtr,
+      'Preferred way to contact',
+      answer: DropdownButtonFormField<R21PreferredContactMethod>(
+        value: _newPatient.personalPreferredContactMethod,
+        onChanged: (R21PreferredContactMethod newValue) {
+          setState(() {
+            _newPatient.personalPreferredContactMethod = newValue;
+          });
+        },
         validator: (value) {
-          if (value.isEmpty) {
-            return 'Please specify selected facility';
+          if (value == null) {
+            return 'Please answer this question.';
           }
           return null;
         },
+        items: R21PreferredContactMethod.allValues
+            .map<DropdownMenuItem<R21PreferredContactMethod>>(
+                (R21PreferredContactMethod value) {
+          return DropdownMenuItem<R21PreferredContactMethod>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
       ),
     );
   }
 
-  Widget _interestPrepMaybeLikeInformationOnApp() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.MaybeInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like information about PrEP sent through the app that she can read?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepInformationApp,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepInformationApp = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-//NOT INTERESTED
-  Widget _interestPrepNotLikeInfoOnMethods() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.NoInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion('Would she like more information now about PrEP',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepLikeMoreInformation,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepLikeMoreInformation = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-  Widget _interestPrepNotLikeInfoOnMethodsShow() {
-    if ((_newPatient.srhPrepInterest == null ||
-            _newPatient.srhPrepInterest != R21Interest.NoInterested()) ||
-        (_newPatient.srhPrepLikeMoreInformation == null ||
-            _newPatient.srhPrepLikeMoreInformation != R21YesNo.YES())) {
-      return SizedBox();
-    }
-
-    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
-      print('Opening Counseling Information...');
-      _pushViewResourcesScreen();
-    });
-  }
-
-  Widget _interestPrepNotLikeInformationOnApp() {
-    if ((_newPatient.srhPrepInterest == null ||
-        _newPatient.srhPrepInterest != R21Interest.NoInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-        'Would she like information about PrEP sent through the app that she can read?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _newPatient.srhPrepLikeMoreInformation,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _newPatient.srhPrepLikeMoreInformation = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-
-//END PREP
   Widget _contactFrequency() {
     return _makeQuestion(
       'Frequency of Contact',
@@ -2695,6 +879,275 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       ),
     );
   }
+
+//CONTRACEPTION
+  Widget _contraceptionUse() {
+    return _makeQuestion(
+      'Is the client currently using modern contraception or has used in the past?',
+      answer: DropdownButtonFormField<R21ContraceptionUse>(
+        value: _newPatient.historyContraceptionUse,
+        onChanged: (R21ContraceptionUse newValue) {
+          setState(() {
+            _newPatient.historyContraceptionUse = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ContraceptionUse.allValues
+            .map<DropdownMenuItem<R21ContraceptionUse>>(
+                (R21ContraceptionUse value) {
+          return DropdownMenuItem<R21ContraceptionUse>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _contraceptiveMethod() {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse == R21ContraceptionUse.HasNever()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Contraceptive Method',
+        answer: Column(children: [
+          Row(children: [
+            Checkbox(
+              value: _newPatient.historyContraceptionMaleCondoms,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.historyContraceptionMaleCondoms = value;
+                });
+              },
+            ),
+            Text(
+              'Male Condoms',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.historyContraceptionFemaleCondoms,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.historyContraceptionFemaleCondoms = value;
+                });
+              },
+            ),
+            Text(
+              'Female Condoms',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestImplant,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestImplant = value;
+                });
+              },
+            ),
+            Text(
+              'Implant',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.historyContraceptionInjection,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.historyContraceptionInjection = value;
+                });
+              },
+            ),
+            Text(
+              'Injection',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.historyContraceptionIUD,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.historyContraceptionIUD = value;
+                });
+              },
+            ),
+            Text(
+              'IUD (intrauterine Device or Coil)',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.historyContraceptionIUS,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.historyContraceptionIUS = value;
+                });
+              },
+            ),
+            Text(
+              'IUS (intrauterine System or Hormonal Coil)',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.historyContraceptionPills,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.historyContraceptionPills = value;
+                });
+              },
+            ),
+            Text(
+              'Contraception Pills (combined or progestogen-only)',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.historyContraceptionOther,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.historyContraceptionOther = value;
+                });
+              },
+            ),
+            Text(
+              'Other (specify)',
+            ),
+          ])
+        ]),
+        forceColumn: true,
+        makeBold: true);
+  }
+
+  Widget _contraceptiveMethodOtherSpecify() {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse !=
+            R21ContraceptionUse.CurrentlyUsing() ||
+        !_newPatient.historyContraceptionOther) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify method',
+      answer: TextFormField(
+        controller: _contraceptiveMethodOtherSpecifyCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  
+  Widget _whyStopContraception() {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse !=
+            R21ContraceptionUse.NotCurrentButPast()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Why did she stop using ',
+      answer: TextFormField(
+        controller: _reasonStopContraceptionCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _contraceptionSatisfaction() {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse !=
+            R21ContraceptionUse.CurrentlyUsing()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Satisfaction with current method',
+      answer: DropdownButtonFormField<R21Satisfaction>(
+        value: _newPatient.historyContraceptionSatisfaction,
+        onChanged: (R21Satisfaction newValue) {
+          setState(() {
+            _newPatient.historyContraceptionSatisfaction = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21Satisfaction.allValues
+            .map<DropdownMenuItem<R21Satisfaction>>((R21Satisfaction value) {
+          return DropdownMenuItem<R21Satisfaction>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _whyNoContraceptionSatisfaction() {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse !=
+            R21ContraceptionUse.CurrentlyUsing()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Why',
+      answer: TextFormField(
+        controller: _reasonNoContraceptionSatisfactionCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _whyNoContraception() {
+    if (_newPatient.historyContraceptionUse == null ||
+        _newPatient.historyContraceptionUse != R21ContraceptionUse.HasNever()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Why not',
+      answer: TextFormField(
+        controller: _reasonNoContraceptionCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a reason';
+          }
+        },
+      ),
+    );
+  }
+
+
+//HIV
 
   Widget _hivStatus() {
     return _makeQuestion(
@@ -3357,14 +1810,16 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _contraceptionUse() {
+//SRH CONTRACEPTION INTEREST
+
+  Widget _contraceptionInterest() {
     return _makeQuestion(
-      'Is the client currently using modern contraception or has used in the past?',
-      answer: DropdownButtonFormField<R21ContraceptionUse>(
-        value: _newPatient.historyContraceptionUse,
-        onChanged: (R21ContraceptionUse newValue) {
+      'Interest in using contraception ',
+      answer: DropdownButtonFormField<R21Interest>(
+        value: _newPatient.srhContraceptionInterest,
+        onChanged: (R21Interest newValue) {
           setState(() {
-            _newPatient.historyContraceptionUse = newValue;
+            _newPatient.srhContraceptionInterest = newValue;
           });
         },
         validator: (value) {
@@ -3372,10 +1827,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
             return 'Please answer this question.';
           }
         },
-        items: R21ContraceptionUse.allValues
-            .map<DropdownMenuItem<R21ContraceptionUse>>(
-                (R21ContraceptionUse value) {
-          return DropdownMenuItem<R21ContraceptionUse>(
+        items: R21Interest.allValues
+            .map<DropdownMenuItem<R21Interest>>((R21Interest value) {
+          return DropdownMenuItem<R21Interest>(
             value: value,
             child: Text(value.description),
           );
@@ -3384,21 +1838,54 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _contraceptiveMethod() {
-    if (_newPatient.historyContraceptionUse == null ||
-        _newPatient.historyContraceptionUse == R21ContraceptionUse.HasNever()) {
+  Widget _hasMethodInMind() {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Does she have a particular method in mind?',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _newPatient.srhContraceptionMethodInMind,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _newPatient.srhContraceptionMethodInMind = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _particularMethodInMind() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionMethodInMind == null ||
+            _newPatient.srhContraceptionMethodInMind == R21YesNo.NO())) {
       return SizedBox();
     }
 
-    return _makeQuestion('Contraceptive Method',
+    return _makeQuestion('Which method',
         answer: Column(children: [
           Row(children: [
             Checkbox(
-              value: _newPatient.historyContraceptionMaleCondoms,
+              value: _newPatient.srhContraceptionInterestMaleCondom,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.historyContraceptionMaleCondoms = value;
+                  _newPatient.srhContraceptionInterestMaleCondom = value;
                 });
               },
             ),
@@ -3408,11 +1895,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.historyContraceptionFemaleCondoms,
+              value: _newPatient.srhContraceptionInterestFemaleCondom,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.historyContraceptionFemaleCondoms = value;
+                  _newPatient.srhContraceptionInterestFemaleCondom = value;
                 });
               },
             ),
@@ -3436,11 +1923,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.historyContraceptionInjection,
+              value: _newPatient.srhContraceptionInterestInjection,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.historyContraceptionInjection = value;
+                  _newPatient.srhContraceptionInterestInjection = value;
                 });
               },
             ),
@@ -3450,11 +1937,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.historyContraceptionIUD,
+              value: _newPatient.srhContraceptionInterestIUD,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.historyContraceptionIUD = value;
+                  _newPatient.srhContraceptionInterestIUD = value;
                 });
               },
             ),
@@ -3464,11 +1951,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.historyContraceptionIUS,
+              value: _newPatient.srhContraceptionInterestIUS,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.historyContraceptionIUS = value;
+                  _newPatient.srhContraceptionInterestIUS = value;
                 });
               },
             ),
@@ -3478,11 +1965,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.historyContraceptionPills,
+              value: _newPatient.srhContraceptionInterestPills,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.historyContraceptionPills = value;
+                  _newPatient.srhContraceptionInterestPills = value;
                 });
               },
             ),
@@ -3492,11 +1979,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           ]),
           Row(children: [
             Checkbox(
-              value: _newPatient.historyContraceptionOther,
+              value: _newPatient.srhContraceptionInterestOther,
               tristate: false,
               onChanged: (bool value) {
                 setState(() {
-                  _newPatient.historyContraceptionOther = value;
+                  _newPatient.srhContraceptionInterestOther = value;
                 });
               },
             ),
@@ -3509,179 +1996,130 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         makeBold: true);
   }
 
-  Widget _contraceptiveMethodOtherSpecify() {
-    if (_newPatient.historyContraceptionUse == null ||
-        _newPatient.historyContraceptionUse !=
-            R21ContraceptionUse.CurrentlyUsing() ||
-        !_newPatient.historyContraceptionOther) {
-      return SizedBox();
+  Widget _specifyInterestContraceptionMethodOther() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionMethodInMind == null ||
+            _newPatient.srhContraceptionMethodInMind == R21YesNo.NO()) ||
+        (_newPatient.srhContraceptionInterestOther == null ||
+            _newPatient.srhContraceptionInterestOther == false)) {
+      return Container();
     }
-
     return _makeQuestion(
-      'Specify method',
+      'Specify other method',
       answer: TextFormField(
-        controller: _contraceptiveMethodOtherSpecifyCtr,
+        controller: _interestContraceptionMethodOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
-            return 'Please enter a reason';
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _contraceptionSatisfaction() {
-    if (_newPatient.historyContraceptionUse == null ||
-        _newPatient.historyContraceptionUse !=
-            R21ContraceptionUse.CurrentlyUsing()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Satisfaction with current method',
-      answer: DropdownButtonFormField<R21Satisfaction>(
-        value: _newPatient.historyContraceptionSatisfaction,
-        onChanged: (R21Satisfaction newValue) {
-          setState(() {
-            _newPatient.historyContraceptionSatisfaction = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-        },
-        items: R21Satisfaction.allValues
-            .map<DropdownMenuItem<R21Satisfaction>>((R21Satisfaction value) {
-          return DropdownMenuItem<R21Satisfaction>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _whyNoContraceptionSatisfaction() {
-    if (_newPatient.historyContraceptionUse == null ||
-        _newPatient.historyContraceptionUse !=
-            R21ContraceptionUse.CurrentlyUsing()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Why',
-      answer: TextFormField(
-        controller: _reasonNoContraceptionSatisfactionCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter a reason';
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _whyNoContraception() {
-    if (_newPatient.historyContraceptionUse == null ||
-        _newPatient.historyContraceptionUse != R21ContraceptionUse.HasNever()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Why not',
-      answer: TextFormField(
-        controller: _reasonNoContraceptionCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter a reason';
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _whyStopContraception() {
-    if (_newPatient.historyContraceptionUse == null ||
-        _newPatient.historyContraceptionUse !=
-            R21ContraceptionUse.NotCurrentButPast()) {
-      return SizedBox();
-    }
-
-    return _makeQuestion(
-      'Why did she stop using ',
-      answer: TextFormField(
-        controller: _reasonStopContraceptionCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter a reason';
-          }
-        },
-      ),
-    );
-  }
-
-  //Main
-  Widget _residencyQuestion() {
-    return _makeQuestion(
-      'Residence',
-      answer: DropdownButtonFormField<R21Residency>(
-        value: _newPatient.personalResidency,
-        onChanged: (R21Residency newValue) {
-          setState(() {
-            _newPatient.personalResidency = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
+            return 'Please specify the method';
           }
           return null;
         },
-        items: R21Residency.allValues
-            .map<DropdownMenuItem<R21Residency>>((R21Residency value) {
-          return DropdownMenuItem<R21Residency>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
       ),
     );
   }
 
-  Widget _studyNumberQuestion() {
+  Widget _interestContraceptionLikeInfoMethods() {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
+      return SizedBox();
+    }
+
     return _makeQuestion(
-      'Study Number',
-      answer: TextFormField(
-        autocorrect: false,
-        controller: _studyNumberCtr,
-        inputFormatters: [
-          WhitelistingTextInputFormatter(RegExp('[A-Za-z0-9]')),
-          LengthLimitingTextInputFormatter(5),
-          StudyNumberTextInputFormatter(),
-        ],
-        validator: (String value) {
-          if (_artNumberExists(value)) {
-            return 'Participant with this study number already exists';
-          }
-          return validateStudyNumber(value);
-        },
-      ),
-    );
+        'Would she like more information about different methods right now?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionInformationMethods,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionInformationMethods = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
   }
 
-  Widget _birthdayQuestion() {
+  Widget _interestContraceptionOpenCounselingInfoPageButton() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionInformationMethods == null ||
+            _newPatient.srhContraceptionInformationMethods == R21YesNo.NO())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Counseling Information Page', onPressed: () {
+      print('~~~ OPENING COUNSELLING INFO PAGE =>');
+      _pushViewResourcesScreen();
+    });
+  }
+
+  Widget _interestContraceptionLikeFacilitySchedule() {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
+      return SizedBox();
+    }
+
     return _makeQuestion(
-      'Birthday',
+        'Would she like to find a facility and schedule a time to go for counseling and possibly a method of her choice NOW?',
+        answer: DropdownButtonFormField<R21YesNoUnsure>(
+          value: _newPatient.srhContraceptionFindScheduleFacility,
+          onChanged: (R21YesNoUnsure newValue) {
+            setState(() {
+              _newPatient.srhContraceptionFindScheduleFacility = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNoUnsure.allValues
+              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
+            return DropdownMenuItem<R21YesNoUnsure>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionLikeFacilityScheduleDate() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'When would she like to go',
       answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         FlatButton(
           padding: EdgeInsets.all(0.0),
           child: SizedBox(
             width: double.infinity,
             child: Text(
-              _newPatient.personalBirthday == null
+              _newPatient.srhContraceptionFindScheduleFacilityYesDate == null
                   ? ''
-                  : '${formatDateConsistent(_newPatient.personalBirthday)} (age ${calculateAge(_newPatient.personalBirthday)})',
+                  : '${formatDateConsistent(_newPatient.srhContraceptionFindScheduleFacilityYesDate)}',
               textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 16.0,
@@ -3692,14 +2130,13 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           onPressed: () async {
             DateTime date = await showDatePicker(
               context: context,
-              initialDate:
-                  _newPatient.personalBirthday ?? minBirthdayForEligibility,
-              firstDate: minBirthdayForEligibility,
-              lastDate: maxBirthdayForEligibility,
+              initialDate: now,
+              firstDate: minARTRefilDate,
+              lastDate: now,
             );
             if (date != null) {
               setState(() {
-                _newPatient.personalBirthday = date;
+                _newPatient.srhContraceptionFindScheduleFacilityYesDate = date;
               });
             }
           },
@@ -3724,160 +2161,1753 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  Widget _preferredContactMethodQuestion() {
-    return _makeQuestion(
-      'Preferred way to contact',
-      answer: DropdownButtonFormField<R21PreferredContactMethod>(
-        value: _newPatient.personalPreferredContactMethod,
-        onChanged: (R21PreferredContactMethod newValue) {
-          setState(() {
-            _newPatient.personalPreferredContactMethod = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-          return null;
-        },
-        items: R21PreferredContactMethod.allValues
-            .map<DropdownMenuItem<R21PreferredContactMethod>>(
-                (R21PreferredContactMethod value) {
-          return DropdownMenuItem<R21PreferredContactMethod>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _phoneAvailabilityQuestion() {
-    return _makeQuestion(
-      'Is your phone',
-      answer: DropdownButtonFormField<R21PhoneNumberSecurity>(
-        value: _newPatient.personalPhoneNumberAvailability,
-        onChanged: (R21PhoneNumberSecurity newValue) {
-          setState(() {
-            _newPatient.personalPhoneNumberAvailability = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-          return null;
-        },
-        items: R21PhoneNumberSecurity.allValues
-            .map<DropdownMenuItem<R21PhoneNumberSecurity>>(
-                (R21PhoneNumberSecurity value) {
-          return DropdownMenuItem<R21PhoneNumberSecurity>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _phoneNumberQuestion() {
-    return _makeQuestion(
-      'Phone Number',
-      answer: TextFormField(
-        decoration: InputDecoration(
-          prefixText: '+260',
+  Widget _interestContraceptionLikePNAccompany() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+    return _makeQuestion('Would she like the PN to accompany her',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany =
+                  newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
         ),
-        controller: _phoneNumberCtr,
-        keyboardType: TextInputType.phone,
-        inputFormatters: [
-          WhitelistingTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(9),
-          ZambiaPhoneNumberTextInputFormatter(),
-        ],
-        validator: validatePhoneNumber,
-      ),
-    );
+        makeBold: false,
+        forceColumn: false);
   }
 
-  Widget _consentGivenQuestion() {
-    return _makeQuestion(
-      'Has the client downloaded the messenger app?',
-      answer: DropdownButtonFormField<bool>(
-        value: _newPatient.messengerDownloaded,
-        onChanged: (bool newValue) {
-          setState(() {
-            _newPatient.messengerDownloaded = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-          return null;
-        },
-        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description = value ? 'Yes' : 'No';
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
+  Widget _interestContraceptionOpenFacilitiesPageButton() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
 
-  Widget _noConsentReasonQuestion() {
-    if (_newPatient.messengerDownloaded == null ||
-        _newPatient.messengerDownloaded) {
-      return Container();
+    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
+      print('~~~ 1. OPENING FACILITIES PAGE NOW =>');
+      _pushChooseFacilityScreen();
+    });
+  }
+  Widget _interestContraceptionSelectedFacility() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
     }
     return _makeQuestion(
-      'Why',
-      answer: DropdownButtonFormField<NoChatDownloadReason>(
-        value: _newPatient.messengerNoDownloadReason,
-        onChanged: (NoChatDownloadReason newValue) {
-          setState(() {
-            _newPatient.messengerNoDownloadReason = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question.';
-          }
-          return null;
-        },
-        items: NoChatDownloadReason.allValues
-            .map<DropdownMenuItem<NoChatDownloadReason>>(
-                (NoChatDownloadReason value) {
-          return DropdownMenuItem<NoChatDownloadReason>(
-            value: value,
-            child: Text(value.description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _noConsentReasonOtherQuestion() {
-    if (_newPatient.messengerDownloaded == null ||
-        _newPatient.messengerDownloaded ||
-        _newPatient.messengerNoDownloadReason == null ||
-        _newPatient.messengerNoDownloadReason != NoChatDownloadReason.OTHER()) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Other, specify',
+      'Selected Facility Code',
       answer: TextFormField(
-        controller: _noChatDownloadReasonOtherCtr,
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
         validator: (value) {
           if (value.isEmpty) {
-            return 'Please specify the reasons';
+            return 'Please specify selected facility';
           }
           return null;
         },
       ),
     );
   }
+
+  Widget _interestContraceptionNotNowDate() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'When would she like to go for counseling and possibly a method of her choice?',
+        answer: DropdownButtonFormField<R21Week>(
+          value: _newPatient.srhContraceptionFindScheduleFacilityNoDate,
+          onChanged: (R21Week newValue) {
+            setState(() {
+              _newPatient.srhContraceptionFindScheduleFacilityNoDate = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items:
+              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
+            return DropdownMenuItem<R21Week>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionNotNowDateOther() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.YES()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoDate == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoDate !=
+                R21Week.Other())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify other date',
+      answer: TextFormField(
+        controller: _interestContraceptionNotNowDateOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify date';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestContraceptionNotNowPickFacility() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Would she like to pick a facility now?',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _newPatient.srhContraceptionFindScheduleFacilityNoPick,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _interestContraceptionNotNowPickFacilityShowButton() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.YES()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick ==
+                R21YesNo.NO())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
+      print('~~~ 2. OPENING FACILITIES PAGE =>');
+    });
+  }
+
+  Widget _interestContraceptionNotNowPickFacilitySelected() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.VeryInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.YES()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick ==
+                R21YesNo.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Selected Facility Code',
+      answer: TextFormField(
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify selected facility';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestContraceptionLikeInformationOnApp() {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.VeryInterested()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like information sent through the app that she can read?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionInformationApp,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionInformationApp = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionMaybeMethod() {
+    if (_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.MaybeInterested()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('What method(s) is the client possibly interested in',
+        answer: Column(children: [
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestMaleCondom,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestMaleCondom = value;
+                });
+              },
+            ),
+            Text(
+              'Male Condoms',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestFemaleCondom,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestFemaleCondom = value;
+                });
+              },
+            ),
+            Text(
+              'Female Condoms',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestImplant,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestImplant = value;
+                });
+              },
+            ),
+            Text(
+              'Implant',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestInjection,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestInjection = value;
+                });
+              },
+            ),
+            Text(
+              'Injection',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestIUD,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestIUD = value;
+                });
+              },
+            ),
+            Text(
+              'IUD (intrauterine Device or Coil)',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestIUS,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestIUS = value;
+                });
+              },
+            ),
+            Text(
+              'IUS (intrauterine System or Hormonal Coil)',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestPills,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestPills = value;
+                });
+              },
+            ),
+            Text(
+              'Contraception Pills (combined or progestogen-only)',
+            ),
+          ]),
+          Row(children: [
+            Checkbox(
+              value: _newPatient.srhContraceptionInterestOther,
+              tristate: false,
+              onChanged: (bool value) {
+                setState(() {
+                  _newPatient.srhContraceptionInterestOther = value;
+                });
+              },
+            ),
+            Text(
+              'Other (specify)',
+            ),
+          ])
+        ]),
+        forceColumn: true,
+        makeBold: true);
+  }
+
+  Widget _interestContraceptionMaybeMethodSpecify() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        !_newPatient.srhContraceptionInterestOther) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Specify other method',
+      answer: TextFormField(
+        controller: _interestContraceptionMaybeMethodSpecifyCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify the method';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestContraceptionMaybeLikeFacilitySchedule() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest !=
+            R21Interest.MaybeInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like to find a facility and schedule a time to go for counseling and possibly a method of her choice NOW?',
+        answer: DropdownButtonFormField<R21YesNoUnsure>(
+          value: _newPatient.srhContraceptionFindScheduleFacility,
+          onChanged: (R21YesNoUnsure newValue) {
+            setState(() {
+              _newPatient.srhContraceptionFindScheduleFacility = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNoUnsure.allValues
+              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
+            return DropdownMenuItem<R21YesNoUnsure>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionMaybeLikeFacilityScheduleDate() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'When would she like to go',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _newPatient.srhContraceptionFindScheduleFacilityYesDate == null
+                  ? ''
+                  : '${formatDateConsistent(_newPatient.srhContraceptionFindScheduleFacilityYesDate)}',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            DateTime date = await showDatePicker(
+              context: context,
+              initialDate: now,
+              firstDate: minARTRefilDate,
+              lastDate: now,
+            );
+            if (date != null) {
+              setState(() {
+                _newPatient.srhContraceptionFindScheduleFacilityYesDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _patientBirthdayValid
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Please select a date',
+                  style: TextStyle(
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+      ]),
+    );
+  }
+
+  Widget _interestContraceptionMaybeLikePNAccompany() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+    return _makeQuestion('Would she like the PN to accompany her',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionFindScheduleFacilityYesPNAccompany =
+                  newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: false);
+  }
+
+  Widget _interestContraceptionMaybeOpenFacilitiesPagebutton() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
+      print('~~~ 3. OPENING FACILITIES PAGE =>');
+    });
+  }
+
+  Widget _interestContraceptionMaybeSelectedFacility() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility ==
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Selected Facility Code',
+      answer: TextFormField(
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify selected facility';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestContraceptionMaybeNotNowDate() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'When would she like to go for counseling and possibly a method of her choice?-',
+        answer: DropdownButtonFormField<R21Week>(
+          value: _newPatient.srhContraceptionFindScheduleFacilityNoDate,
+          onChanged: (R21Week newValue) {
+            setState(() {
+              _newPatient.srhContraceptionFindScheduleFacilityNoDate = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items:
+              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
+            return DropdownMenuItem<R21Week>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionMaybeNotNowDateOther() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoDate == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoDate !=
+                R21Week.Other())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify other date',
+      answer: TextFormField(
+        controller: _interestContraceptionNotNowDateOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify date';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestContraceptionMaybeNotNowPickFacility() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Would she like to pick a facility now?-',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _newPatient.srhContraceptionFindScheduleFacilityNoPick,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _interestContraceptionMaybeNotNowPickFacilityShowButton() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
+                R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('XOpen Facilities Page-', onPressed: () {
+      print('4. Opening facilities page');
+    });
+  }
+
+  Widget _interestContraceptionMaybeNotNowPickFacilitySelected() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
+                R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Selected Facility Code',
+      answer: TextFormField(
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify selected facility';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestContraceptionMaybeLikeInformationOnApp() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest !=
+            R21Interest.MaybeInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like information sent through the app that she can read?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionInformationApp,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionInformationApp = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionMaybeLikeInfoOnMethods() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest !=
+            R21Interest.MaybeInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like to learn more about different contraceptive methods right now?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionLearnMethods,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionLearnMethods = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionMaybeLikeInfoOnMethodsShowButton() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionLearnMethods == null ||
+            _newPatient.srhContraceptionLearnMethods != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
+      print('Opening Counseling Information...');
+      _pushViewResourcesScreen();
+    });
+  }
+
+  Widget _interestContraceptionNotSpecifyReason() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Why not interest in contraception?',
+      answer: TextFormField(
+        controller: _interestContraceptionMaybeMethodSpecifyCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify reason';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestContraceptionNotLikeInfoOnMethods() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like to learn more about different contraceptive methods right now?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionInformationMethods,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionInformationMethods = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestContraceptionNotLikeInfoOnMethodsShowButton() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.NoInterested()) ||
+        (_newPatient.srhContraceptionInformationMethods == null ||
+            _newPatient.srhContraceptionInformationMethods != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
+      print('Opening Counseling Information...');
+      _pushViewResourcesScreen();
+    });
+  }
+
+  Widget _interestContraceptionNotLikeInformationOnApp() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+        _newPatient.srhContraceptionInterest != R21Interest.NoInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like information sent through the app that she can read?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhContraceptionInformationApp,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhContraceptionInformationApp = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+
+//PREP
+  Widget _interestPrep() {
+    return _makeQuestion(
+      'Interest in using PrEP',
+      answer: DropdownButtonFormField<R21Interest>(
+        value: _newPatient.srhPrepInterest,
+        onChanged: (R21Interest newValue) {
+          setState(() {
+            _newPatient.srhPrepInterest = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21Interest.allValues
+            .map<DropdownMenuItem<R21Interest>>((R21Interest value) {
+          return DropdownMenuItem<R21Interest>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _interestPrepLikeInfoOnMethods() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Would she like more information now about PrEP',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepLikeMoreInformation,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepLikeMoreInformation = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestPrepLikeInfoOnMethodsShowButton() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_newPatient.srhPrepLikeMoreInformation == null ||
+            _newPatient.srhPrepLikeMoreInformation != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
+      print('Opening Counseling Information...');
+      _pushViewResourcesScreen();
+    });
+  }
+  Widget _interestPrepVeryLikeFacilitySchedule() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like to find a facility and schedule a time to go for counseling and possibly get PrEP NOW?',
+        answer: DropdownButtonFormField<R21YesNoUnsure>(
+          value: _newPatient.srhPrepFindScheduleFacilitySchedule,
+          onChanged: (R21YesNoUnsure newValue) {
+            setState(() {
+              _newPatient.srhPrepFindScheduleFacilitySchedule = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNoUnsure.allValues
+              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
+            return DropdownMenuItem<R21YesNoUnsure>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+  Widget _interestPrepVeryLikeFacilityScheduleDate() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'When would she like to go',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _newPatient.srhPrepFindScheduleFacilityYesDate == null
+                  ? ''
+                  : '${formatDateConsistent(_newPatient.srhPrepFindScheduleFacilityYesDate)}',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            DateTime date = await showDatePicker(
+              context: context,
+              initialDate: now,
+              firstDate: minARTRefilDate,
+              lastDate: now,
+            );
+            if (date != null) {
+              setState(() {
+                _newPatient.srhPrepFindScheduleFacilityYesDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _patientBirthdayValid
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Please select a date',
+                  style: TextStyle(
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+      ]),
+    );
+  }
+  Widget _interestPrepVeryLikePNAccompany() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Would she like the PN to accompany her',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepFindScheduleFacilityYesPNAccompany,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepFindScheduleFacilityYesPNAccompany = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: false);
+  }
+  Widget _interestPrepVeryOpenFacilitiesPageShowButton() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
+      print('~~~ 3. OPENING FACILITIES PAGE =>');
+    });
+  }
+  Widget _interestPrepVerySelectedFacility() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Selected Facility Code',
+      answer: TextFormField(
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify selected facility';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+  Widget _interestPrepVeryNotNowDate() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'If no, when would she like to go for counseling and possibly get PrEP?',
+        answer: DropdownButtonFormField<R21Week>(
+          value: _newPatient.srhPrepFindScheduleFacilityNoDate,
+          onChanged: (R21Week newValue) {
+            setState(() {
+              _newPatient.srhPrepFindScheduleFacilityNoDate = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items:
+              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
+            return DropdownMenuItem<R21Week>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+  Widget _interestPrepVeryNotNowDateOther() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhPrepFindScheduleFacilityNoDate == null ||
+            _newPatient.srhPrepFindScheduleFacilityNoDate != R21Week.Other())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify other date',
+      answer: TextFormField(
+        controller: _interestContraceptionNotNowDateOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify date';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+  Widget _interestPrepVeryNotNowPickFacility() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Would she like to pick a facility now?-',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _newPatient.srhPrepFindScheduleFacilityNoPick,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _newPatient.srhPrepFindScheduleFacilityNoPick = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+  Widget _interestPrepVeryNotNowPickFacilityShowButton() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhPrepFindScheduleFacilityNoPick == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
+                R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('XOpen Facilities Page-', onPressed: () {
+      print('4. Opening facilities page');
+    });
+  }
+  Widget _interestPrepVeryNotNowPickFacilitySelected() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhContraceptionFindScheduleFacility == null ||
+            _newPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
+                R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Selected Facility Code',
+      answer: TextFormField(
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify selected facility';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+  Widget _interestPrepVeryLikeInformationOnApp() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.VeryInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like information about PrEP sent through the app that she can read?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepInformationApp,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepInformationApp = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+//MAYBE
+
+  Widget _interestPrepMaybeLikeInfoOnMethods() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.MaybeInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Would she like more information now about PrEP',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepLikeMoreInformation,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepLikeMoreInformation = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestPrepMaybeLikeInfoOnMethodsShowButton() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_newPatient.srhPrepLikeMoreInformation == null ||
+            _newPatient.srhPrepLikeMoreInformation != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
+      print('Opening Counseling Information...');
+      _pushViewResourcesScreen();
+    });
+  }
+
+  Widget _interestPrepMaybeLikeFacilitySchedule() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.MaybeInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like to find a facility and schedule a time to go for counseling and possibly get PrEP NOW?',
+        answer: DropdownButtonFormField<R21YesNoUnsure>(
+          value: _newPatient.srhPrepFindScheduleFacilitySchedule,
+          onChanged: (R21YesNoUnsure newValue) {
+            setState(() {
+              _newPatient.srhPrepFindScheduleFacilitySchedule = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNoUnsure.allValues
+              .map<DropdownMenuItem<R21YesNoUnsure>>((R21YesNoUnsure value) {
+            return DropdownMenuItem<R21YesNoUnsure>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestPrepMaybeLikeFacilityScheduleDate() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'When would she like to go',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _newPatient.srhContraceptionFindScheduleFacilityYesDate == null
+                  ? ''
+                  : '${formatDateConsistent(_newPatient.srhContraceptionFindScheduleFacilityYesDate)}',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            DateTime date = await showDatePicker(
+              context: context,
+              initialDate: now,
+              firstDate: minARTRefilDate,
+              lastDate: now,
+            );
+            if (date != null) {
+              setState(() {
+                _newPatient.srhContraceptionFindScheduleFacilityYesDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _patientBirthdayValid
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Please select a date',
+                  style: TextStyle(
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+      ]),
+    );
+  }
+
+  Widget _interestPrepMaybeLikePNAccompany() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Would she like the PN to accompany her',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepFindScheduleFacilityYesPNAccompany,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepFindScheduleFacilityYesPNAccompany = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: false);
+  }
+
+  Widget _interestPrepMaybeOpenFacilitiesPageShowButton() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Facilities Page', onPressed: () {
+      print('~~~ 3. OPENING FACILITIES PAGE =>');
+    });
+  }
+
+  Widget _interestPrepMaybeSelectedFacility() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.YES()))) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Selected Facility Code',
+      answer: TextFormField(
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify selected facility';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestPrepMaybeNotNowDate() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'If no, when would she like to go for counseling and possibly get PrEP?',
+        answer: DropdownButtonFormField<R21Week>(
+          value: _newPatient.srhPrepFindScheduleFacilityNoDate,
+          onChanged: (R21Week newValue) {
+            setState(() {
+              _newPatient.srhPrepFindScheduleFacilityNoDate = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items:
+              R21Week.allValues.map<DropdownMenuItem<R21Week>>((R21Week value) {
+            return DropdownMenuItem<R21Week>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestPrepMaybeNotNowDateOther() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhPrepFindScheduleFacilityNoDate == null ||
+            _newPatient.srhPrepFindScheduleFacilityNoDate != R21Week.Other())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Specify other date',
+      answer: TextFormField(
+        controller: _interestContraceptionNotNowDateOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify date';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestPrepMaybeNotNowPickFacility() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Would she like to pick a facility now?-',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _newPatient.srhPrepFindScheduleFacilityNoPick,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _newPatient.srhPrepFindScheduleFacilityNoPick = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _interestPrepMaybeNotNowPickFacilityShowButton() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilitySchedule == null ||
+            _newPatient.srhPrepFindScheduleFacilitySchedule !=
+                R21YesNoUnsure.NO()) ||
+        (_newPatient.srhPrepFindScheduleFacilityNoPick == null ||
+            _newPatient.srhPrepFindScheduleFacilityNoPick != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('XOpen Facilities Page-', onPressed: () {
+      print('4. Opening facilities page');
+    });
+  }
+
+  Widget _interestPrepMaybeNotNowPickFacilitySelected() {
+    if ((_newPatient.srhContraceptionInterest == null ||
+            _newPatient.srhContraceptionInterest !=
+                R21Interest.MaybeInterested()) ||
+        (_newPatient.srhPrepFindScheduleFacilityNoPick == null ||
+            _newPatient.srhPrepFindScheduleFacilityNoPick !=
+                R21YesNo.NO()) ||
+        (_newPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
+            _newPatient.srhContraceptionFindScheduleFacilityNoPick !=
+                R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Selected Facility Code',
+      answer: TextFormField(
+        controller: _interestContraceptionSelectedFacilityCodeCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify selected facility';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _interestPrepMaybeLikeInformationOnApp() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.MaybeInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like information about PrEP sent through the app that she can read?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepInformationApp,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepInformationApp = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+//NOT INTERESTED
+  Widget _interestPrepNotLikeInfoOnMethods() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.NoInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Would she like more information now about PrEP',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepLikeMoreInformation,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepLikeMoreInformation = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+  Widget _interestPrepNotLikeInfoOnMethodsShowButtons() {
+    if ((_newPatient.srhPrepInterest == null ||
+            _newPatient.srhPrepInterest != R21Interest.NoInterested()) ||
+        (_newPatient.srhPrepLikeMoreInformation == null ||
+            _newPatient.srhPrepLikeMoreInformation != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return PEBRAButtonFlat('Open Counseling Information', onPressed: () {
+      print('Opening Counseling Information...');
+      _pushViewResourcesScreen();
+    });
+  }
+
+  Widget _interestPrepNotLikeInformationOnApp() {
+    if ((_newPatient.srhPrepInterest == null ||
+        _newPatient.srhPrepInterest != R21Interest.NoInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+        'Would she like information about PrEP sent through the app that she can read?',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _newPatient.srhPrepLikeMoreInformation,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _newPatient.srhPrepLikeMoreInformation = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
+
+
+
+
+
+
+ 
+
+
+
+
 
   // ----------
   // OTHER
@@ -4026,31 +4056,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
-  bool _artNumberExists(artNumber) {
-    return _artNumbersInDB.contains(artNumber);
+  bool _studyNumberExists(artNumber) {
+    return _studyNumbersInDB.contains(artNumber);
   }
 
-  bool _stickerNumberExists(stickerNumber) {
-    return _stickerNumbersInDB.contains(stickerNumber);
-  }
-
-  void _showDialog(String title, String body) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(body),
-          actions: [
-            FlatButton(
-              child: Row(children: [Text('OK', textAlign: TextAlign.center)]),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

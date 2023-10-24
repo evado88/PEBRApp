@@ -151,14 +151,19 @@ class DatabaseProvider {
         );
         """);
 
-
     // R21Followup table:
     await db.execute("""
         CREATE TABLE IF NOT EXISTS ${R21Followup.tableName} (
           ${R21Followup.colUtilityId} INTEGER PRIMARY KEY,
           ${R21Followup.colUtilityCreatedDate} TEXT NULL,
+          ${R21Followup.colFollowNextDate} TEXT NULL,
           ${R21Followup.colPersonalStudyNo} TEXT NULL,
-          ${R21Followup.colSRHContraceptionInterest} INTEGER NULL, -- srh contraception
+          ${R21Followup.colSRHContraceptionStarted} INTEGER NULL, -- srh contraception
+          ${R21Followup.colSRHContraceptionStartedMethod} INTEGER NULL, 
+          ${R21Followup.colSRHContraceptionStartedProblems} INTEGER NULL, 
+          ${R21Followup.colSRHContraceptionStartedSideffects} TEXT NULL, 
+          ${R21Followup.colSRHContraceptionStartedOther} TEXT NULL, 
+          ${R21Followup.colSRHContraceptionInterest} INTEGER NULL, 
           ${R21Followup.colSRHContraceptionNoInterestReason} INTEGER NULL,
           ${R21Followup.colSRHContraceptionInterestMaleCondom} BIT NULL, 
           ${R21Followup.colSRHContraceptionInterestFemaleCondom} BIT NULL, 
@@ -180,19 +185,22 @@ class DatabaseProvider {
           ${R21Followup.colSRHContraceptionFindScheduleFacilityOther} INTEGER NULL,
           ${R21Followup.colSRHContraceptionInformationApp} INTEGER NULL,
           ${R21Followup.colSRHContraceptionLearnMethods} INTEGER NULL,
-          ${R21Followup.colSRHPrePInterest} INTEGER NULL, -- srh prep
-          ${R21Followup.colSRHPrePInformationApp} INTEGER NULL, 
-          ${R21Followup.colSRHPrePFindScheduleFacility} INTEGER NULL, 
-          ${R21Followup.colSRHPrePFindScheduleFacilityYesDate} TEXT NULL, 
-          ${R21Followup.colSRHPrePFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
-          ${R21Followup.colSRHPrePFindScheduleFacilityNoDate} TEXT NULL, 
-          ${R21Followup.colSRHPrePFindScheduleFacilityNoPick} INTEGER NULL, 
-          ${R21Followup.colSRHPrePFindScheduleFacilitySelected} TEXT NULL, 
-          ${R21Followup.colSRHPrePFindScheduleFacilityOther} TEXT NULL, 
-          ${R21Followup.colSRHPrePInformationRead} INTEGER NULL
+          ${R21Followup.colSRHPrepStarted} INTEGER NULL, -- srh prep
+          ${R21Followup.colSRHPrepStartedProblems} INTEGER NULL, 
+          ${R21Followup.colSRHPrepStartedSideffects} TEXT NULL, 
+          ${R21Followup.colSRHPrepStartedOther} TEXT NULL, 
+          ${R21Followup.colSRHPrepInterest} INTEGER NULL, 
+          ${R21Followup.colSRHPrepInformationApp} INTEGER NULL, 
+          ${R21Followup.colSRHPrepFindScheduleFacility} INTEGER NULL, 
+          ${R21Followup.colSRHPrepFindScheduleFacilityYesDate} TEXT NULL, 
+          ${R21Followup.colSRHPrepFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
+          ${R21Followup.colSRHPrepFindScheduleFacilityNoDate} TEXT NULL, 
+          ${R21Followup.colSRHPrepFindScheduleFacilityNoPick} INTEGER NULL, 
+          ${R21Followup.colSRHPrepFindScheduleFacilitySelected} TEXT NULL, 
+          ${R21Followup.colSRHPrepFindScheduleFacilityOther} TEXT NULL, 
+          ${R21Followup.colSRHPrepLikeMoreInformation} INTEGER NULL
         );
         """);
-
 
     // R21ScreenAnalytic table:
     await db.execute("""
@@ -207,7 +215,6 @@ class DatabaseProvider {
           ${R21ScreenAnalytic.colSubject} TEXT
         );
         """);
-
 
     await db.execute("""
         CREATE TABLE IF NOT EXISTS ${UserData.tableName} (
@@ -394,11 +401,11 @@ class DatabaseProvider {
 
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
-    newPatient.utilityEnrollmentDate= DateTime.now();
+    newPatient.utilityEnrollmentDate = DateTime.now();
+
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
-
 
   Future<void> insertFollowup(R21Followup followup,
       {DateTime createdDate}) async {
@@ -408,8 +415,6 @@ class DatabaseProvider {
     return res;
   }
 
-
-
   Future<void> insertScreenAnalytic(R21ScreenAnalytic analytic,
       {DateTime createdDate}) async {
     final Database db = await _databaseInstance;
@@ -417,12 +422,6 @@ class DatabaseProvider {
     final res = await db.insert(R21ScreenAnalytic.tableName, analytic.toMap());
     return res;
   }
-
-
-
-
-
-
 
   /// Retrieves only the latest patients from the database, i.e. the ones with the latest changes.
   ///
@@ -516,8 +515,6 @@ class DatabaseProvider {
     }
   }
 
-
-
   Future<List<R21Followup>> retrieveFollowupsForPatient(
       String patientART) async {
     final Database db = await _databaseInstance;
@@ -536,7 +533,6 @@ class DatabaseProvider {
     return [];
   }
 
-
   Future<List<R21ScreenAnalytic>> retrieveScreenAnalytics() async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
@@ -550,7 +546,6 @@ class DatabaseProvider {
     }
     return [];
   }
-
 
   /// Only retrieves latest active user data.
   Future<UserData> retrieveLatestUserData() async {
@@ -592,7 +587,6 @@ class DatabaseProvider {
     return null;
   }
 
-
   Future<R21Followup> retrieveLatestFollowupForPatient(
       String patientART) async {
     final Database db = await _databaseInstance;
@@ -605,7 +599,6 @@ class DatabaseProvider {
     }
     return null;
   }
-
 
   Future<Set<RequiredAction>> retrieveRequiredActionsForPatient(
       String patientART) async {
@@ -715,9 +708,6 @@ class DatabaseProvider {
     return list;
   }
 
-
-
-
   Future<List<R21Followup>> retrieveAllFollowupData() async {
     final Database db = await _databaseInstance;
     final res = await db.query(R21Followup.tableName);
@@ -743,7 +733,6 @@ class DatabaseProvider {
     }
     return list;
   }
-
 
   /// Retrieves all support option done data rows from the database, including
   /// all edits.

@@ -374,19 +374,19 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
                                 bold ? FontWeight.bold : FontWeight.normal))),
                 SizedBox(width: _spaceBetweenColumns),
                 Expanded(
-                    child: Text(ev.patientART ?? '—',
+                    child: Text(ev.studyNo ?? '—',
                         style: TextStyle(
                             fontWeight:
                                 bold ? FontWeight.bold : FontWeight.normal))),
                 SizedBox(width: _spaceBetweenColumns),
                 Expanded(
-                    child: Text(ev.patientART,
+                    child: Text(ev.studyNo,
                         style: TextStyle(
                             fontWeight:
                                 bold ? FontWeight.bold : FontWeight.normal))),
                 Expanded(
                     child: Text(
-                        ev.patientART,
+                        ev.studyNo,
                         style: TextStyle(
                             fontWeight:
                                 bold ? FontWeight.bold : FontWeight.normal))),

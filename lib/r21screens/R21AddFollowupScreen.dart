@@ -4,6 +4,7 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
 import 'package:pebrapp/database/beans/R21Interest.dart';
 import 'package:pebrapp/database/beans/R21ScreenType.dart';
 import 'package:pebrapp/database/beans/R21Week.dart';
@@ -102,7 +103,7 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
 
   // constructor
   _R21AddFollowupFormState(this._patient, this._analytic) {
-    _event = R21Followup(patientART: this._patient.personalStudyNumber);
+    _event = R21Followup(studyNo: this._patient.personalStudyNumber);
   }
 
   @override
@@ -116,6 +117,8 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
           padding: EdgeInsets.all(20.0),
           child: Column(
             children: <Widget>[
+              _followupNextCard(),
+              SizedBox(height: _spacing),
               _contraceptionInterestCard(),
               SizedBox(height: _spacing),
               _prepInterestCard(),
@@ -171,8 +174,6 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
 
 //Contraception
   Widget _contraceptionStarted() {
-
-  
     return _makeQuestion(
       'Has the client started a new contraceptive method?',
       answer: DropdownButtonFormField<R21YesNo>(
@@ -198,9 +199,112 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
     );
   }
 
-  Widget _contraceptionInterest() {
+  Widget _contraceptionStartedMethod() {
+    if (_event.srhContraceptionStarted == null ||
+        _event.srhContraceptionStarted != R21YesNo.YES()) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Which method has she started?',
+      answer: DropdownButtonFormField<R21ContraceptionMethod>(
+        value: _event.srhContraceptionStartedMethod,
+        onChanged: (R21ContraceptionMethod newValue) {
+          setState(() {
+            _event.srhContraceptionStartedMethod = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ContraceptionMethod.allValues
+            .map<DropdownMenuItem<R21ContraceptionMethod>>(
+                (R21ContraceptionMethod value) {
+          return DropdownMenuItem<R21ContraceptionMethod>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
 
-     if (_event.srhContraceptionStarted == null ||
+  Widget _contraceptionStartedProblems() {
+    if (_event.srhContraceptionStarted == null ||
+        _event.srhContraceptionStarted != R21YesNo.YES()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Any problems with new contraceptive method?',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _event.srhContraceptionStartedProblems,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _event.srhContraceptionStartedProblems = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _contraceptionStartedSideeffects() {
+    if (_event.srhContraceptionStarted == null ||
+        _event.srhContraceptionStarted != R21YesNo.YES() ||
+        _event.srhContraceptionStartedProblems == null ||
+        _event.srhContraceptionStartedProblems != R21YesNo.YES()) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Side effects',
+      answer: TextFormField(
+        controller: _interestContraceptionMethodOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify side effects';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _contraceptionStartedOther() {
+    if (_event.srhContraceptionStarted == null ||
+        _event.srhContraceptionStarted != R21YesNo.YES() ||
+        _event.srhContraceptionStartedProblems == null ||
+        _event.srhContraceptionStartedProblems != R21YesNo.YES()) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Other problems',
+      answer: TextFormField(
+        controller: _interestContraceptionMethodOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify other problems';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _contraceptionInterest() {
+    if (_event.srhContraceptionStarted == null ||
         _event.srhContraceptionStarted != R21YesNo.NO()) {
       return SizedBox();
     }
@@ -1416,10 +1520,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
     return _makeQuestion(
       'Has the client started using PrEP? ',
       answer: DropdownButtonFormField<R21YesNo>(
-        value: _event.srhPrePStarted,
+        value: _event.srhPrepStarted,
         onChanged: (R21YesNo newValue) {
           setState(() {
-            _event.srhPrePStarted = newValue;
+            _event.srhPrepStarted = newValue;
           });
         },
         validator: (value) {
@@ -1438,19 +1542,92 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
     );
   }
 
+  Widget _prepStartedProblems() {
+    if (_event.srhPrepStarted == null ||
+        _event.srhPrepStarted != R21YesNo.YES()) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Any problems with PreP?',
+      answer: DropdownButtonFormField<R21YesNo>(
+        value: _event.srhPrepStartedProblems,
+        onChanged: (R21YesNo newValue) {
+          setState(() {
+            _event.srhPrepStartedProblems = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21YesNo.allValues
+            .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+          return DropdownMenuItem<R21YesNo>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _prepStartedSideeffects() {
+    if (_event.srhPrepStarted == null ||
+        _event.srhPrepStarted != R21YesNo.YES() ||
+        _event.srhPrepStartedProblems == null ||
+        _event.srhPrepStartedProblems != R21YesNo.YES()) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Side effects',
+      answer: TextFormField(
+        controller: _interestContraceptionMethodOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify side effects';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _prepStartedOther() {
+    if (_event.srhPrepStarted == null ||
+        _event.srhPrepStarted != R21YesNo.YES() ||
+        _event.srhPrepStartedProblems == null ||
+        _event.srhPrepStartedProblems != R21YesNo.YES()) {
+      return SizedBox();
+    }
+    return _makeQuestion(
+      'Other problems',
+      answer: TextFormField(
+        controller: _interestContraceptionMethodOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify other problems';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
   Widget _interestPrep() {
-    if (_event.srhPrePStarted == null ||
-        _event.srhPrePStarted != R21YesNo.NO()) {
+    if (_event.srhPrepStarted == null ||
+        _event.srhPrepStarted != R21YesNo.NO()) {
       return SizedBox();
     }
 
     return _makeQuestion(
       'Interest in using PrEP',
       answer: DropdownButtonFormField<R21Interest>(
-        value: _event.srhPrePInterest,
+        value: _event.srhPrepInterest,
         onChanged: (R21Interest newValue) {
           setState(() {
-            _event.srhPrePInterest = newValue;
+            _event.srhPrepInterest = newValue;
           });
         },
         validator: (value) {
@@ -1470,17 +1647,17 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepLikeInfoOnMethods() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.VeryInterested())) {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.VeryInterested())) {
       return SizedBox();
     }
 
     return _makeQuestion('Would she like more information now about PrEP',
         answer: DropdownButtonFormField<R21YesNo>(
-          value: _event.srhPrepLikeMoreInformation,
+          value: _event.srhPrepInformationApp,
           onChanged: (R21YesNo newValue) {
             setState(() {
-              _event.srhPrepLikeMoreInformation = newValue;
+              _event.srhPrepInformationApp = newValue;
             });
           },
           validator: (value) {
@@ -1501,10 +1678,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepLikeInfoOnMethodsShow() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        (_event.srhPrepLikeMoreInformation == null ||
-            _event.srhPrepLikeMoreInformation != R21YesNo.YES())) {
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_event.srhPrepInformationApp == null ||
+            _event.srhPrepInformationApp != R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -1515,18 +1692,18 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryLikeFacilitySchedule() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.VeryInterested())) {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.VeryInterested())) {
       return SizedBox();
     }
 
     return _makeQuestion(
         'Would she like to find a facility and schedule a time to go for counseling and possibly get PrEP NOW?',
         answer: DropdownButtonFormField<R21YesNoUnsure>(
-          value: _event.srhPrePFindScheduleFacilitySchedule,
+          value: _event.srhPrepFindScheduleFacilitySchedule,
           onChanged: (R21YesNoUnsure newValue) {
             setState(() {
-              _event.srhPrePFindScheduleFacilitySchedule = newValue;
+              _event.srhPrepFindScheduleFacilitySchedule = newValue;
             });
           },
           validator: (value) {
@@ -1547,10 +1724,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryLikeFacilityScheduleDate() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
@@ -1608,20 +1785,20 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryLikePNAccompany() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
 
     return _makeQuestion('Would she like the PN to accompany her',
         answer: DropdownButtonFormField<R21YesNo>(
-          value: _event.srhPrePFindScheduleFacilityYesPNAccompany,
+          value: _event.srhPrepFindScheduleFacilityYesPNAccompany,
           onChanged: (R21YesNo newValue) {
             setState(() {
-              _event.srhPrePFindScheduleFacilityYesPNAccompany = newValue;
+              _event.srhPrepFindScheduleFacilityYesPNAccompany = newValue;
             });
           },
           validator: (value) {
@@ -1642,10 +1819,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryOpenFacilitiesPage() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
@@ -1656,10 +1833,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVerySelectedFacility() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
@@ -1679,10 +1856,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryNotNowDate() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO())) {
       return SizedBox();
     }
@@ -1690,10 +1867,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
     return _makeQuestion(
         'If no, when would she like to go for counseling and possibly get PrEP?',
         answer: DropdownButtonFormField<R21Week>(
-          value: _event.srhPrePFindScheduleFacilityNoDate,
+          value: _event.srhPrepFindScheduleFacilityNoDate,
           onChanged: (R21Week newValue) {
             setState(() {
-              _event.srhPrePFindScheduleFacilityNoDate = newValue;
+              _event.srhPrepFindScheduleFacilityNoDate = newValue;
             });
           },
           validator: (value) {
@@ -1714,13 +1891,13 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryNotNowDateOther() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO()) ||
-        (_event.srhPrePFindScheduleFacilityNoDate == null ||
-            _event.srhPrePFindScheduleFacilityNoDate != R21Week.Other())) {
+        (_event.srhPrepFindScheduleFacilityNoDate == null ||
+            _event.srhPrepFindScheduleFacilityNoDate != R21Week.Other())) {
       return SizedBox();
     }
 
@@ -1739,10 +1916,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryNotNowPickFacility() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO())) {
       return SizedBox();
     }
@@ -1750,10 +1927,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
     return _makeQuestion(
       'Would she like to pick a facility now?-',
       answer: DropdownButtonFormField<R21YesNo>(
-        value: _event.srhPrePFindScheduleFacilityNoPick,
+        value: _event.srhPrepFindScheduleFacilityNoPick,
         onChanged: (R21YesNo newValue) {
           setState(() {
-            _event.srhPrePFindScheduleFacilityNoPick = newValue;
+            _event.srhPrepFindScheduleFacilityNoPick = newValue;
           });
         },
         validator: (value) {
@@ -1773,12 +1950,12 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryNotNowPickFacilityShow() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.VeryInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.VeryInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO()) ||
-        (_event.srhPrePFindScheduleFacilityNoPick == null ||
+        (_event.srhPrepFindScheduleFacilityNoPick == null ||
             _event.srhContraceptionFindScheduleFacilityNoPick !=
                 R21YesNo.YES())) {
       return SizedBox();
@@ -1816,45 +1993,13 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepVeryLikeInformationOnApp() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.VeryInterested())) {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.VeryInterested())) {
       return SizedBox();
     }
 
     return _makeQuestion(
         'Would she like information about PrEP sent through the app that she can read?',
-        answer: DropdownButtonFormField<R21YesNo>(
-          value: _event.srhPrePInformationRead,
-          onChanged: (R21YesNo newValue) {
-            setState(() {
-              _event.srhPrePInformationRead = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question.';
-            }
-          },
-          items: R21YesNo.allValues
-              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
-            return DropdownMenuItem<R21YesNo>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-        makeBold: false,
-        forceColumn: true);
-  }
-//MAYBE
-
-  Widget _interestPrepMaybeLikeInfoOnMethods() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.MaybeInterested())) {
-      return SizedBox();
-    }
-
-    return _makeQuestion('Would she like more information now about PrEP',
         answer: DropdownButtonFormField<R21YesNo>(
           value: _event.srhPrepLikeMoreInformation,
           onChanged: (R21YesNo newValue) {
@@ -1878,12 +2023,44 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
         makeBold: false,
         forceColumn: true);
   }
+//MAYBE
+
+  Widget _interestPrepMaybeLikeInfoOnMethods() {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.MaybeInterested())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion('Would she like more information now about PrEP',
+        answer: DropdownButtonFormField<R21YesNo>(
+          value: _event.srhPrepInformationApp,
+          onChanged: (R21YesNo newValue) {
+            setState(() {
+              _event.srhPrepInformationApp = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question.';
+            }
+          },
+          items: R21YesNo.allValues
+              .map<DropdownMenuItem<R21YesNo>>((R21YesNo value) {
+            return DropdownMenuItem<R21YesNo>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        makeBold: false,
+        forceColumn: true);
+  }
 
   Widget _interestPrepMaybeLikeInfoOnMethodsShow() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        (_event.srhPrepLikeMoreInformation == null ||
-            _event.srhPrepLikeMoreInformation != R21YesNo.YES())) {
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_event.srhPrepInformationApp == null ||
+            _event.srhPrepInformationApp != R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -1894,18 +2071,18 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeLikeFacilitySchedule() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.MaybeInterested())) {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.MaybeInterested())) {
       return SizedBox();
     }
 
     return _makeQuestion(
         'Would she like to find a facility and schedule a time to go for counseling and possibly get PrEP NOW?',
         answer: DropdownButtonFormField<R21YesNoUnsure>(
-          value: _event.srhPrePFindScheduleFacilitySchedule,
+          value: _event.srhPrepFindScheduleFacilitySchedule,
           onChanged: (R21YesNoUnsure newValue) {
             setState(() {
-              _event.srhPrePFindScheduleFacilitySchedule = newValue;
+              _event.srhPrepFindScheduleFacilitySchedule = newValue;
             });
           },
           validator: (value) {
@@ -1926,10 +2103,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeLikeFacilityScheduleDate() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
@@ -1987,20 +2164,20 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeLikePNAccompany() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
 
     return _makeQuestion('Would she like the PN to accompany her',
         answer: DropdownButtonFormField<R21YesNo>(
-          value: _event.srhPrePFindScheduleFacilityYesPNAccompany,
+          value: _event.srhPrepFindScheduleFacilityYesPNAccompany,
           onChanged: (R21YesNo newValue) {
             setState(() {
-              _event.srhPrePFindScheduleFacilityYesPNAccompany = newValue;
+              _event.srhPrepFindScheduleFacilityYesPNAccompany = newValue;
             });
           },
           validator: (value) {
@@ -2021,10 +2198,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeOpenFacilitiesPage() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
@@ -2035,10 +2212,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeSelectedFacility() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        ((_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        ((_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.YES()))) {
       return SizedBox();
     }
@@ -2058,10 +2235,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeNotNowDate() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO())) {
       return SizedBox();
     }
@@ -2069,10 +2246,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
     return _makeQuestion(
         'If no, when would she like to go for counseling and possibly get PrEP?',
         answer: DropdownButtonFormField<R21Week>(
-          value: _event.srhPrePFindScheduleFacilityNoDate,
+          value: _event.srhPrepFindScheduleFacilityNoDate,
           onChanged: (R21Week newValue) {
             setState(() {
-              _event.srhPrePFindScheduleFacilityNoDate = newValue;
+              _event.srhPrepFindScheduleFacilityNoDate = newValue;
             });
           },
           validator: (value) {
@@ -2093,13 +2270,13 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeNotNowDateOther() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO()) ||
-        (_event.srhPrePFindScheduleFacilityNoDate == null ||
-            _event.srhPrePFindScheduleFacilityNoDate != R21Week.Other())) {
+        (_event.srhPrepFindScheduleFacilityNoDate == null ||
+            _event.srhPrepFindScheduleFacilityNoDate != R21Week.Other())) {
       return SizedBox();
     }
 
@@ -2118,10 +2295,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeNotNowPickFacility() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO())) {
       return SizedBox();
     }
@@ -2129,10 +2306,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
     return _makeQuestion(
       'Would she like to pick a facility now?-',
       answer: DropdownButtonFormField<R21YesNo>(
-        value: _event.srhPrePFindScheduleFacilityNoPick,
+        value: _event.srhPrepFindScheduleFacilityNoPick,
         onChanged: (R21YesNo newValue) {
           setState(() {
-            _event.srhPrePFindScheduleFacilityNoPick = newValue;
+            _event.srhPrepFindScheduleFacilityNoPick = newValue;
           });
         },
         validator: (value) {
@@ -2152,13 +2329,13 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeNotNowPickFacilityShow() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.MaybeInterested()) ||
-        (_event.srhPrePFindScheduleFacilitySchedule == null ||
-            _event.srhPrePFindScheduleFacilitySchedule !=
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.MaybeInterested()) ||
+        (_event.srhPrepFindScheduleFacilitySchedule == null ||
+            _event.srhPrepFindScheduleFacilitySchedule !=
                 R21YesNoUnsure.NO()) ||
-        (_event.srhPrePFindScheduleFacilityNoPick == null ||
-            _event.srhPrePFindScheduleFacilityNoPick != R21YesNo.YES())) {
+        (_event.srhPrepFindScheduleFacilityNoPick == null ||
+            _event.srhPrepFindScheduleFacilityNoPick != R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -2170,8 +2347,8 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   Widget _interestPrepMaybeNotNowPickFacilitySelected() {
     if ((_event.srhContraceptionInterest == null ||
             _event.srhContraceptionInterest != R21Interest.MaybeInterested()) ||
-        (_event.srhPrePFindScheduleFacilityNoPick == null ||
-            _event.srhPrePFindScheduleFacilityNoPick != R21YesNo.NO()) ||
+        (_event.srhPrepFindScheduleFacilityNoPick == null ||
+            _event.srhPrepFindScheduleFacilityNoPick != R21YesNo.NO()) ||
         (_event.srhContraceptionFindScheduleFacilityNoPick == null ||
             _event.srhContraceptionFindScheduleFacilityNoPick !=
                 R21YesNo.YES())) {
@@ -2193,18 +2370,18 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepMaybeLikeInformationOnApp() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.MaybeInterested())) {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.MaybeInterested())) {
       return SizedBox();
     }
 
     return _makeQuestion(
         'Would she like information about PrEP sent through the app that she can read?',
         answer: DropdownButtonFormField<R21YesNo>(
-          value: _event.srhPrePInformationRead,
+          value: _event.srhPrepInformationApp,
           onChanged: (R21YesNo newValue) {
             setState(() {
-              _event.srhPrePInformationRead = newValue;
+              _event.srhPrepInformationApp = newValue;
             });
           },
           validator: (value) {
@@ -2226,17 +2403,17 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
 
 //NOT INTERESTED
   Widget _interestPrepNotLikeInfoOnMethods() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.NoInterested())) {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.NoInterested())) {
       return SizedBox();
     }
 
     return _makeQuestion('Would she like more information now about PrEP',
         answer: DropdownButtonFormField<R21YesNo>(
-          value: _event.srhPrepLikeMoreInformation,
+          value: _event.srhPrepInformationApp,
           onChanged: (R21YesNo newValue) {
             setState(() {
-              _event.srhPrepLikeMoreInformation = newValue;
+              _event.srhPrepInformationApp = newValue;
             });
           },
           validator: (value) {
@@ -2257,10 +2434,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepNotLikeInfoOnMethodsShow() {
-    if ((_event.srhPrePInterest == null ||
-            _event.srhPrePInterest != R21Interest.NoInterested()) ||
-        (_event.srhPrepLikeMoreInformation == null ||
-            _event.srhPrepLikeMoreInformation != R21YesNo.YES())) {
+    if ((_event.srhPrepInterest == null ||
+            _event.srhPrepInterest != R21Interest.NoInterested()) ||
+        (_event.srhPrepInformationApp == null ||
+            _event.srhPrepInformationApp != R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -2271,18 +2448,18 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
   }
 
   Widget _interestPrepNotLikeInformationOnApp() {
-    if ((_event.srhPrePInterest == null ||
-        _event.srhPrePInterest != R21Interest.NoInterested())) {
+    if ((_event.srhPrepInterest == null ||
+        _event.srhPrepInterest != R21Interest.NoInterested())) {
       return SizedBox();
     }
 
     return _makeQuestion(
         'Would she like information about PrEP sent through the app that she can read?',
         answer: DropdownButtonFormField<R21YesNo>(
-          value: _event.srhPrepLikeMoreInformation,
+          value: _event.srhPrepInformationApp,
           onChanged: (R21YesNo newValue) {
             setState(() {
-              _event.srhPrepLikeMoreInformation = newValue;
+              _event.srhPrepInformationApp = newValue;
             });
           },
           validator: (value) {
@@ -2333,11 +2510,14 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
 
   Widget _prepInterestCard() {
     return _buildCard(
-      'PreP',
+      'Prep',
       withTopPadding: true,
       child: Column(
         children: [
           _prepStarted(),
+          _prepStartedProblems(),
+          _prepStartedSideeffects(),
+          _prepStartedOther(),
           _interestPrep(),
           _interestPrepLikeInfoOnMethods(),
           _interestPrepLikeInfoOnMethodsShow(),
@@ -2380,6 +2560,10 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
       child: Column(
         children: [
           _contraceptionStarted(),
+          _contraceptionStartedMethod(),
+          _contraceptionStartedProblems(),
+          _contraceptionStartedSideeffects(),
+          _contraceptionStartedOther(),
           _contraceptionInterest(),
           _hasMethodInMind(),
           _particularMethodInMind(),
@@ -2417,6 +2601,69 @@ class _R21AddFollowupFormState extends State<R21AddFollowupForm> {
           _interestContraceptionNotLikeInfoOnMethodsShow(),
           _interestContraceptionNotLikeInformationOnApp(),
         ],
+      ),
+    );
+  }
+
+  Widget _followupNextDateQuestion() {
+    return _makeQuestion(
+      'Date of next follow-up',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _event.nextDate == null
+                  ? ''
+                  : '${formatDateConsistent(_event.nextDate)}',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            DateTime date = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(Duration(days: 90)),
+            );
+            if (date != null) {
+              setState(() {
+                _event.nextDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _event.nextDate != null
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  'Please select next follow up date',
+                  style: TextStyle(
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ),
+      ]),
+    );
+  }
+
+  Widget _followupNextCard() {
+    return _buildCard(
+      'Schedule follow-up Communication',
+      withTopPadding: true,
+      child: Column(
+        children: [_followupNextDateQuestion()],
       ),
     );
   }

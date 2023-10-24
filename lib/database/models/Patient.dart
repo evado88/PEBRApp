@@ -433,8 +433,9 @@ class Patient implements IExcelExportable, IJsonExportable {
     this.personalBirthday = DateTime.parse(map[colPersonalBirthday]);
 
     this.messengerDownloaded = map[colMessengerDownloaded] == 1;
-    //this.messengerNoDownloadReason =
-    //   NoChatDownloadReason.fromCode(map[colMessengerNoDownloadReason]);
+    this.messengerNoDownloadReason = map[colMessengerNoDownloadReason] == null
+        ? null
+        : NoChatDownloadReason.fromCode(map[colMessengerNoDownloadReason]);
 
     this.personalPhoneNumber = map[colContactPhoneNumber];
 
@@ -482,18 +483,23 @@ class Patient implements IExcelExportable, IJsonExportable {
     //srh hiv
     this.historyHIVStatus = R21HIVStatus.fromCode(map[colHistoryHIVKnowStatus]);
 
-    this.historyHIVLastTest = map[colHistoryHIVLastTest] ??
-        DateTime.parse(map[colHistoryHIVLastTest]);
+    String lastTest = map[colHistoryHIVLastTest];
 
-    this.historyHIVUsedPrep = map[colHistoryHIVUsedPrep] ??
-        R21PrEP.fromCode(map[colHistoryHIVUsedPrep]);
+    this.historyHIVLastTest =
+        lastTest == null ? null : DateTime.parse(lastTest);
 
-    this.historyHIVPrepLastRefil = map[colHistoryHIVPrepLastRefil] ??
-        DateTime.parse(map[colHistoryHIVPrepLastRefil]);
+    this.historyHIVUsedPrep = map[colHistoryHIVUsedPrep] == null
+        ? null
+        : R21PrEP.fromCode(map[colHistoryHIVUsedPrep]);
+
+    this.historyHIVPrepLastRefil = map[colHistoryHIVPrepLastRefil] == null
+        ? null
+        : DateTime.parse(map[colHistoryHIVPrepLastRefil]);
 
     this.historyHIVPrepLastRefilSource =
-        map[colHistoryHIVPrepLastRefilSource] ??
-            R21ProviderType.fromCode(map[colHistoryHIVPrepLastRefilSource]);
+        map[colHistoryHIVPrepLastRefilSource] == null
+            ? null
+            : R21ProviderType.fromCode(map[colHistoryHIVPrepLastRefilSource]);
 
     this.historyHIVPrepLastRefilSourceSpecify =
         map[colHistoryHIVPrepLastRefilSourceSpecify];
@@ -502,14 +508,17 @@ class Patient implements IExcelExportable, IJsonExportable {
 
     this.historyHIVPrepQuestions = map[colHistoryHIVPrepQuestions];
 
-    this.historyHIVTakingART = map[colHistoryHIVTakingART] ??
-        R21YesNo.fromCode(map[colHistoryHIVTakingART]);
+    this.historyHIVTakingART = map[colHistoryHIVTakingART] == null
+        ? null
+        : R21YesNo.fromCode(map[colHistoryHIVTakingART]);
 
-    this.historyHIVLastRefil = map[colHistoryHIVLastRefil] ??
-        DateTime.parse(map[colHistoryHIVLastRefil]);
+    this.historyHIVLastRefil = map[colHistoryHIVLastRefil] == null
+        ? null
+        : DateTime.parse(map[colHistoryHIVLastRefil]);
 
-    this.historyHIVLastRefilSource = map[colHistoryHIVLastRefilSource] ??
-        R21ProviderType.fromCode(map[colHistoryHIVLastRefilSource]);
+    this.historyHIVLastRefilSource = map[colHistoryHIVLastRefilSource] == null
+        ? null
+        : R21ProviderType.fromCode(map[colHistoryHIVLastRefilSource]);
 
     this.historyHIVLastRefilSourceSpecify =
         map[historyHIVLastRefilSourceSpecify];
@@ -589,33 +598,45 @@ class Patient implements IExcelExportable, IJsonExportable {
     this.srhContraceptionInterestOtherSpecify =
         map[colSRHContraceptionInterestOtherSpecify];
 
-    this.srhContraceptionMethodInMind = map[colSRHContraceptionMethodInMind] ??
-        R21YesNo.fromCode(map[colSRHContraceptionMethodInMind]);
+    this.srhContraceptionMethodInMind =
+        map[colSRHContraceptionMethodInMind] == null
+            ? null
+            : R21YesNo.fromCode(map[colSRHContraceptionMethodInMind]);
 
     this.srhContraceptionInformationMethods =
-        map[colSRHContraceptionInformationMethods] ??
-            R21YesNo.fromCode(map[colSRHContraceptionInformationMethods]);
+        map[colSRHContraceptionInformationMethods] == null
+            ? null
+            : R21YesNo.fromCode(map[colSRHContraceptionInformationMethods]);
 
-    this.srhContraceptionFindScheduleFacility = map[
-            colSRHContraceptionFindScheduleFacility] ??
-        R21YesNoUnsure.fromCode(map[colSRHContraceptionFindScheduleFacility]);
+    this.srhContraceptionFindScheduleFacility =
+        map[colSRHContraceptionFindScheduleFacility] == null
+            ? null
+            : R21YesNoUnsure.fromCode(
+                map[colSRHContraceptionFindScheduleFacility]);
 
     this.srhContraceptionFindScheduleFacilityYesDate =
-        map[colSRHContraceptionFindScheduleFacilityYesDate] ??
-            DateTime.parse(map[colSRHContraceptionFindScheduleFacilityYesDate]);
+        map[colSRHContraceptionFindScheduleFacilityYesDate] == null
+            ? null
+            : DateTime.parse(
+                map[colSRHContraceptionFindScheduleFacilityYesDate]);
 
     this.srhContraceptionFindScheduleFacilityYesPNAccompany =
-        map[colSRHContraceptionFindScheduleFacilityYesPNAccompany] ??
-            R21YesNo.fromCode(
+        map[colSRHContraceptionFindScheduleFacilityYesPNAccompany] == null
+            ? null
+            : R21YesNo.fromCode(
                 map[colSRHContraceptionFindScheduleFacilityYesPNAccompany]);
 
-    this.srhContraceptionFindScheduleFacilityNoDate = map[
-            colSRHContraceptionFindScheduleFacilityNoDate] ??
-        R21Week.fromCode(map[colSRHContraceptionFindScheduleFacilityNoDate]);
+    this.srhContraceptionFindScheduleFacilityNoDate =
+        map[colSRHContraceptionFindScheduleFacilityNoDate] == null
+            ? null
+            : R21Week.fromCode(
+                map[colSRHContraceptionFindScheduleFacilityNoDate]);
 
-    this.srhContraceptionFindScheduleFacilityNoPick = map[
-            colSRHContraceptionFindScheduleFacilityNoPick] ??
-        R21YesNo.fromCode(map[colSRHContraceptionFindScheduleFacilityNoPick]);
+    this.srhContraceptionFindScheduleFacilityNoPick =
+        map[colSRHContraceptionFindScheduleFacilityNoPick] == null
+            ? null
+            : R21YesNo.fromCode(
+                map[colSRHContraceptionFindScheduleFacilityNoPick]);
 
     this.srhContraceptionFindScheduleFacilitySelected =
         map[colSRHContraceptionFindScheduleFacilitySelected];
@@ -624,37 +645,47 @@ class Patient implements IExcelExportable, IJsonExportable {
         map[colSRHContraceptionFindScheduleFacilityOther];
 
     this.srhContraceptionInformationApp =
-        map[colSRHContraceptionInformationApp] ??
-            R21YesNo.fromCode(map[colSRHContraceptionInformationApp]);
+        map[colSRHContraceptionInformationApp] == null
+            ? null
+            : R21YesNo.fromCode(map[colSRHContraceptionInformationApp]);
 
-    this.srhContraceptionLearnMethods = map[colSRHContraceptionLearnMethods] ??
-        R21YesNo.fromCode(map[colSRHContraceptionLearnMethods]);
+    this.srhContraceptionLearnMethods =
+        map[colSRHContraceptionLearnMethods] == null
+            ? null
+            : R21YesNo.fromCode(map[colSRHContraceptionLearnMethods]);
 
     //srh prep
     this.srhPrepInterest = R21Interest.fromCode(map[colSRHPrepInterest]);
 
-    this.srhPrepInformationApp = map[colSRHPrepInformationApp] ??
-        R21YesNo.fromCode(map[colSRHPrepInformationApp]);
+    this.srhPrepInformationApp = map[colSRHPrepInformationApp] == null
+        ? null
+        : R21YesNo.fromCode(map[colSRHPrepInformationApp]);
 
     this.srhPrepFindScheduleFacilitySchedule =
-        map[colSRHPrepFindScheduleFacility] ??
-            R21YesNoUnsure.fromCode(map[colSRHPrepFindScheduleFacility]);
+        map[colSRHPrepFindScheduleFacility] == null
+            ? null
+            : R21YesNoUnsure.fromCode(map[colSRHPrepFindScheduleFacility]);
 
     this.srhPrepFindScheduleFacilityYesDate =
-        map[colSRHPrepFindScheduleFacilityYesDate] ??
-            DateTime.parse(map[colSRHPrepFindScheduleFacilityYesDate]);
+        map[colSRHPrepFindScheduleFacilityYesDate] == null
+            ? null
+            : DateTime.parse(map[colSRHPrepFindScheduleFacilityYesDate]);
 
-    this.srhPrepFindScheduleFacilityYesPNAccompany = map[
-            colSRHPrepFindScheduleFacilityYesPNAccompany] ??
-        R21YesNo.fromCode(map[colSRHPrepFindScheduleFacilityYesPNAccompany]);
+    this.srhPrepFindScheduleFacilityYesPNAccompany =
+        map[colSRHPrepFindScheduleFacilityYesPNAccompany] == null
+            ? null
+            : R21YesNo.fromCode(
+                map[colSRHPrepFindScheduleFacilityYesPNAccompany]);
 
     this.srhPrepFindScheduleFacilityNoDate =
-        map[colSRHPrepFindScheduleFacilityNoDate] ??
-            R21Week.fromCode(map[colSRHPrepFindScheduleFacilityNoDate]);
+        map[colSRHPrepFindScheduleFacilityNoDate] == null
+            ? null
+            : R21Week.fromCode(map[colSRHPrepFindScheduleFacilityNoDate]);
 
     this.srhPrepFindScheduleFacilityNoPick =
-        map[colSRHPrepFindScheduleFacilityNoPick] ??
-            R21YesNo.fromCode(map[colSRHPrepFindScheduleFacilityNoPick]);
+        map[colSRHPrepFindScheduleFacilityNoPick] == null
+            ? null
+            : R21YesNo.fromCode(map[colSRHPrepFindScheduleFacilityNoPick]);
 
     this.srhPrepFindScheduleFacilitySelected =
         map[colSRHPrepFindScheduleFacilitySelected];
@@ -662,8 +693,9 @@ class Patient implements IExcelExportable, IJsonExportable {
     this.srhPrepFindScheduleFacilityOther =
         map[colSRHPrepFindScheduleFacilityOther];
 
-    this.srhPrepLikeMoreInformation = map[colSRHPrepLikeMoreInformation] ??
-        R21YesNo.fromCode(map[colSRHPrepLikeMoreInformation]);
+    this.srhPrepLikeMoreInformation = map[colSRHPrepLikeMoreInformation] == null
+        ? null
+        : R21YesNo.fromCode(map[colSRHPrepLikeMoreInformation]);
   }
 
   // -----
@@ -719,12 +751,12 @@ class Patient implements IExcelExportable, IJsonExportable {
     //history hiv
     map[colHistoryHIVKnowStatus] = this.historyHIVStatus.code;
 
-    map[colHistoryHIVLastTest] =
-        this.historyHIVLastTest ?? this.historyHIVLastTest.toIso8601String();
+    map[colHistoryHIVLastTest] = this.historyHIVLastTest.toIso8601String();
 
     map[colHistoryHIVUsedPrep] = this.historyHIVUsedPrep?.code;
 
-    map[colHistoryHIVPrepLastRefil] = this.historyHIVPrepLastRefil?.toIso8601String();
+    map[colHistoryHIVPrepLastRefil] =
+        this.historyHIVPrepLastRefil?.toIso8601String();
 
     map[colHistoryHIVPrepLastRefilSource] =
         this.historyHIVPrepLastRefilSource?.code;
@@ -742,7 +774,7 @@ class Patient implements IExcelExportable, IJsonExportable {
 
     map[colHistoryHIVLastRefilSource] = this.historyHIVLastRefilSource?.code;
 
-    map[historyHIVLastRefilSourceSpecify] =
+    map[colHistoryHIVLastRefilSourceSpecify] =
         this.historyHIVLastRefilSourceSpecify;
 
     map[colHistoryHIVARTProblems] = this.historyHIVARTProblems;
@@ -862,7 +894,8 @@ class Patient implements IExcelExportable, IJsonExportable {
     map[colSRHPrepFindScheduleFacility] =
         this.srhPrepFindScheduleFacilitySchedule?.code;
 
-    map[colSRHPrepFindScheduleFacilityYesDate] = this.srhPrepFindScheduleFacilityYesDate?.toIso8601String();
+    map[colSRHPrepFindScheduleFacilityYesDate] =
+        this.srhPrepFindScheduleFacilityYesDate?.toIso8601String();
 
     map[colSRHPrepFindScheduleFacilityYesPNAccompany] =
         this.srhPrepFindScheduleFacilityYesPNAccompany?.code;
@@ -982,14 +1015,14 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   /// Initializes the field [followups] with the latest data from the database.
   Future<void> initializeFollowupsField() async {
-    //this.followups = await DatabaseProvider()
-    //    .retrieveFollowupsForPatient(personalStudyNumber);
+    this.followups = await DatabaseProvider()
+        .retrieveFollowupsForPatient(personalStudyNumber);
   }
 
   Future<void> initializeRecentFields() async {
-    /* R21Followup followup = await DatabaseProvider()
+    R21Followup followup = await DatabaseProvider()
         .retrieveLatestFollowupForPatient(personalStudyNumber);
-    this.latestFollowup = followup;*/
+    this.latestFollowup = followup;
   }
 
   /// Initializes the field [requiredActions] with the latest data from the database.
