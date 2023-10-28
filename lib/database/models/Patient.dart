@@ -6,7 +6,6 @@ import 'package:pebrapp/database/beans/R21Residency.dart';
 import 'package:pebrapp/database/beans/NoChatDownloadReason.dart';
 import 'package:pebrapp/database/beans/R21PhoneNumberSecurity.dart';
 import 'package:pebrapp/database/beans/R21ContactFrequency.dart';
-import 'package:pebrapp/database/beans/R21ContraceptionMethod.dart';
 import 'package:pebrapp/database/beans/R21ContraceptionUse.dart';
 import 'package:pebrapp/database/beans/R21HIVStatus.dart';
 import 'package:pebrapp/database/beans/R21Interest.dart';
@@ -39,6 +38,8 @@ class Patient implements IExcelExportable, IJsonExportable {
   //Messenger app
   static final colMessengerDownloaded = 'downloaded_messenger';
   static final colMessengerNoDownloadReason = 'no_download_messenger_reason';
+  static final colMessengerNoDownloadReasonSpecify =
+      'no_download_messenger_reason_specify'; //new
 
   //Contact information
   static final colContactPhoneNumber = 'phone_number';
@@ -78,7 +79,13 @@ class Patient implements IExcelExportable, IJsonExportable {
       'history_contraception_satisfaction';
 
   static final colHistoryContraceptionSatisfactionReason =
-      'history_contraception_satisfaction_reason';
+      'history_contraception_satisfaction_reason'; //new
+
+  static final colHistoryContraceptionStopReason =
+      'history_contraception_stop_reason'; //new
+
+  static final colHistoryContraceptionNoUseReason =
+      'history_contraception_no_use_reason'; //new
 
   //hiv status
   static final colHistoryHIVKnowStatus = 'history_hiv_know_status';
@@ -147,6 +154,8 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   static final colHistoryHIVPrepDesiredSupportOtherSpecify =
       'history_hiv_prep_desired_support_other_specify';
+
+  static final colHistoryHIVPrepStopReason = 'history_hiv_prep_stop_reason';
 
 //SRH Preferences
   //Contraception
@@ -218,6 +227,8 @@ class Patient implements IExcelExportable, IJsonExportable {
   //prep
   static final colSRHPrepInterest = 'srh_prep_interest';
 
+  static final colSRHPrepNoInterestReason = 'srh_prep_no_interest_reason'; //new
+
   static final colSRHPrepInformationApp = 'srh_prep_information_app';
 
   static final colSRHPrepFindScheduleFacility =
@@ -253,6 +264,7 @@ class Patient implements IExcelExportable, IJsonExportable {
   //Messenger app
   bool messengerDownloaded;
   NoChatDownloadReason messengerNoDownloadReason;
+  String messengerNoDownloadReasonSpecify;
 
   //Contact information
   String personalPhoneNumber;
@@ -287,6 +299,10 @@ class Patient implements IExcelExportable, IJsonExportable {
   R21Satisfaction historyContraceptionSatisfaction;
 
   String historyContraceptionSatisfactionReason;
+
+  String historyContraceptionStopReason;
+
+  String historyContraceptionNoUseReason;
 
   //hiv status
   R21HIVStatus historyHIVStatus;
@@ -341,6 +357,8 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   String historyHIVPrepDesiredSupportOtherSpecify;
 
+  String historyHIVPrepStopReason;
+
 //SRH Preferences
 
   //Contraception
@@ -391,6 +409,8 @@ class Patient implements IExcelExportable, IJsonExportable {
 //prep
   R21Interest srhPrepInterest;
 
+  String srhPrepNoInterestReason;
+
   R21YesNo srhPrepLikeMoreInformation;
 
   R21YesNoUnsure srhPrepFindScheduleFacilitySchedule;
@@ -437,6 +457,9 @@ class Patient implements IExcelExportable, IJsonExportable {
         ? null
         : NoChatDownloadReason.fromCode(map[colMessengerNoDownloadReason]);
 
+    this.messengerNoDownloadReasonSpecify =
+        map[colMessengerNoDownloadReasonSpecify];
+
     this.personalPhoneNumber = map[colContactPhoneNumber];
 
     this.personalPhoneNumberAvailability =
@@ -479,6 +502,12 @@ class Patient implements IExcelExportable, IJsonExportable {
 
     this.historyContraceptionSatisfactionReason =
         map[colHistoryContraceptionSatisfactionReason];
+
+    this.historyContraceptionStopReason =
+        map[colHistoryContraceptionStopReason];
+
+    this.historyContraceptionNoUseReason =
+        map[colHistoryContraceptionNoUseReason];
 
     //srh hiv
     this.historyHIVStatus = R21HIVStatus.fromCode(map[colHistoryHIVKnowStatus]);
@@ -562,6 +591,8 @@ class Patient implements IExcelExportable, IJsonExportable {
 
     this.historyHIVPrepDesiredSupportOtherSpecify =
         map[colHistoryHIVPrepDesiredSupportOtherSpecify];
+
+    this.historyHIVPrepStopReason = map[colHistoryHIVPrepStopReason];
 
     //srh contraception
     this.srhContraceptionInterest =
@@ -657,6 +688,9 @@ class Patient implements IExcelExportable, IJsonExportable {
     //srh prep
     this.srhPrepInterest = R21Interest.fromCode(map[colSRHPrepInterest]);
 
+    this.srhPrepNoInterestReason =
+        map[colSRHPrepNoInterestReason];
+
     this.srhPrepInformationApp = map[colSRHPrepInformationApp] == null
         ? null
         : R21YesNo.fromCode(map[colSRHPrepInformationApp]);
@@ -713,6 +747,8 @@ class Patient implements IExcelExportable, IJsonExportable {
     map[colMessengerDownloaded] = messengerDownloaded ? 1 : 0;
     map[colMessengerNoDownloadReason] = messengerNoDownloadReason?.code;
 
+    map[colMessengerNoDownloadReasonSpecify] = messengerNoDownloadReasonSpecify;
+
     map[colContactPhoneNumber] = personalPhoneNumber;
     map[colContactOwnPhone] = personalPhoneNumberAvailability.code;
     map[colContactResidency] = personalResidency.code;
@@ -747,6 +783,12 @@ class Patient implements IExcelExportable, IJsonExportable {
 
     map[colHistoryContraceptionSatisfactionReason] =
         this.historyContraceptionSatisfactionReason;
+
+    map[colHistoryContraceptionStopReason] =
+        this.historyContraceptionStopReason;
+
+    map[colHistoryContraceptionNoUseReason] =
+        this.historyContraceptionNoUseReason;
 
     //history hiv
     map[colHistoryHIVKnowStatus] = this.historyHIVStatus.code;
@@ -816,6 +858,8 @@ class Patient implements IExcelExportable, IJsonExportable {
 
     map[colHistoryHIVPrepDesiredSupportOtherSpecify] =
         this.historyHIVPrepDesiredSupportOtherSpecify;
+
+    map[colHistoryHIVPrepStopReason] = this.historyHIVPrepStopReason;
 
     //srh contraception
     map[colSRHContraceptionInterest] = this.srhContraceptionInterest.code;

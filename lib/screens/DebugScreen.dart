@@ -6,6 +6,7 @@ import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/R21Followup.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/BackupNotFoundException.dart';
@@ -112,7 +113,7 @@ class _DebugScreenState extends State<DebugScreen> {
                 children: <Widget>[
                   _card('Misc.', [
                     _buttonRow(
-                      description: 'Restore data from PEBRAcloud',
+                      description: 'Restore data from Twyshe Server',
                       buttonLabel: 'Restore',
                       onPressed: () {
                         _onPressRestoreButton(context);
@@ -120,9 +121,7 @@ class _DebugScreenState extends State<DebugScreen> {
                     ),
                   ]),
                   _card('Database Operations', [
-                    _dropTabelRow(ViralLoad.tableName),
-                    SizedBox(height: _spacing),
-                    _dropTabelRow(PreferenceAssessment.tableName),
+                    _dropTabelRow(R21Followup.tableName),
                     SizedBox(height: _spacing),
                     _dropTabelRow(Patient.tableName),
                   ]),
@@ -188,7 +187,7 @@ class _DebugScreenState extends State<DebugScreen> {
             break;
           case PebraCloudAuthFailedException:
             notificationMessage =
-                'PEBRAcloud authentication failed. Contact the development team.';
+                'Twyshe Server authentication failed. Contact the development team.';
             break;
           case BackupNotFoundException:
             notificationMessage =

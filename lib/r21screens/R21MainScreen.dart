@@ -445,9 +445,6 @@ class _R21MainScreenState extends State<R21MainScreen>
         routeName: '/icon-explanations');
   }
 
-  Future<void> _pushNewPatientScreen() async {
-
-  }
 
   Future<void> _pushFlatPatientScreen() async {
     _patientScreenPushed = true;
@@ -455,7 +452,7 @@ class _R21MainScreenState extends State<R21MainScreen>
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
-          return R21NewPatientScreen();
+          return R21NewPatientScreen(null);
         },
       ),
     );

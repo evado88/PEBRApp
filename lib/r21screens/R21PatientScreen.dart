@@ -7,7 +7,6 @@ import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/R21Residency.dart';
 import 'package:pebrapp/database/beans/R21ScreenType.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/R21Followup.dart';
@@ -18,6 +17,7 @@ import 'package:pebrapp/r21screens/R21AddFollowupScreen.dart';
 
 import 'package:pebrapp/r21screens/R21EditPatientScreen.dart';
 import 'package:pebrapp/r21screens/R21EditPatientSupportScreen.dart';
+import 'package:pebrapp/r21screens/R21NewPatientScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -170,11 +170,10 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
       children: <Widget>[
         _buildRequiredActions(),
         _buildPatientCharacteristicsCard(),
-        _makeButton('Edit Characteristics', onPressed: () {
+        _makeButton('Edit Participant', onPressed: () {
           _editCharacteristicsPressed(_patient);
         }, flat: true),
         _buildNextActions(),
-        SizedBox(height: _spacingBetweenCards),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
@@ -614,23 +613,12 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
 
   void _editCharacteristicsPressed(Patient patient) {
     print("chracteristic");
-    _fadeInScreen(R21EditPatientScreen(patient)).then((_) {
+    _fadeInScreen(R21NewPatientScreen(patient)).then((_) {
       // calling setState to trigger a re-render of the page and display the new
       // patient characteristics
       setState(() {});
     });
   }
-
-  void _editDesiredSupportPressed(Patient patient) {
-    print("Desired support");
-    _fadeInScreen(R21EditPatientSupportScreen(patient)).then((_) {
-      // calling setState to trigger a re-render of the page and display the new
-      // patient characteristics
-      setState(() {});
-    });
-  }
-
-
 
 
   Future<void> _manageFollowupPressed(
