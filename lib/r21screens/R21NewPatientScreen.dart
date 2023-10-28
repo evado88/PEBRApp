@@ -86,11 +86,122 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     if (this.widget.patient == null) {
       _currentPatient = Patient();
     } else {
+      //PARTICIPANT CHARACTERISTICS
 
+      //Personal Information
       _personalStudyNumberCtr.text = this.widget.patient.personalStudyNumber;
 
+      //Messenger App
+      _messengerNoDownloadReasonSpecifyCtr.text =
+          this.widget.patient.messengerNoDownloadReasonSpecify;
+
+      //Contact
       _personalPhoneNumberCtr.text =
-          this.widget.patient.personalPhoneNumber.substring(5);
+          this.widget.patient.personalPhoneNumber.substring(3);
+
+      //SRH HISTORY
+
+      //Contraception
+      _historyContraceptionOtherSpecifyCtr.text =
+          this.widget.patient.historyContraceptionOtherSpecify;
+
+      _historyContraceptionStopReasonCtr.text =
+          this.widget.patient.historyContraceptionStopReason;
+
+      _historyContraceptionSatisfactionReasonCtr.text =
+          this.widget.patient.historyContraceptionSatisfactionReason;
+
+      _historyContraceptionNoUseReasonCtr.text =
+          this.widget.patient.historyContraceptionNoUseReason;
+
+      //Hiv
+      _historyHIVLastRefilSourceSpecifyCtr.text =
+          this.widget.patient.historyHIVLastRefilSourceSpecify;
+
+      _historyHIVARTProblemsCtr.text =
+          this.widget.patient.historyHIVARTProblems;
+
+      _historyHIVARTQuestionsCtr.text =
+          this.widget.patient.historyHIVARTQuestions;
+
+      _historyHIVDesiredSupportOtherSpecifyCtr.text =
+          this.widget.patient.historyHIVDesiredSupportOtherSpecify;
+
+      //Prep
+      _historyHIVPrepStopReasonCtr.text =
+          this.widget.patient.historyHIVPrepStopReason;
+
+      _historyHIVPrepLastRefilSourceSpecifyCtr.text =
+          this.widget.patient.historyHIVPrepLastRefilSourceSpecify;
+
+      _historyHIVPrepProblemsCtr.text =
+          this.widget.patient.historyHIVPrepProblems;
+
+      _historyHIVPrepQuestionsCtr.text =
+          this.widget.patient.historyHIVPrepQuestions;
+
+      _historyHIVPrepDesiredSupportOtherSpecifyCtr.text =
+          this.widget.patient.historyHIVPrepDesiredSupportOtherSpecify;
+
+      //SRH PREFERENCE
+
+      //contraception
+      _srhContraceptionInterestOtherSpecifyCtr.text =
+          this.widget.patient.srhContraceptionInterestOtherSpecify;
+
+      _srhContraceptionFindScheduleFacilitySelectedVeryYesCtr.text = this
+          .widget
+          .patient
+          .srhContraceptionFindScheduleFacilitySelected; //again
+
+      _srhContraceptionFindScheduleFacilityOtherVeryCtr.text =
+          this.widget.patient.srhContraceptionFindScheduleFacilityOther;
+
+      _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr.text = this
+          .widget
+          .patient
+          .srhContraceptionFindScheduleFacilitySelected; //again
+
+      _srhContraceptionInterestOtherSpecifyMaybeCtr.text =
+          this.widget.patient.srhContraceptionInterestOtherSpecify; //again
+
+      _srhContraceptionFindScheduleFacilitySelectedMaybeCtr.text = this
+          .widget
+          .patient
+          .srhContraceptionFindScheduleFacilitySelected; //again
+
+      _srhContraceptionFindScheduleFacilityOtherMaybeNotNowCtr.text =
+          this.widget.patient.srhContraceptionFindScheduleFacilityOther; //again
+
+      _srhContraceptionFindScheduleFacilitySelectedMaybeNotNowCtr.text = this
+          .widget
+          .patient
+          .srhContraceptionFindScheduleFacilitySelected; //again
+
+      _srhContraceptionNoInterestReasonCtr.text =
+          this.widget.patient.srhContraceptionNoInterestReason;
+
+      //prep
+      _srhPrepNoInterestReasonCtr.text =
+          this.widget.patient.srhPrepNoInterestReason;
+
+      _srhPrepFindScheduleFacilitySelectedVeryYesCtr.text =
+          this.widget.patient.srhPrepFindScheduleFacilitySelected;
+
+      _srhPrepFindScheduleFacilityOtherNotNowDateCtr.text =
+          this.widget.patient.srhPrepFindScheduleFacilityOther;
+
+      _srhPrepFindScheduleFacilitySelectedVeryNotNowCtr.text =
+          this.widget.patient.srhPrepFindScheduleFacilitySelected;
+
+      _srhPrepFindScheduleFacilitySelectedMaybeYesCtr.text =
+          this.widget.patient.srhPrepFindScheduleFacilitySelected;
+
+      _srhPrepFindScheduleFacilityOtherCtr.text =
+          this.widget.patient.srhPrepFindScheduleFacilityOther;
+
+      _srhPrepFindScheduleFacilitySelectedMaybeNoYesCtr.text =
+          this.widget.patient.srhPrepFindScheduleFacilitySelected;
 
       _currentPatient = this.widget.patient;
     }
@@ -2226,7 +2337,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
-  TextEditingController _srhContraceptionFindScheduleFacilitySelectedVeryYesCtr =
+  TextEditingController
+      _srhContraceptionFindScheduleFacilitySelectedVeryYesCtr =
       TextEditingController();
 
   Widget _interestContraceptionSelectedFacility() {
@@ -2373,7 +2485,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     });
   }
 
-  TextEditingController _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr =
+  TextEditingController
+      _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr =
       TextEditingController();
 
   Widget _interestContraceptionNotNowPickFacilitySelected() {
@@ -2878,7 +2991,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       return SizedBox();
     }
 
-    return PEBRAButtonFlat('Open Facilities Page [[MaybeNoYes]]', onPressed: () {
+    return PEBRAButtonFlat('Open Facilities Page [[MaybeNoYes]]',
+        onPressed: () {
       print('4. Opening facilities page');
     });
   }
@@ -4133,7 +4247,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           _srhContraceptionFindScheduleFacilityOtherVeryCtr.text;
 
       _currentPatient.srhContraceptionFindScheduleFacilitySelected =
-          _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr.text; //again
+          _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr
+              .text; //again
 
       _currentPatient.srhContraceptionInterestOtherSpecify =
           _srhContraceptionInterestOtherSpecifyMaybeCtr.text; //again

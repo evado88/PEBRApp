@@ -55,7 +55,6 @@ void main() {
     final Patient patient = Patient(
         personalStudyNumber: "B/01/11111",
         personalBirthday: DateTime(1994, 9, 27),
-        personalResidency: R21Residency.ADDRESS(),
         personalPhoneNumber: "+266-57-683-501");
    
   });
@@ -112,7 +111,6 @@ void main() {
     final Patient patient = Patient(
         personalStudyNumber: "B/01/22222",
         personalBirthday: DateTime(1994, 8, 11),
-        personalResidency: R21Residency.UNZA(),
         personalPhoneNumber: "+266-56-543-501");
   });
 }

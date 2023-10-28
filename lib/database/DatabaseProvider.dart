@@ -73,6 +73,7 @@ class DatabaseProvider {
           ${Patient.colPersonalBirthday} TEXT NULL,
           ${Patient.colMessengerDownloaded} INTEGER NULL,  --messenger
           ${Patient.colMessengerNoDownloadReason} INTEGER NULL,
+          ${Patient.colMessengerNoDownloadReasonSpecify} TEXT NULL,
           ${Patient.colContactPhoneNumber} TEXT NULL, --contact
           ${Patient.colContactOwnPhone} INTEGER NULL,
           ${Patient.colContactResidency} INTEGER NULL,
@@ -90,6 +91,8 @@ class DatabaseProvider {
           ${Patient.colHistoryContraceptionOtherSpecify} TEXT NULL,
           ${Patient.colHistoryContraceptionSatisfaction} INTEGER NULL,
           ${Patient.colHistoryContraceptionSatisfactionReason} TEXT NULL,
+          ${Patient.colHistoryContraceptionStopReason} TEXT NULL,
+          ${Patient.colHistoryContraceptionNoUseReason} TEXT NULL,
           ${Patient.colHistoryHIVKnowStatus} INTEGER NULL, -- history hiv
           ${Patient.colHistoryHIVLastTest} TEXT NULL, 
           ${Patient.colHistoryHIVUsedPrep} INTEGER NULL,
@@ -116,6 +119,7 @@ class DatabaseProvider {
           ${Patient.colHistoryHIVPrepDesiredSupportPNHIVKit} BIT NULL,
           ${Patient.colHistoryHIVPrepDesiredSupportOther} BIT NULL,
           ${Patient.colHistoryHIVPrepDesiredSupportOtherSpecify} TEXT NULL,
+          ${Patient.colHistoryHIVPrepStopReason} TEXT NULL,
           ${Patient.colSRHContraceptionInterest} INTEGER NULL, -- srh contraception
           ${Patient.colSRHContraceptionNoInterestReason} TEXT NULL,
           ${Patient.colSRHContraceptionInterestMaleCondom} BIT NULL, 
@@ -139,6 +143,7 @@ class DatabaseProvider {
           ${Patient.colSRHContraceptionInformationApp} INTEGER NULL,
           ${Patient.colSRHContraceptionLearnMethods} INTEGER NULL,
           ${Patient.colSRHPrepInterest} INTEGER NULL, -- srh prep
+          ${Patient.colSRHPrepNoInterestReason} TEXT NULL, 
           ${Patient.colSRHPrepInformationApp} INTEGER NULL, 
           ${Patient.colSRHPrepFindScheduleFacility} INTEGER NULL, 
           ${Patient.colSRHPrepFindScheduleFacilityYesDate} TEXT NULL, 

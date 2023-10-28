@@ -39,7 +39,7 @@ class Patient implements IExcelExportable, IJsonExportable {
   static final colMessengerDownloaded = 'downloaded_messenger';
   static final colMessengerNoDownloadReason = 'no_download_messenger_reason';
   static final colMessengerNoDownloadReasonSpecify =
-      'no_download_messenger_reason_specify'; //new
+      'no_download_messenger_reason_specify'; 
 
   //Contact information
   static final colContactPhoneNumber = 'phone_number';
@@ -79,13 +79,13 @@ class Patient implements IExcelExportable, IJsonExportable {
       'history_contraception_satisfaction';
 
   static final colHistoryContraceptionSatisfactionReason =
-      'history_contraception_satisfaction_reason'; //new
+      'history_contraception_satisfaction_reason'; 
 
   static final colHistoryContraceptionStopReason =
-      'history_contraception_stop_reason'; //new
+      'history_contraception_stop_reason'; 
 
   static final colHistoryContraceptionNoUseReason =
-      'history_contraception_no_use_reason'; //new
+      'history_contraception_no_use_reason'; 
 
   //hiv status
   static final colHistoryHIVKnowStatus = 'history_hiv_know_status';

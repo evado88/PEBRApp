@@ -305,7 +305,7 @@ class _R21PatientScreenState extends State<R21PatientScreen> {
           _buildRow('Residency', _patient.personalResidency.description),
           _buildRow(
               'Preferred way to contact', _patient.personalPreferredContactMethod.description),
-          _buildRow('Phone Number', _patient.personalPhoneNumber),
+          _buildRow('Phone Number', '+${_patient.personalPhoneNumber}'),
         ],
       ),
     );
