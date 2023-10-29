@@ -512,6 +512,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           _hivStatus(),
           _takingART(),
           _lastARTRefilDateQuestion(),
+          _artRefilCollectionClinic(),
           _specifyARTRefilCollectionClinic(),
           _problemsTakingART(),
           _questionsAboutARTMedication(),
@@ -1112,8 +1113,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
 
   Widget _contraceptiveMethodOtherSpecify() {
     if (_currentPatient.historyContraceptionUse == null ||
-        _currentPatient.historyContraceptionUse !=
-            R21ContraceptionUse.CurrentlyUsing() ||
+        _currentPatient.historyContraceptionUse ==
+            R21ContraceptionUse.HasNever() ||
         !_currentPatient.historyContraceptionOther) {
       return SizedBox();
     }
@@ -1351,6 +1352,39 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     );
   }
 
+  Widget _artRefilCollectionClinic() {
+    if ((_currentPatient.historyHIVStatus == null ||
+            _currentPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
+        (_currentPatient.historyHIVTakingART == null ||
+            _currentPatient.historyHIVTakingART != R21YesNo.YES())) {
+      return SizedBox();
+    }
+
+    return _makeQuestion(
+      'Where was refill was collected from',
+      answer: DropdownButtonFormField<R21ProviderType>(
+        value: _currentPatient.historyHIVLastRefilSource,
+        onChanged: (R21ProviderType newValue) {
+          setState(() {
+            _currentPatient.historyHIVLastRefilSource = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+        },
+        items: R21ProviderType.allValues
+            .map<DropdownMenuItem<R21ProviderType>>((R21ProviderType value) {
+          return DropdownMenuItem<R21ProviderType>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   TextEditingController _historyHIVLastRefilSourceSpecifyCtr =
       TextEditingController();
 
@@ -1381,8 +1415,10 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   TextEditingController _historyHIVARTProblemsCtr = TextEditingController();
 
   Widget _problemsTakingART() {
-    if (_currentPatient.historyHIVStatus == null ||
-        _currentPatient.historyHIVStatus != R21HIVStatus.YesPositive()) {
+    if ((_currentPatient.historyHIVStatus == null ||
+            _currentPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
+        (_currentPatient.historyHIVTakingART == null ||
+            _currentPatient.historyHIVTakingART != R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -1402,8 +1438,10 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
   TextEditingController _historyHIVARTQuestionsCtr = TextEditingController();
 
   Widget _questionsAboutARTMedication() {
-    if (_currentPatient.historyHIVStatus == null ||
-        _currentPatient.historyHIVStatus != R21HIVStatus.YesPositive()) {
+    if ((_currentPatient.historyHIVStatus == null ||
+            _currentPatient.historyHIVStatus != R21HIVStatus.YesPositive()) ||
+        (_currentPatient.historyHIVTakingART == null ||
+            _currentPatient.historyHIVTakingART != R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -4186,8 +4224,18 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       _currentPatient.personalStudyNumber = _personalStudyNumberCtr.text;
 
       //Messenger App
-      _currentPatient.messengerNoDownloadReasonSpecify =
-          _messengerNoDownloadReasonSpecifyCtr.text;
+      //only set other reason for not downloading when they vent downloaded and reason is other
+      if (_currentPatient.messengerDownloaded) {
+        _currentPatient.messengerNoDownloadReasonSpecify = null;
+      } else {
+        if (_currentPatient.messengerNoDownloadReason ==
+            NoChatDownloadReason.OTHER()) {
+          _currentPatient.messengerNoDownloadReasonSpecify =
+              _messengerNoDownloadReasonSpecifyCtr.text;
+        } else {
+          _currentPatient.messengerNoDownloadReasonSpecify = null;
+        }
+      }
 
       //Contact
       _currentPatient.personalPhoneNumber =
@@ -4196,28 +4244,87 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       //SRH HISTORY
 
       //Contraception
-      _currentPatient.historyContraceptionOtherSpecify =
-          _historyContraceptionOtherSpecifyCtr.text;
+      //only set other contraception method if they re currently using or have used in past
+      //and they ve said selected other method
+      if ((_currentPatient.historyContraceptionUse ==
+                  R21ContraceptionUse.CurrentlyUsing() ||
+              _currentPatient.historyContraceptionUse ==
+                  R21ContraceptionUse.NotCurrentButPast()) &&
+          _currentPatient.historyContraceptionOther) {
+        _currentPatient.historyContraceptionOtherSpecify =
+            _historyContraceptionOtherSpecifyCtr.text;
+      } else {
+        _currentPatient.historyContraceptionOtherSpecify = null;
+      }
 
-      _currentPatient.historyContraceptionStopReason =
-          _historyContraceptionStopReasonCtr.text;
+      //only set stop reason if used in the past but has stopped
+      if (_currentPatient.historyContraceptionUse ==
+          R21ContraceptionUse.NotCurrentButPast()) {
+        _currentPatient.historyContraceptionStopReason =
+            _historyContraceptionStopReasonCtr.text;
+      } else {
+        _currentPatient.historyContraceptionStopReason = null;
+      }
 
-      _currentPatient.historyContraceptionSatisfactionReason =
-          _historyContraceptionSatisfactionReasonCtr.text;
+      //only set stop reason if used in the past but has stopped
+      if (_currentPatient.historyContraceptionUse ==
+          R21ContraceptionUse.NotCurrentButPast()) {
+        _currentPatient.historyContraceptionStopReason =
+            _historyContraceptionStopReasonCtr.text;
+      } else {
+        _currentPatient.historyContraceptionStopReason = null;
+      }
 
-      _currentPatient.historyContraceptionNoUseReason =
-          _historyContraceptionNoUseReasonCtr.text;
+      //only set satisfaction reason if currently using
+      if (_currentPatient.historyContraceptionUse ==
+          R21ContraceptionUse.CurrentlyUsing()) {
+        _currentPatient.historyContraceptionSatisfactionReason =
+            _historyContraceptionSatisfactionReasonCtr.text;
+      } else {
+        _currentPatient.historyContraceptionSatisfactionReason = null;
+      }
+
+      //only set satisfaction reason if currently using
+      if (_currentPatient.historyContraceptionUse ==
+          R21ContraceptionUse.HasNever()) {
+        _currentPatient.historyContraceptionNoUseReason =
+            _historyContraceptionNoUseReasonCtr.text;
+      } else {
+        _currentPatient.historyContraceptionNoUseReason = null;
+      }
 
       //Hiv
-      _currentPatient.historyHIVLastRefilSourceSpecify =
-          _historyHIVLastRefilSourceSpecifyCtr.text;
+      //only set other art refil source if positive and taking art and source is other
+      if (_currentPatient.historyHIVStatus == R21HIVStatus.YesPositive() &&
+          _currentPatient.historyHIVTakingART == R21YesNo.YES() &&
+          _currentPatient.historyHIVLastRefilSource ==
+              R21ProviderType.Other()) {
+        _currentPatient.historyHIVLastRefilSourceSpecify =
+            _historyHIVLastRefilSourceSpecifyCtr.text;
+      } else {
+        _currentPatient.historyHIVLastRefilSourceSpecify = null;
+      }
 
-      _currentPatient.historyHIVARTProblems = _historyHIVARTProblemsCtr.text;
+      //only set art problems and art questions if positive and taking art
+      if (_currentPatient.historyHIVStatus == R21HIVStatus.YesPositive() &&
+          _currentPatient.historyHIVTakingART == R21YesNo.YES()) {
+        _currentPatient.historyHIVARTProblems = _historyHIVARTProblemsCtr.text;
 
-      _currentPatient.historyHIVARTQuestions = _historyHIVARTQuestionsCtr.text;
+        _currentPatient.historyHIVARTQuestions =
+            _historyHIVARTQuestionsCtr.text;
+      } else {
+        _currentPatient.historyHIVARTProblems = null;
 
-      _currentPatient.historyHIVDesiredSupportOtherSpecify =
-          _historyHIVDesiredSupportOtherSpecifyCtr.text;
+        _currentPatient.historyHIVARTQuestions = null;
+      }
+
+      //only set other desired support when other is selected
+      if (_currentPatient.historyHIVDesiredSupportOther) {
+        _currentPatient.historyHIVDesiredSupportOtherSpecify =
+            _historyHIVDesiredSupportOtherSpecifyCtr.text;
+      } else {
+        _currentPatient.historyHIVDesiredSupportOtherSpecify = null;
+      }
 
       //Prep
       _currentPatient.historyHIVPrepStopReason =

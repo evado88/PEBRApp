@@ -39,7 +39,7 @@ class Patient implements IExcelExportable, IJsonExportable {
   static final colMessengerDownloaded = 'downloaded_messenger';
   static final colMessengerNoDownloadReason = 'no_download_messenger_reason';
   static final colMessengerNoDownloadReasonSpecify =
-      'no_download_messenger_reason_specify'; 
+      'no_download_messenger_reason_specify';
 
   //Contact information
   static final colContactPhoneNumber = 'phone_number';
@@ -79,13 +79,13 @@ class Patient implements IExcelExportable, IJsonExportable {
       'history_contraception_satisfaction';
 
   static final colHistoryContraceptionSatisfactionReason =
-      'history_contraception_satisfaction_reason'; 
+      'history_contraception_satisfaction_reason';
 
   static final colHistoryContraceptionStopReason =
-      'history_contraception_stop_reason'; 
+      'history_contraception_stop_reason';
 
   static final colHistoryContraceptionNoUseReason =
-      'history_contraception_no_use_reason'; 
+      'history_contraception_no_use_reason';
 
   //hiv status
   static final colHistoryHIVKnowStatus = 'history_hiv_know_status';
@@ -497,8 +497,10 @@ class Patient implements IExcelExportable, IJsonExportable {
     this.historyContraceptionOther = map[colHistoryContraceptionOther] == 1;
 
     this.historyContraceptionSatisfaction =
-        map[colHistoryContraceptionSatisfaction] ??
-            R21Satisfaction.fromCode(map[colHistoryContraceptionSatisfaction]);
+        map[colHistoryContraceptionSatisfaction] == null
+            ? null
+            : R21Satisfaction.fromCode(
+                map[colHistoryContraceptionSatisfaction]);
 
     this.historyContraceptionSatisfactionReason =
         map[colHistoryContraceptionSatisfactionReason];
@@ -688,8 +690,7 @@ class Patient implements IExcelExportable, IJsonExportable {
     //srh prep
     this.srhPrepInterest = R21Interest.fromCode(map[colSRHPrepInterest]);
 
-    this.srhPrepNoInterestReason =
-        map[colSRHPrepNoInterestReason];
+    this.srhPrepNoInterestReason = map[colSRHPrepNoInterestReason];
 
     this.srhPrepInformationApp = map[colSRHPrepInformationApp] == null
         ? null
@@ -1114,7 +1115,10 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   /// Sets fields to null if they are not used. E.g. sets [personalPhoneNumber] to null
   /// if [personalPhoneNumberAvailability] is not YES.
-  void checkLogicAndResetUnusedFields() {}
+  void checkLogicAndResetUnusedFields() {
+
+ 
+  }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
