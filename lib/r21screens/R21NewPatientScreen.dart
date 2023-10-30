@@ -154,7 +154,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
           .patient
           .srhContraceptionFindScheduleFacilitySelected; //again
 
-      _srhContraceptionFindScheduleFacilityOtherVeryCtr.text =
+      _srhContraceptionFindScheduleFacilityNoOtherCtr.text =
           this.widget.patient.srhContraceptionFindScheduleFacilityOther;
 
       _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr.text = this
@@ -1745,7 +1745,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
 
   Widget _prepRefilCollectionClinic() {
     if ((_currentPatient.historyHIVStatus == null ||
-            _currentPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+            _currentPatient.historyHIVStatus != R21HIVStatus.YesNegative()) ||
         (_currentPatient.historyHIVUsedPrep == null ||
             _currentPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
       return SizedBox();
@@ -1781,9 +1781,12 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
 
   Widget _specifyPrepRefilCollectionClinic() {
     if ((_currentPatient.historyHIVStatus == null ||
-            _currentPatient.historyHIVStatus == R21HIVStatus.YesPositive()) ||
+            _currentPatient.historyHIVStatus != R21HIVStatus.YesNegative()) ||
         (_currentPatient.historyHIVUsedPrep == null ||
-            _currentPatient.historyHIVUsedPrep != R21PrEP.YesCurrently())) {
+            _currentPatient.historyHIVUsedPrep != R21PrEP.YesCurrently()) ||
+        (_currentPatient.historyHIVPrepLastRefilSource == null ||
+            _currentPatient.historyHIVPrepLastRefilSource !=
+                R21ProviderType.Other())) {
       return SizedBox();
     }
     return _makeQuestion(
@@ -2439,7 +2442,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
         forceColumn: true);
   }
 
-  TextEditingController _srhContraceptionFindScheduleFacilityOtherVeryCtr =
+  TextEditingController _srhContraceptionFindScheduleFacilityNoOtherCtr =
       TextEditingController();
 
   Widget _interestContraceptionNotNowDateOther() {
@@ -2447,8 +2450,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
             _currentPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_currentPatient.srhContraceptionFindScheduleFacility == null ||
-            _currentPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.YES()) ||
+            _currentPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO()) ||
         (_currentPatient.srhContraceptionFindScheduleFacilityNoDate == null ||
             _currentPatient.srhContraceptionFindScheduleFacilityNoDate !=
                 R21Week.Other())) {
@@ -2456,9 +2459,9 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
     }
 
     return _makeQuestion(
-      'Specify other date',
+      'Specify other date [[VeryNoOther]]',
       answer: TextFormField(
-        controller: _srhContraceptionFindScheduleFacilityOtherVeryCtr,
+        controller: _srhContraceptionFindScheduleFacilityNoOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please specify date';
@@ -2532,11 +2535,11 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
             _currentPatient.srhContraceptionInterest !=
                 R21Interest.VeryInterested()) ||
         (_currentPatient.srhContraceptionFindScheduleFacility == null ||
-            _currentPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.YES()) ||
+            _currentPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.NO()) ||
         (_currentPatient.srhContraceptionFindScheduleFacilityNoPick == null ||
-            _currentPatient.srhContraceptionFindScheduleFacilityNoPick ==
-                R21YesNo.NO())) {
+            _currentPatient.srhContraceptionFindScheduleFacilityNoPick !=
+                R21YesNo.YES())) {
       return SizedBox();
     }
 
@@ -2724,7 +2727,7 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       return SizedBox();
     }
     return _makeQuestion(
-      'Specify other method',
+      'Specify other method [[Maybe]]',
       answer: TextFormField(
         controller: _srhContraceptionInterestOtherSpecifyMaybeCtr,
         validator: (value) {
@@ -2894,8 +2897,8 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
             _currentPatient.srhContraceptionInterest !=
                 R21Interest.MaybeInterested()) ||
         (_currentPatient.srhContraceptionFindScheduleFacility == null ||
-            _currentPatient.srhContraceptionFindScheduleFacility ==
-                R21YesNoUnsure.NO())) {
+            _currentPatient.srhContraceptionFindScheduleFacility !=
+                R21YesNoUnsure.YES())) {
       return SizedBox();
     }
     return _makeQuestion(
@@ -4327,76 +4330,227 @@ class _R21NewFlatPatientFormState extends State<R21NewPatientScreen> {
       }
 
       //Prep
-      _currentPatient.historyHIVPrepStopReason =
-          _historyHIVPrepStopReasonCtr.text;
 
-      _currentPatient.historyHIVPrepLastRefilSourceSpecify =
-          _historyHIVPrepLastRefilSourceSpecifyCtr.text;
+      //only set prep stop reason if client is negative and used to take prep
+      if (_currentPatient.historyHIVStatus == R21HIVStatus.YesNegative() &&
+          _currentPatient.historyHIVUsedPrep == R21PrEP.YesNotCurrently()) {
+        _currentPatient.historyHIVPrepStopReason =
+            _historyHIVPrepStopReasonCtr.text;
+      } else {
+        _currentPatient.historyHIVPrepStopReason = null;
+      }
 
-      _currentPatient.historyHIVPrepProblems = _historyHIVPrepProblemsCtr.text;
+      //only set date of last repr refil, problems taking prep, questions taking prep
+      //if client is negative and takinbg prep
+      if (_currentPatient.historyHIVStatus == R21HIVStatus.YesNegative() &&
+          _currentPatient.historyHIVUsedPrep == R21PrEP.YesCurrently()) {
+        _currentPatient.historyHIVPrepProblems =
+            _historyHIVPrepProblemsCtr.text;
 
-      _currentPatient.historyHIVPrepQuestions =
-          _historyHIVPrepQuestionsCtr.text;
+        _currentPatient.historyHIVPrepQuestions =
+            _historyHIVPrepQuestionsCtr.text;
+      } else {
+        _currentPatient.historyHIVPrepProblems = null;
+        _currentPatient.historyHIVPrepQuestions = null;
+      }
 
-      _currentPatient.historyHIVPrepDesiredSupportOtherSpecify =
-          _historyHIVPrepDesiredSupportOtherSpecifyCtr.text;
+      //only set specify prep collection source if
+      //if client is negative and taking prep and collection source is other
+      if (_currentPatient.historyHIVStatus == R21HIVStatus.YesNegative() &&
+          _currentPatient.historyHIVUsedPrep == R21PrEP.YesCurrently() &&
+          _currentPatient.historyHIVPrepLastRefilSource ==
+              R21ProviderType.Other()) {
+        _currentPatient.historyHIVPrepLastRefilSourceSpecify =
+            _historyHIVPrepLastRefilSourceSpecifyCtr.text;
+      } else {
+        _currentPatient.historyHIVPrepLastRefilSourceSpecify = null;
+      }
+
+      //only set prep desired support if
+      //if client is negative and taking prep and needs other support
+      if (_currentPatient.historyHIVStatus == R21HIVStatus.YesNegative() &&
+          _currentPatient.historyHIVUsedPrep == R21PrEP.YesCurrently() &&
+          _currentPatient.historyHIVDesiredSupportOther) {
+        _currentPatient.historyHIVPrepDesiredSupportOtherSpecify =
+            _historyHIVPrepDesiredSupportOtherSpecifyCtr.text;
+      } else {
+        _currentPatient.historyHIVPrepDesiredSupportOtherSpecify = null;
+      }
 
       //SRH PREFERENCE
 
       //contraception
-      _currentPatient.srhContraceptionInterestOtherSpecify =
-          _srhContraceptionInterestOtherSpecifyCtr.text;
+      //only specify no contraception interest if no interested in contraception
+      if (_currentPatient.srhContraceptionInterest ==
+          R21Interest.NoInterested()) {
+        _currentPatient.srhContraceptionInterestOtherSpecify =
+            _srhContraceptionInterestOtherSpecifyCtr.text;
+      } else {
+        _currentPatient.srhContraceptionInterestOtherSpecify = null;
+      }
 
-      _currentPatient.srhContraceptionFindScheduleFacilitySelected =
-          _srhContraceptionFindScheduleFacilitySelectedVeryYesCtr.text; //again
+      //only specify selected facility if client is very interested and
+      //wants to pick facility now
+      if (_currentPatient.srhContraceptionInterest ==
+              R21Interest.VeryInterested() &&
+          _currentPatient.srhContraceptionFindScheduleFacility ==
+              R21YesNoUnsure.YES()) {
+        _currentPatient.srhContraceptionFindScheduleFacilitySelected =
+            _srhContraceptionFindScheduleFacilitySelectedVeryYesCtr.text;
+      }
 
-      _currentPatient.srhContraceptionFindScheduleFacilityOther =
-          _srhContraceptionFindScheduleFacilityOtherVeryCtr.text;
+      //only set specify other date if client is very intested,
+      //doesnt not want to pick facility and chooses other on date
+      if (_currentPatient.srhContraceptionInterest ==
+              R21Interest.VeryInterested() &&
+          _currentPatient.srhContraceptionFindScheduleFacility ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhContraceptionFindScheduleFacilityNoDate ==
+              R21Week.Other()) {
+        _currentPatient.srhContraceptionFindScheduleFacilityOther =
+            _srhContraceptionFindScheduleFacilityNoOtherCtr.text;
+      } else {
+        _currentPatient.srhContraceptionFindScheduleFacilityOther = null;
+      }
 
-      _currentPatient.srhContraceptionFindScheduleFacilitySelected =
-          _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr
-              .text; //again
+      //only set slected facility if client is very intested,
+      //doesnt not want to pick facility and chooses yes on pick facility
+      if (_currentPatient.srhContraceptionInterest ==
+              R21Interest.VeryInterested() &&
+          _currentPatient.srhContraceptionFindScheduleFacility ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhContraceptionFindScheduleFacilityNoPick ==
+              R21YesNo.YES()) {
+        _currentPatient.srhContraceptionFindScheduleFacilitySelected =
+            _srhContraceptionFindScheduleFacilitySelectedVeryNoYesCtr
+                .text; //again
+      }
 
-      _currentPatient.srhContraceptionInterestOtherSpecify =
-          _srhContraceptionInterestOtherSpecifyMaybeCtr.text; //again
+      //only set specify contraception other if client is very intested,
+      //doesnt not want to pick facility and chooses yes on pick facility
+      if (_currentPatient.srhContraceptionInterest ==
+              R21Interest.MaybeInterested() &&
+          _currentPatient.srhContraceptionInterestOther) {
+        _currentPatient.srhContraceptionInterestOtherSpecify =
+            _srhContraceptionInterestOtherSpecifyMaybeCtr.text;
+      }
 
-      _currentPatient.srhContraceptionFindScheduleFacilitySelected =
-          _srhContraceptionFindScheduleFacilitySelectedMaybeCtr.text; //again
+      //only set selected facility if contraception interest is maybe
+      //and find schedule facility is yes
+      if (_currentPatient.srhContraceptionInterest ==
+              R21Interest.MaybeInterested() &&
+          _currentPatient.srhContraceptionFindScheduleFacility ==
+              R21YesNoUnsure.YES()) {
+        _currentPatient.srhContraceptionFindScheduleFacilitySelected =
+            _srhContraceptionFindScheduleFacilitySelectedMaybeCtr.text;
+      }
 
-      _currentPatient.srhContraceptionFindScheduleFacilityOther =
-          _srhContraceptionFindScheduleFacilityOtherMaybeNotNowCtr.text; //again
+      //only set selected facility if contraception interest is maybe
+      //and find schedule facility is no and selected date is other
+      if (_currentPatient.srhContraceptionInterest ==
+              R21Interest.MaybeInterested() &&
+          _currentPatient.srhContraceptionFindScheduleFacility ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhContraceptionFindScheduleFacilityNoDate ==
+              R21Week.Other()) {
+        _currentPatient.srhContraceptionFindScheduleFacilityOther =
+            _srhContraceptionFindScheduleFacilityOtherMaybeNotNowCtr.text;
+      }
 
-      _currentPatient.srhContraceptionFindScheduleFacilitySelected =
-          _srhContraceptionFindScheduleFacilitySelectedMaybeNotNowCtr
-              .text; //again
+      //only set selected facility if contraception interest is maybe
+      //and find schedule facility is no and pick facility is yes
+      if (_currentPatient.srhContraceptionInterest ==
+              R21Interest.MaybeInterested() &&
+          _currentPatient.srhContraceptionFindScheduleFacility ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhContraceptionFindScheduleFacilityNoPick ==
+              R21YesNo.YES()) {
+        _currentPatient.srhContraceptionFindScheduleFacilitySelected =
+            _srhContraceptionFindScheduleFacilitySelectedMaybeNotNowCtr.text;
+      }
 
-      _currentPatient.srhContraceptionNoInterestReason =
-          _srhContraceptionNoInterestReasonCtr.text;
+      //only set reason for no interest in contraception if
+      //contraception interest is not interested
+      if (_currentPatient.srhContraceptionInterest ==
+          R21Interest.NoInterested()) {
+        _currentPatient.srhContraceptionNoInterestReason =
+            _srhContraceptionNoInterestReasonCtr.text;
+      } else {
+        _currentPatient.srhContraceptionNoInterestReason = null;
+      }
 
       //prep
-      _currentPatient.srhPrepNoInterestReason =
-          _srhPrepNoInterestReasonCtr.text;
 
-      _currentPatient.srhPrepFindScheduleFacilitySelected =
-          _srhPrepFindScheduleFacilitySelectedVeryYesCtr.text;
+      //only set reason for no interest in prep if
+      //prep interest is not interested
+      if (_currentPatient.srhPrepInterest == R21Interest.NoInterested()) {
+        _currentPatient.srhPrepNoInterestReason =
+            _srhPrepNoInterestReasonCtr.text;
+      } else {
+        _currentPatient.srhPrepNoInterestReason = null;
+      }
 
-      _currentPatient.srhPrepFindScheduleFacilityOther =
-          _srhPrepFindScheduleFacilityOtherNotNowDateCtr.text;
+      //only set selected facility if very interested in prep and schedule
+      //facility is yes
+      if (_currentPatient.srhPrepInterest == R21Interest.VeryInterested() &&
+          _currentPatient.srhPrepFindScheduleFacilitySchedule ==
+              R21YesNoUnsure.YES()) {
+        _currentPatient.srhPrepFindScheduleFacilitySelected =
+            _srhPrepFindScheduleFacilitySelectedVeryYesCtr.text;
+      }
 
-      _currentPatient.srhPrepFindScheduleFacilitySelected =
-          _srhPrepFindScheduleFacilitySelectedVeryNotNowCtr.text;
+      //only set sschedule date if very interested in prep and schedule
+      //facility is no and pick date is no
+      if (_currentPatient.srhPrepInterest == R21Interest.VeryInterested() &&
+          _currentPatient.srhPrepFindScheduleFacilitySchedule ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhPrepFindScheduleFacilityNoDate ==
+              R21Week.Other()) {
+        _currentPatient.srhPrepFindScheduleFacilityOther =
+            _srhPrepFindScheduleFacilityOtherNotNowDateCtr.text;
+      }
 
-      _currentPatient.srhPrepFindScheduleFacilitySelected =
-          _srhPrepFindScheduleFacilitySelectedMaybeYesCtr.text;
+      //only set sschedule date if very interested in prep and schedule
+      //facility is no and pick facility is yes
+      if (_currentPatient.srhPrepInterest == R21Interest.VeryInterested() &&
+          _currentPatient.srhPrepFindScheduleFacilitySchedule ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhPrepFindScheduleFacilityNoPick == R21YesNo.YES()) {
+        _currentPatient.srhPrepFindScheduleFacilitySelected =
+            _srhPrepFindScheduleFacilitySelectedVeryNotNowCtr.text;
+      }
 
-      _currentPatient.srhPrepFindScheduleFacilityOther =
-          _srhPrepFindScheduleFacilityOtherCtr.text;
+      //only set selected facility if maybe interested in prep and schedule
+      //facility is yes
+      if (_currentPatient.srhPrepInterest == R21Interest.MaybeInterested() &&
+          _currentPatient.srhPrepFindScheduleFacilitySchedule ==
+              R21YesNoUnsure.YES()) {
+        _currentPatient.srhPrepFindScheduleFacilitySelected =
+            _srhPrepFindScheduleFacilitySelectedMaybeYesCtr.text;
+      }
 
-      _currentPatient.srhPrepFindScheduleFacilitySelected =
-          _srhPrepFindScheduleFacilitySelectedMaybeNoYesCtr.text;
+      //only set specify date if maybe interested in prep and schedule
+      //facility is no and selected date is other
+      if (_currentPatient.srhPrepInterest == R21Interest.MaybeInterested() &&
+          _currentPatient.srhPrepFindScheduleFacilitySchedule ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhPrepFindScheduleFacilityNoDate ==
+              R21Week.Other()) {
+        _currentPatient.srhPrepFindScheduleFacilityOther =
+            _srhPrepFindScheduleFacilityOtherCtr.text;
+      }
+
+      //only set selected facilkity if maybe interested in prep and schedule
+      //facility is no and pick facility is yes
+      if (_currentPatient.srhPrepInterest == R21Interest.MaybeInterested() &&
+          _currentPatient.srhPrepFindScheduleFacilitySchedule ==
+              R21YesNoUnsure.NO() &&
+          _currentPatient.srhPrepFindScheduleFacilityNoPick == R21YesNo.YES()) {
+        _currentPatient.srhPrepFindScheduleFacilitySelected =
+            _srhPrepFindScheduleFacilitySelectedMaybeNoYesCtr.text;
+      }
 
       //Save process
-      _currentPatient.checkLogicAndResetUnusedFields();
 
       await _currentPatient.initializeRequiredActionsField();
 

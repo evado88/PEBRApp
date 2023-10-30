@@ -1113,12 +1113,6 @@ class Patient implements IExcelExportable, IJsonExportable {
     return mostRecent;
   }
 
-  /// Sets fields to null if they are not used. E.g. sets [personalPhoneNumber] to null
-  /// if [personalPhoneNumberAvailability] is not YES.
-  void checkLogicAndResetUnusedFields() {
-
- 
-  }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
