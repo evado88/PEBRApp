@@ -5,6 +5,7 @@ import 'package:pebrapp/database/R21ExportInfo.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/R21Followup.dart';
 import 'package:pebrapp/database/models/R21ScreenAnalytic.dart';
+import 'package:pebrapp/database/models/R21SentResource.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/SupportOptionDone.dart';
@@ -141,10 +142,12 @@ class DatabaseProvider {
           ${Patient.colSRHContraceptionFindScheduleFacilitySelected} TEXT NULL,
           ${Patient.colSRHContraceptionFindScheduleFacilityOther} TEXT NULL,
           ${Patient.colSRHContraceptionInformationApp} INTEGER NULL,
+          ${Patient.colSRHContraceptionInformationAppSent} BIT NULL,
           ${Patient.colSRHContraceptionLearnMethods} INTEGER NULL,
           ${Patient.colSRHPrepInterest} INTEGER NULL, -- srh prep
           ${Patient.colSRHPrepNoInterestReason} TEXT NULL, 
           ${Patient.colSRHPrepInformationApp} INTEGER NULL, 
+          ${Patient.colSRHPrepInformationAppSent} BIT NULL, 
           ${Patient.colSRHPrepFindScheduleFacility} INTEGER NULL, 
           ${Patient.colSRHPrepFindScheduleFacilityYesDate} TEXT NULL, 
           ${Patient.colSRHPrepFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
@@ -189,13 +192,16 @@ class DatabaseProvider {
           ${R21Followup.colSRHContraceptionFindScheduleFacilitySelected} TEXT NULL,
           ${R21Followup.colSRHContraceptionFindScheduleFacilityOther} INTEGER NULL,
           ${R21Followup.colSRHContraceptionInformationApp} INTEGER NULL,
+          ${R21Followup.colSRHContraceptionInformationAppSent} BIT NULL,
           ${R21Followup.colSRHContraceptionLearnMethods} INTEGER NULL,
           ${R21Followup.colSRHPrepStarted} INTEGER NULL, -- srh prep
           ${R21Followup.colSRHPrepStartedProblems} INTEGER NULL, 
           ${R21Followup.colSRHPrepStartedSideffects} TEXT NULL, 
           ${R21Followup.colSRHPrepStartedOther} TEXT NULL, 
           ${R21Followup.colSRHPrepInterest} INTEGER NULL, 
+          ${R21Followup.colSRHPrepNoInterestReason} TEXT NULL, 
           ${R21Followup.colSRHPrepInformationApp} INTEGER NULL, 
+          ${R21Followup.colSRHPrepInformationAppSent} BIT NULL, 
           ${R21Followup.colSRHPrepFindScheduleFacility} INTEGER NULL, 
           ${R21Followup.colSRHPrepFindScheduleFacilityYesDate} TEXT NULL, 
           ${R21Followup.colSRHPrepFindScheduleFacilityYesPNAccompany} INTEGER NULL, 
@@ -220,7 +226,20 @@ class DatabaseProvider {
           ${R21ScreenAnalytic.colSubject} TEXT
         );
         """);
-
+  
+    // R21SentResource table:
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS ${R21SentResource.tableName} (
+          ${R21SentResource.colId} INTEGER PRIMARY KEY,
+          ${R21SentResource.colCreatedDate} TEXT NOT NULL,
+          ${R21SentResource.colUser} TEXT NOT NULL,
+          ${R21SentResource.colParticipant} TEXT NOT NULL,
+          ${R21SentResource.colResource} INTEGER NOT NULL,
+          ${R21SentResource.colDate} TEXT NOT NULL
+        );
+        """);
+    
+    // R21Users table:
     await db.execute("""
         CREATE TABLE IF NOT EXISTS ${UserData.tableName} (
           ${UserData.colId} INTEGER PRIMARY KEY,

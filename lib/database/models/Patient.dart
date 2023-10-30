@@ -221,15 +221,20 @@ class Patient implements IExcelExportable, IJsonExportable {
   static final colSRHContraceptionInformationApp =
       'srh_contraception_information_app';
 
+  static final colSRHContraceptionInformationAppSent =
+      'srh_contraception_information_app_sent';
+
   static final colSRHContraceptionLearnMethods =
       'srh_contraception_learn_methods';
 
   //prep
   static final colSRHPrepInterest = 'srh_prep_interest';
 
-  static final colSRHPrepNoInterestReason = 'srh_prep_no_interest_reason'; //new
+  static final colSRHPrepNoInterestReason = 'srh_prep_no_interest_reason'; 
 
   static final colSRHPrepInformationApp = 'srh_prep_information_app';
+
+  static final colSRHPrepInformationAppSent = 'srh_prep_information_app_sent';
 
   static final colSRHPrepFindScheduleFacility =
       'srh_prep_find_schedule_facility';
@@ -404,6 +409,8 @@ class Patient implements IExcelExportable, IJsonExportable {
 
   R21YesNo srhContraceptionInformationApp;
 
+  R21YesNo srhContraceptionInformationAppSent;
+
   R21YesNo srhContraceptionLearnMethods;
 
 //prep
@@ -428,6 +435,8 @@ class Patient implements IExcelExportable, IJsonExportable {
   String srhPrepFindScheduleFacilityOther;
 
   R21YesNo srhPrepInformationApp;
+
+  R21YesNo srhPrepInformationAppSent;
 
   List<R21Followup> followups = [];
 
@@ -682,6 +691,11 @@ class Patient implements IExcelExportable, IJsonExportable {
             ? null
             : R21YesNo.fromCode(map[colSRHContraceptionInformationApp]);
 
+    this.srhContraceptionInformationAppSent =
+        map[colSRHContraceptionInformationAppSent] == null
+            ? null
+            : R21YesNo.fromCode(map[colSRHContraceptionInformationAppSent]);
+
     this.srhContraceptionLearnMethods =
         map[colSRHContraceptionLearnMethods] == null
             ? null
@@ -695,6 +709,10 @@ class Patient implements IExcelExportable, IJsonExportable {
     this.srhPrepInformationApp = map[colSRHPrepInformationApp] == null
         ? null
         : R21YesNo.fromCode(map[colSRHPrepInformationApp]);
+
+    this.srhPrepInformationAppSent = map[colSRHPrepInformationAppSent] == null
+        ? null
+        : R21YesNo.fromCode(map[colSRHPrepInformationAppSent]);
 
     this.srhPrepFindScheduleFacilitySchedule =
         map[colSRHPrepFindScheduleFacility] == null
@@ -1112,7 +1130,6 @@ class Patient implements IExcelExportable, IJsonExportable {
     }
     return mostRecent;
   }
-
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.

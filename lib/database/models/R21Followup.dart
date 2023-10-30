@@ -95,6 +95,9 @@ class R21Followup implements IExcelExportable, IJsonExportable {
   static final colSRHContraceptionInformationApp =
       'srh_contraception_information_app';
 
+  static final colSRHContraceptionInformationAppSent =
+      'srh_contraception_information_app_sent';
+
   static final colSRHContraceptionLearnMethods =
       'srh_contraception_learn_methods';
 
@@ -109,7 +112,11 @@ class R21Followup implements IExcelExportable, IJsonExportable {
 
   static final colSRHPrepInterest = 'srh_prep_interest';
 
+  static final colSRHPrepNoInterestReason = 'srh_prep_no_interest_reason';
+
   static final colSRHPrepInformationApp = 'srh_prep_information_app';
+
+  static final colSRHPrepInformationAppSent = 'srh_prep_information_app_sent';
 
   static final colSRHPrepFindScheduleFacility =
       'srh_prep_find_schedule_facility';
@@ -193,6 +200,8 @@ class R21Followup implements IExcelExportable, IJsonExportable {
 
   R21YesNo srhContraceptionInformationApp;
 
+  R21YesNo srhContraceptionInformationAppSent;
+
   R21YesNo srhContraceptionLearnMethods;
 
 //prep
@@ -206,7 +215,11 @@ class R21Followup implements IExcelExportable, IJsonExportable {
 
   R21Interest srhPrepInterest;
 
+  String srhPrepNoInterestReason;
+
   R21YesNo srhPrepInformationApp;
+
+  R21YesNo srhPrepInformationAppSent;
 
   R21YesNoUnsure srhPrepFindScheduleFacilitySchedule;
 
@@ -234,7 +247,9 @@ class R21Followup implements IExcelExportable, IJsonExportable {
 
     this.studyNo = map[colPersonalStudyNo];
 
-    this.nextDate = map[colFollowNextDate] == null ? null : DateTime.parse(map[colFollowNextDate]);
+    this.nextDate = map[colFollowNextDate] == null
+        ? null
+        : DateTime.parse(map[colFollowNextDate]);
 
     //srh contraception
     this.srhContraceptionStarted = map[colSRHContraceptionStarted] == null
@@ -343,6 +358,11 @@ class R21Followup implements IExcelExportable, IJsonExportable {
             ? null
             : R21YesNo.fromCode(map[colSRHContraceptionInformationApp]);
 
+    this.srhContraceptionInformationAppSent =
+        map[colSRHContraceptionInformationAppSent] == null
+            ? null
+            : R21YesNo.fromCode(map[colSRHContraceptionInformationAppSent]);
+
     this.srhContraceptionLearnMethods =
         map[colSRHContraceptionLearnMethods] == null
             ? null
@@ -363,9 +383,15 @@ class R21Followup implements IExcelExportable, IJsonExportable {
 
     this.srhPrepInterest = R21Interest.fromCode(map[colSRHPrepInterest]);
 
+    this.srhPrepNoInterestReason = map[colSRHPrepNoInterestReason];
+
     this.srhPrepInformationApp = map[colSRHPrepInformationApp] == null
         ? null
         : R21YesNo.fromCode(map[colSRHPrepInformationApp]);
+
+    this.srhPrepInformationAppSent = map[colSRHPrepInformationAppSent] == null
+        ? null
+        : R21YesNo.fromCode(map[colSRHPrepInformationAppSent]);
 
     this.srhPrepFindScheduleFacilitySchedule =
         map[colSRHPrepFindScheduleFacility] == null
